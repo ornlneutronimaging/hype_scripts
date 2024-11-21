@@ -196,12 +196,21 @@ def main():
             std_out, std_err = proc.communicate()
             logging.info(f"\t{std_out = }")
             logging.info(f"\t{std_err = }")
-            logging.info(f"reduction done!")
+
+            if not std_err:
+                logging.info(f"reduction done!")
+                final_destination = os.path.join(OUTPUT_FOLDER_ON_HYPE, base_name_folder_to_reduce, os.path.basename(run))
+                logging.info(f"copying folder {output_folder} to {final_destination} ...")
             
-            final_destination = os.path.join(OUTPUT_FOLDER_ON_HYPE, base_name_folder_to_reduce, os.path.basename(run))
-            logging.info(f"copying folder {output_folder} to {final_destination} ...")
-            shutil.copytree(output_folder, final_destination)
-            logging.info(f"\tdone!")
+                if os.path.exists(final_destination):
+                    shutil.rmtree(final_destination)
+
+                shutil.copytree(output_folder, final_destination)
+                logging.info(f"\tdone!")
+
+            else:
+                logging.info(f"FAILED!")
+                continue
 
             config['list_of_runs_reduced'].append(os.path.basename(os.path.dirname(run)))
 
