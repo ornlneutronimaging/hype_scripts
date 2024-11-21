@@ -1,5 +1,6 @@
 ai_pre_process_running: true
 ai_process_running: true
+ai_process_paused: false
 debugging: false
 DataPath: /storage/gxt/purple_car_data
 OutPath: /storage/gxt/Nov19_test

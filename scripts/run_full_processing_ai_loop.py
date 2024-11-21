@@ -105,7 +105,7 @@ def main():
     # flag is ON, keep going
 
     # check if any of the output folders has been created yet
-    projections_folder_prefix = os.path.join(MCP_FOLDER, config['experiment_title'])
+    projections_folder_prefix = os.path.join(MCP_FOLDER, "*" + config['experiment_title'])
     list_of_projections_folders_raw = glob.glob(projections_folder_prefix + "_*")
 
     # no folder starting with those prefixes was found
@@ -168,6 +168,11 @@ def main():
     for _folder in list_new_folders_to_reduce:
         logging.info(f"\t{os.path.basename(_folder)}")
 
+    if len(list_new_folders_to_reduce) > 0:
+        config['ai_process_running'] =  False
+        with open(CONFIG_FILE_NAME, 'w') as write_out:
+            yaml.dump(config, write_out, sort_keys=False)
+
     # launching auto_reduction of that folder
     for _folder_to_reduce in list_new_folders_to_reduce:
 
@@ -212,10 +217,15 @@ def main():
                 logging.info(f"FAILED!")
                 continue
 
-            config['list_of_runs_reduced'].append(os.path.basename(os.path.dirname(run)))
+            #config['list_of_runs_reduced'].append(os.path.basename(os.path.dirname(run)))
 
             # update number of runs reduced - this way the notebook will know when to continue
-            config['number_of_runs_reduced_and_moved'] += 1
+            #config['number_of_runs_reduced_and_moved'] += 1
+
+    # reactivate next cronjob
+    config['ai_process_paused'] =  False
+    with open(CONFIG_FILE_NAME, 'w') as write_out:
+        yaml.dump(config, write_out, sort_keys=False)
 
     # update list of folders found
     current_list_of_projections_folders = glob.glob(projections_folder_prefix + "_*")
@@ -238,9 +248,14 @@ def main():
 
 
 if __name__ == "__main__":
-	logging.basicConfig(filename=LOG_FILE_NAME,
+    logging.basicConfig(filename=LOG_FILE_NAME,
 						filemode='a',  # 'w'
 						format="[%(levelname)s] - %(asctime)s - %(message)s",
 						level=logging.INFO)
-	logging.info("*** Starting checking for new files - version 12/18/2024")
-	main()
+    
+    with open(CONFIG_FILE_NAME, 'r') as stream:
+        config = yaml.safe_load(stream)
+
+    if not (config['ai_process_paused'] is True):
+        logging.info("*** Starting checking for new files - version 12/18/2024")
+        main()
