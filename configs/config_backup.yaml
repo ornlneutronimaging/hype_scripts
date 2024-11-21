@@ -1,0 +1,73 @@
+ai_process_running: true
+debugging: true
+
+DataPath: '/storage/gxt/hype_test_data'
+OutPath : '/storage/gxt/ai_loop_large_recon_output' # '/SNS/users/gxt/Desktop' #
+
+proj_str : '*CT_GS_loopCronTest_10C*'   # '*test*'
+cali_str : '*March5_cali*'
+ob_dir : '*OB*'   
+ob_list: ['file1', 'file2']
+
+log_name : '/storage/gxt/hype_test_output/logs/shimin_log.log'
+
+step: 3
+QIthresh: 6
+num_ini_ang : 3
+Max_ang_num: 55
+Angle_mode: 'golden'    #'ai'
+
+wav_idx_start : [270, 500] #[500] #[500] #[308] #[200, 500, 800]
+wav_idx_end : [480, 710] #[710] #[550] #[363] #[210, 510, 810]
+
+Z_START : [200, 275, 350]
+Z_NUM : [50, 50, 50]
+crop_cols : 200   # [10, 20]   left, right
+
+align_paras:
+ x_off : 2
+ y_off : 2
+ cent_x : 256
+ cent_y: 256   # z_numSlice//2
+ unused_pix_num : 1
+ neighbor_pix_num : 3
+
+# reconstruction prameters
+center_offset : -4   # pixel value from center (- to the left, + to the right)
+num_threads : 248
+T : 2.0
+p : 1.2
+sharpness : 0.0
+snr_db : 30.0
+max_iterations : 200
+
+# Evaluation
+roi_info:
+  roi_x : 10
+  roi_y : 10
+  roi_height : 379
+  roi_width : 379
+
+eva_paras:
+  alpha : 0.6
+  beta : 0.4
+
+#EIC
+EIC_vals:
+  run_title: HypeCT_test
+  motor_pv: BL10:Mot:rot1
+
+canny_paras:
+ a: 0.3
+ b: 0.7
+ sigma: 4
+
+hough_paras:
+ line_length: 20
+ line_gap: 10
+
+SIM: False
+
+# used by notebook
+experiment_title: this_is_the_title_of_the_experiment
+proton_charge: 1
