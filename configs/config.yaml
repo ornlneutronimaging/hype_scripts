@@ -39,7 +39,7 @@ canny_paras:
 center_offset: -5.75
 crop_cols:
 - 0
-- 503
+- 504
 debugging: false
 eva_paras:
   alpha: 0.6
@@ -85,6 +85,6 @@ sharpness: 0.0
 snr_db: 30.0
 step: 3
 wav_idx_end:
-- 480
+- 800
 wav_idx_start:
-- 270
+- 50
