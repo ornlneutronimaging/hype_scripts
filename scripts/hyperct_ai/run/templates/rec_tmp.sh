@@ -5,10 +5,11 @@
 #SBATCH --mem=64G 
 #SBATCH --partition=cpu
 #SBATCH --tmp=50G
-#SBATCH --output=/home/gxt/Projects/outputs/OUTPUT_FILE.txt
+#SBATCH --output=LOG_PTH/PREFIX_output.txt
 #SBATCH --open-mode=append
-#SBATCH --error=/home/gxt/Projects/error/%x_%j.err
+#SBATCH --error=LOG_PTH/PREFIX_error.err 
 
+# %x_%j
 echo "Job start at $(date)" 
 start=$(date +%s)
 
