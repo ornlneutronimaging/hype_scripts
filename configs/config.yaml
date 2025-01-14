@@ -88,3 +88,4 @@ wav_idx_end:
 - 800
 wav_idx_start:
 - 50
+model_pth: "/storage/gxt/cnn_model_save/New_Epoch-100-Test_loss-0.9707233309745789.pth"
