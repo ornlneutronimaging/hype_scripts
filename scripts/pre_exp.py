@@ -1,5 +1,5 @@
 # %%
-from _temp_hyperct_utils import eic_submit_table_scan
+from AInCT.utils import eic_submit_table_scan
 import yaml, argparse
 # %%
 

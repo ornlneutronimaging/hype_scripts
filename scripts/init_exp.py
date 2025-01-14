@@ -1,5 +1,5 @@
 # %%
-from _temp_hyperct_utils import generate_gs_angle, eic_submit_table_scan
+from AInCT.utils import generate_gs_angle, eic_submit_table_scan
 import argparse, yaml
 import shutil
 # %%
