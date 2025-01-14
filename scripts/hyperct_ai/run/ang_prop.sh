@@ -5,9 +5,9 @@
 #SBATCH --mem=64G 
 #SBATCH --partition=cpu
 #SBATCH --tmp=50G
-#SBATCH --output=/home/gxt/Projects/outputs/test_haha.txt
+#SBATCH --output=/home/gxt/Projects/outputs/ceshi_output.txt
 #SBATCH --open-mode=append
-#SBATCH --error=/home/gxt/Projects/error/%x_%j.err
+#SBATCH --error=/home/gxt/Projects/outputs/ceshi_error.err
 
 echo "Job start at $(date)"
 start=$(date +%s)

@@ -14,7 +14,7 @@ echo "Job start at $(date)"
 start=$(date +%s)
 
 source /home/gxt/miniconda3/bin/activate /home/gxt/miniconda3/envs/image
-python /home/gxt/Projects/hype_ipts_33531/scripts/hyperct_ai/scrs/ai_loop.py --mode='recon' --wav_idx=0 
+python /home/gxt/Projects/hype_ipts_33531/scripts/hyperct_ai/scrs/ai_loop.py --mode='recon' --wav_idx=1 
 
 echo "Job end at $(date)" 
 end=$(date +%s)

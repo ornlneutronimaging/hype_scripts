@@ -7,9 +7,9 @@
 #SBATCH --gres=gpu:h100:1
 #SBATCH --tmp=50G
 #SBATCH --time=00:30:00
-#SBATCH --output=/home/gxt/Projects/outputs/test_haha.txt
+#SBATCH --output=/home/gxt/Projects/outputs/ceshi_ouput.txt
 #SBATCH --open-mode=append
-#SBATCH --error=/home/gxt/Projects/error/%x_%j.err
+#SBATCH --error=/home/gxt/Projects/outputs/ceshi_error.err
 
 
 echo "Job start at $(date)"
