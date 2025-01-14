@@ -2,6 +2,7 @@ import yaml, datetime, svmbir, dxchange
 import pandas as pd
 from skimage.io import imread
 # %%
+# Need install ctqa and AInCT first
 from AInCT.DataLoader import ProjLoader
 from AInCT.Calibrator import NICalibrator
 from AInCT.Evaluator import CNNEVA
