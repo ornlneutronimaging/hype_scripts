@@ -30,6 +30,8 @@ cd run
 - *wave_idx*:
     - wavelength index, intergers from 1
 
+***Several bash scripts will created under /run folder: rec_1.sh, rec_2.sh, ..., eva.sh, ang_prop.sh***
+
 2. run AI loop 
 ```
 run ./run_ai_loop.sh
