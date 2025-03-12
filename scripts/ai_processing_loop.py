@@ -142,7 +142,7 @@ def pre_processing():
         # logging.info(f"experiment title: {title}")
         # proton_charge = config['proton_charge']
         # logging.info(f"proton charge: {proton_charge}")
-        number_of_obs = config['number_of_obs']
+        number_of_obs = config['EIC_vals']['number_of_obs']
         logging.info(f"number of obs: {number_of_obs}")
         starting_run_number = config['starting_run_number']
         logging.info(f"starting run number: {starting_run_number}")

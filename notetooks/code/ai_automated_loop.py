@@ -8,7 +8,10 @@ from skimage.io import imread
 import matplotlib.pyplot as plt
 from tomopy.recon.rotation import find_center_pc
 import shutil
+import subprocess
 import logging
+from IPython.display import display
+from IPython.core.display import HTML
 
 from . import list_of_runs_found_file, config_file, script1_path, script2_path
 
@@ -23,12 +26,12 @@ def _worker(fl):
 
 class AiAutomatedLoop:
 
-    def __init__(self, folder_title="", description_of_exp="", nbr_obs=4, proton_charge=1.0, run_number=None, debug=False):
+    def __init__(self, folder_title="", description_of_exp="", nbr_obs=4, proton_charge=1.0, first_run_number=None, debug=False):
         self.folder_title = folder_title
         self.description_of_exp = description_of_exp
         self.nbr_obs = nbr_obs
         self.proton_charge = proton_charge
-        self.run_number = run_number
+        self.run_number = first_run_number
         self.debug = debug
         self.config_file = config_file
         self.script1_path = script1_path
@@ -50,12 +53,12 @@ class AiAutomatedLoop:
             config = yaml.safe_load(stream_config)
 
         # update
-        config['number_of_obs'] = self.nbr_obs
-        config['proton_charge'] = float(self.proton_charge)
+        config['EIC_vals']['number_of_obs'] = self.nbr_obs
+        config['EIC_vals']['proton_charge'] = float(self.proton_charge)
         config['run_number_expected'] = self.run_number
         config['starting_run_number'] = self.run_number
-        config['experiment_title'] = self.folder_title.replace(" ", "_")
-        config['scan_description'] = self.description_of_exp
+        config['EIC_vals']['experiment_title'] = self.folder_title.replace(" ", "_")
+        config['EIC_vals']['scan_description'] = self.description_of_exp
         config['ai_pre_process_running'] = True
 
         # export
@@ -78,7 +81,28 @@ class AiAutomatedLoop:
     def launching_shimin_cmd1(self):
         print(self.script1_path)
         cmd = f'python {self.script1_path} --cfg_file {self.config_file}'
-        os.system(cmd)
+        logging.info(f"launching {cmd}")
+        #os.system(cmd)
+
+        try:
+            result = subprocess.run(cmd, shell=True,
+                                    check=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    text=True)
+            standard_output = result.stdout
+            standard_output_formatted = standard_output.split("\n")
+            for _standard_output in standard_output_formatted:
+                if _standard_output:
+                    logging.info(f"{_standard_output = }")
+                if "FAILED" in _standard_output:
+                    logging.info(f"FAILED")
+                    display(HTML("<font color='red'>FAILED! Check log file for more information</font>"))
+                    return
+    
+        except subprocess.CalledProcessError as e:
+            logging.info(f"{e.stderr = }")
+            logging.info(f"{e.stdout = }")
 
     def check_that_pre_process_measurement_is_done(self):
         with open(config_file, 'r') as stream_config:
@@ -186,4 +210,24 @@ class AiAutomatedLoop:
             yaml.dump(config, outfile, sort_keys=False)
         
         cmd = f'python {self.script2_path} --cfg_file {self.config_file}'
-        os.system(cmd)
+        # os.system(cmd)
+
+        try:
+            result = subprocess.run(cmd, shell=True,
+                                    check=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    text=True)
+            standard_output = result.stdout
+            standard_output_formatted = standard_output.split("\n")
+            for _standard_output in standard_output_formatted:
+                if _standard_output:
+                    logging.info(f"{_standard_output = }")
+                if "FAILED" in _standard_output:
+                    logging.info(f"FAILED")
+                    display(HTML("<font color='red'>FAILED! Check log file for more information</font>"))
+                    return
+
+        except subprocess.CalledProcessError as e:
+            logging.info(f"{e.stderr = }")
+            logging.info(f"{e.stdout = }")

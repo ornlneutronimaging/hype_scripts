@@ -3,7 +3,8 @@ import numpy as np
 from EICClient import EICClient
 
 def eic_submit_table_scan(ipts_number, eic_token, desc, pv_lst, val_lst, simulate_only=True, print_results=True):
-    eic_client = EICClient(eic_token, ipts_number=ipts_number)
+    
+    eic_client = EICClient(eic_token=eic_token, ipts_number=ipts_number)
 
     for des, p_lst, v_lst in zip(desc, pv_lst, val_lst):
         success, scan_id, response_data = eic_client.submit_table_scan(
