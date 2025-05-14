@@ -13,9 +13,12 @@ import logging
 from IPython.display import display
 from IPython.core.display import HTML
 
-from . import list_of_runs_found_file, config_file, script1_path, script2_path
 
-IPTS = 35790
+from . import list_of_runs_found_file, config_file, script1_path, script2_path
+from scripts.EICClient import EICClient
+from . import LAST_RUN_NUMBER_PV
+
+
 PROJECT_ROOT_FOLDER = "/SNS/VENUS/IPTS-35790/shared/hype"
 file_name, ext = os.path.splitext(os.path.basename(__file__))
 LOG_FILE_NAME = f"{PROJECT_ROOT_FOLDER}/logs/{file_name}.log"
@@ -26,18 +29,27 @@ def _worker(fl):
 
 class AiAutomatedLoop:
 
-    def __init__(self, folder_title="", description_of_exp="", nbr_obs=4, proton_charge=1.0, first_run_number=None, debug=False):
+    def __init__(self, ipts=None, folder_title="", description_of_exp="", nbr_obs=4, proton_charge=1.0, debug=False):
+
+        # load config file
+        self.config_file = config_file
+        with open(self.config_file, 'r') as stream_config:
+            config = yaml.safe_load(stream_config)
+        self.config = config
+
+        first_run_number = self.get_first_run_number()
+
+        self.ipts = ipts
         self.folder_title = folder_title
         self.description_of_exp = description_of_exp
         self.nbr_obs = nbr_obs
         self.proton_charge = proton_charge
         self.run_number = first_run_number
         self.debug = debug
-        self.config_file = config_file
         self.script1_path = script1_path
         self.script2_path = script2_path
-        self.output_config_file = f"/data/VENUS/IPTS-{IPTS}/shared/ai/"
-        self.input_folder = "/SNS/VENUS/IPTS-35790/shared/debugging_ai/images/mcp/debugging_hype/" if debug else "/SNS/VENUS/IPTS-35790/images/mcp/images/"
+        self.output_config_file = f"/data/VENUS/IPTS-{self.ipts}/shared/ai/"
+        self.input_folder = config['debugging_mcp_folder'] if debug else config['mcp_folder']
 
         logging.basicConfig(filename=LOG_FILE_NAME,
                             filemode='a',  # 'w'
@@ -46,11 +58,30 @@ class AiAutomatedLoop:
         logging.info("*** Starting checking for new files - version 03/06/2025")
         print(f"check log file at {LOG_FILE_NAME}")
 
+    @staticmethod
+    def get_first_run_number(self):
+        eic_token = self.config['EIC_vals']['eic_token']
+        ipts = self.ipts
+        beamline = "BL10"
+        timeout = 10
+
+        eic_client = EICClient(eic_token, ipts_number=ipts, beamline=beamline)
+        pv_name = LAST_RUN_NUMBER_PV
+
+        success_get, pv_value_read, response_data_get = eic_client.get_pv(pv_name, timeout)
+        if success_get:
+            prefix = f'Successfully read PV {pv_name} with value {pv_value_read}'
+            run_number = int(pv_value_read) + 1
+            logging.info(f"First run number requested: {run_number}")
+            return run_number
+        else:
+            prefix = f'Failed to read PV {pv_name}'
+            logging.info(f"Failed to read PV {pv_name}")
+            raise KeyError(prefix)
+
     def launch_pre_processing_step(self):     
 
-        # load
-        with open(self.config_file, 'r') as stream_config:
-            config = yaml.safe_load(stream_config)
+        config = self.config
 
         # update
         config['EIC_vals']['number_of_obs'] = self.nbr_obs
@@ -60,6 +91,7 @@ class AiAutomatedLoop:
         config['EIC_vals']['experiment_title'] = self.folder_title.replace(" ", "_")
         config['EIC_vals']['scan_description'] = self.description_of_exp
         config['ai_pre_process_running'] = True
+        config['ob_local_path'] = []
 
         # export
         with open(self.config_file, 'w') as outfile:
@@ -90,19 +122,19 @@ class AiAutomatedLoop:
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE,
                                     text=True)
-            standard_output = result.stdout
-            standard_output_formatted = standard_output.split("\n")
-            for _standard_output in standard_output_formatted:
-                if _standard_output:
-                    logging.info(f"{_standard_output = }")
-                if "FAILED" in _standard_output:
+            AiAutomatedLoop.logging_error_messages(result.stderr, type='stderr')
+            AiAutomatedLoop.logging_error_messages(result.stdout, type='stdout')    
+            if "FAILED" in result.stderr:
                     logging.info(f"FAILED")
                     display(HTML("<font color='red'>FAILED! Check log file for more information</font>"))
                     return
-    
+
         except subprocess.CalledProcessError as e:
-            logging.info(f"{e.stderr = }")
-            logging.info(f"{e.stdout = }")
+            # print(f"{e.stderr =}")  
+            # print(f"{e.stdout =}")
+            AiAutomatedLoop.logging_error_messages(e.stderr, type='stderr')
+            AiAutomatedLoop.logging_error_messages(e.stdout, type='stdout')
+
 
     def check_that_pre_process_measurement_is_done(self):
         with open(config_file, 'r') as stream_config:
@@ -116,35 +148,59 @@ class AiAutomatedLoop:
 
     @staticmethod
     def retrieve_list_of_runs(top_folder):
-        list_runs = glob.glob(os.path.join(top_folder, "Run_*"))
+        list_runs = glob.glob(os.path.join(top_folder, "*_Run_*"))
         list_runs.sort()
         return list_runs
 
     @staticmethod
     def retrieve_list_of_tif(folder):
-        folder = os.path.join(folder, 'tpx3')
+        folder = os.path.join(folder, 'tpx3')  #remove if working with demo
         list_tif = glob.glob(os.path.join(folder, "*.tif*"))
         list_tif.sort()
         return list_tif
     
     @staticmethod
     def retrieve_first_tif(folder):
-        folder = os.path.join(folder, 'tpx3')
+        folder = os.path.join(folder, 'tpx3') #remove if working with demo
         list_tif = glob.glob(os.path.join(folder, "*.tif*"))
         list_tif.sort()
         return list_tif[0]
 
     @staticmethod
-    def isoalte_0_and_180_degrees_projections(list_of_runs):
-        run_0_degree = None
-        run_180_degree = None
+    def retrieve_angle_value(tiff_file):
+        splitted_tif_file = tiff_file.split("_")
+        angle_value = f"{splitted_tif_file[-4]}.{splitted_tif_file[-3]}"
+        return float(angle_value)
+
+    @staticmethod
+    def run_is_an_ob(run):
+        if '_OB_' in run:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def isolate_0_and_180_degrees_projections(list_of_runs):
+        logging.info(f"isolating 0 and 180 degrees projections")
+        list_sample_runs = []
+        list_angles = []
         for _run in list_of_runs:
-            list_tiff = AiAutomatedLoop.retrieve_first_tif(_run)
-            if '000_000' in list_tiff:
-                run_0_degree = _run
-            elif '180_000' in list_tiff:
-                run_180_degree = _run
-        return run_0_degree, run_180_degree
+            first_tiff = AiAutomatedLoop.retrieve_first_tif(_run)
+            if AiAutomatedLoop.run_is_an_ob(os.path.basename(first_tiff)):
+                continue
+            else:
+                angle_value = AiAutomatedLoop.retrieve_angle_value(first_tiff)
+                list_sample_runs.append(_run)
+                list_angles.append(angle_value)
+
+        logging.info(f"list_angles: {list_angles}")
+        logging.info(f"list_sample_runs: {list_sample_runs}")
+
+        # find the index of the angles closest to 0 and 180 degrees 
+        idx_0_degree = np.argmin(np.abs(np.array(list_angles) - 0))
+        idx_180_degree = np.argmin(np.abs(np.array(list_angles) - 180))
+
+        return list_sample_runs[idx_0_degree], list_sample_runs[idx_180_degree]
 
     @staticmethod
     def load_data_using_multithreading(list_tif, combine_tof=False):
@@ -158,6 +214,7 @@ class AiAutomatedLoop:
 
     def calculate_center_of_rotation(self, visualize=False):
 
+        logging.info(f"calculate center of rotation:")
         with open(self.config_file, 'r') as stream_config:
             config = yaml.safe_load(stream_config)
 
@@ -165,21 +222,40 @@ class AiAutomatedLoop:
             
             # find 0 and 180 degrees projections
             list_runs = AiAutomatedLoop.retrieve_list_of_runs(self.input_folder)
-            run_0_degree, run_180_degree = AiAutomatedLoop.isoalte_0_and_180_degrees_projections(list_runs)
+            logging.info(f"{list_runs =}")
+            if len(list_runs) == 0:
+                print("No run found")
+                logging.info(f"No run found")
+                return
+            elif len(list_runs) < 2:
+                print("Not enough runs found")
+                logging.info(f"Not enough runs found")
+                return
+            else:
+                print("More than 2 runs found")
+                run_0_degree, run_180_degree = AiAutomatedLoop.isolate_0_and_180_degrees_projections(list_runs)
+                logging.info(f"0 degree run: {run_0_degree}")
+                logging.info(f"180 degree run: {run_180_degree}")
 
             if (run_180_degree is None) or (run_0_degree is None):
                 print("Could not find 0 and 180 degrees projections")
                 logging.info(f"Could not find 0 and 180 degrees projections")
                 return
 
+            logging.info(f"retrieve list of tiff files ...")
             list_tiff_0 = AiAutomatedLoop.retrieve_list_of_tif(run_0_degree)
             list_tiff_180 = AiAutomatedLoop.retrieve_list_of_tif(run_180_degree)
+            logging.info(f"retrieve list of tiff files ... DONE")
           
+            logging.info(f"load data using multithreading ...")
             data_0 = AiAutomatedLoop.load_data_using_multithreading(list_tiff_0)
             data_180 = AiAutomatedLoop.load_data_using_multithreading(list_tiff_180)
+            logging.info(f"load data using multithreading ... DONE")
 
             integrated_image = [np.sum(data_0, axis=0), np.sum(data_180, axis=0)]
             center_of_rotation = find_center_pc(integrated_image[0], integrated_image[1])
+            logging.info(f"center_of_rotation: {center_of_rotation}")
+            print(f"center_of_rotation: {center_of_rotation}")
 
             if visualize:
 
@@ -189,13 +265,18 @@ class AiAutomatedLoop:
                 im = ax.imshow(final_integrated_image)
                 plt.colorbar(im, ax=ax)
 
-            center_of_rotation = find_center_pc(integrated_image[0], integrated_image[1])
             _, width = np.shape(integrated_image[0])
-            config['center_offset'] = center_of_rotation - int(width/2)
+            config['center_offset'] = float(center_of_rotation) - float(width/2)
 
             # export
             with open(self.config_file, 'w') as outfile:
                 yaml.dump(config, outfile, sort_keys=False)
+
+    def logging_error_messages(message, type='error'):
+        formatted_message = message.split("\n")
+        for _message in formatted_message:
+            if _message:
+                logging.info(f"{type}: {_message}")
 
     def launching_ai_loop(self):
         #shutil.copy(self.config_file, self.output_config_file)
@@ -218,16 +299,12 @@ class AiAutomatedLoop:
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE,
                                     text=True)
-            standard_output = result.stdout
-            standard_output_formatted = standard_output.split("\n")
-            for _standard_output in standard_output_formatted:
-                if _standard_output:
-                    logging.info(f"{_standard_output = }")
-                if "FAILED" in _standard_output:
+            AiAutomatedLoop.logging_error_messages(result.stderr, type='stdout')
+            if "FAILED" in result.stderr:
                     logging.info(f"FAILED")
                     display(HTML("<font color='red'>FAILED! Check log file for more information</font>"))
                     return
 
         except subprocess.CalledProcessError as e:
-            logging.info(f"{e.stderr = }")
-            logging.info(f"{e.stdout = }")
+            AiAutomatedLoop.logging_error_messages(e.stderr, type='stderr')
+            AiAutomatedLoop.logging_error_messages(e.stdout, type='stdout')

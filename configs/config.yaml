@@ -1,38 +1,36 @@
-ai_pre_process_running: true
+ai_pre_process_running: false
 ai_process_running: true
 ai_process_paused: false
-debugging: true
-DataPath: /storage/gxt/purple_car_data
-OutPath: /storage/gxt/Nov19_test
-proj_str: '*CT_GS_loopCronTest_10C*'
-ob_dir: '*OB*'
+debugging: false
+DataPath: /data/VENUS/IPTS-35790/images/mcp/2025_03_07
+OutPath: /data/VENUS/IPTS-35790/shared/outputs
 ob_local_path:
-- /storage/gxt/hype_test_data/March5_OB_5C_000
-- /storage/gxt/hype_test_data/March5_OB_5C_001
-- /storage/gxt/hype_test_data/March5_OB_5C_002
-log_name: /storage/gxt/hype_test_output/logs/shimin_log.log
+- /data/VENUS/IPTS-35790/images/mcp/2025_03_07/20250313_Run_7293_OB_ai_loop_copper_iron_blocks_05_00C_Dset0_0000
+- /data/VENUS/IPTS-35790/images/mcp/2025_03_07/20250313_Run_7294_OB_ai_loop_copper_iron_blocks_05_00C_Dset1_0000
+- /data/VENUS/IPTS-35790/images/mcp/2025_03_07/20250313_Run_7295_OB_ai_loop_copper_iron_blocks_05_00C_Dset2_0000
+angle_propose_flag: true
 step: 3
 QIthresh: 6
 provided_ang_list: []
-num_ini_ang: 3
-Max_ang_num: 55
+num_ini_ang: 6
+Max_ang_num: 100
 wav_idx_start:
-- 270
-- 500
+- 100
+- 815
 wav_idx_end:
-- 480
-- 710
+- 290
+- 1005
 Z_START:
+- 100
 - 200
-- 275
-- 350
+- 300
 Z_NUM:
 - 50
 - 50
 - 50
 crop_cols:
-- 2
-- 492
+- 5
+- 499
 load_paras:
   x_off: 2
   y_off: 2
@@ -40,12 +38,13 @@ load_paras:
   cent_y: 256
   unused_pix_num: 1
   neighbor_pix_num: 3
-  if_clean: true
-  if_save_clean: true
+  if_clean: false
+  if_cali: false
+  if_save_clean: false
   bound: 5
   correct_radius: 1
 background_cali_paras:
-  if_cali: true
+  if_cali: false
   box_x:
   - 10
   - 10
@@ -58,7 +57,7 @@ background_cali_paras:
   - 450
   width: 20
   height: 200
-center_offset: -4
+center_offset: 43.25
 num_threads: 248
 T: 2.0
 p: 1.2
@@ -66,21 +65,22 @@ sharpness: 0.0
 snr_db: 30.0
 max_iterations: 200
 roi_info:
-  roi_x: 10
-  roi_y: 10
-  roi_height: 462
-  roi_width: 462
+  roi_x: 30
+  roi_y: 50
+  roi_height: 420
+  roi_width: 420
 eva_paras:
+  model_pth: /data/gxt/cnn_model_save/New_Epoch-100-Test_loss-0.9707233309745789.pth
   alpha: 0.6
   beta: 0.4
 EIC_vals:
   ipts: '35790'
   eic_token: gAAAAABnxfq1WQhmnUWdbsJ6MTVL84icc5DisD9npnWp5r2tNVFr3dXnIboiFa-2-6UEjEKkTCrbJWrLExGlpSJq7DTBUsi4izgcUsy5AJXxyd0qO7tYseydHpY6P_dcFN14hRXmVzCYN3lGBhQV2NifHEbOW-mkxZLtuA6TRIl2RkVWH3yZTbAWJyK8gMbDHowwRUVaPmb-fCuQpo22e7hMf2jx4mZkBPQRWgZOAYjr-cnudCqkYyNXcxm11i-Z5zGvICYNoATzD4GDVtY_hgTVZZQVtQqCbvkKmniUGX5JBfHz5RTvugn0rwWhKiGV9yvtpf92V0iyz-aLye0VSS4jJ3DZsiTogL__DwricpHa-yxb-MyG2jo5-IiE222G4NrYz41BRGhvPQ7vfkiSLwqfdAsX_QKwuZ2fr-gUjt06CTOrvKNzkjJRDZo88ARbaQ6PupH_m2Scino-C4EJxZIVH3Ks9KUHwvHru9fgPtnQ3vqrciTLJ9EF2dC7Cq9-HHYw2cQFUaA-gCHMl124Gw_c0Iy-N4-ltTlGSlBnf32VE8UzW505v9md2V7DPjkZyCSsealjMKbRHRtnaFsFgyt37oQ3lwYdBKu-X_fJTX38hoXAjQr-g66-TMLfmecpsn2x7bM1hUvWajVVUFkos_UVvCdNx-Xqhj9RSeD-we7ObzCFoiQJWENLXsfJTLwO-hEBPA5dyWaGtxbjUgo1SQTvmqjgL0onMKr-MhNi7EmFsNaTAUG3h4ddPyXtoE30DBiphB76OihICrlgMVR6zt5ajFVt1QUDdw==
   motor_pv: BL10:Mot:rot3
-  proton_charge: 0.1
+  proton_charge: 5.0
   number_of_obs: 3
-  experiment_title: testing_the_eic_loop_from_notebook_with_ni_powder
-  scan_description: testing EIC with Shimin and Jean
+  experiment_title: ai_loop_copper_iron_blocks
+  scan_description: EIC TPX3 1st CT
 canny_paras:
   a: 0.3
   b: 0.7
@@ -89,11 +89,11 @@ hough_paras:
   line_length: 20
   line_gap: 10
 SIM: false
-run_number_expected: 7254
-starting_run_number: 7254
+run_number_expected: 7352
+starting_run_number: 7293
 number_of_runs_reduced_and_moved: 6
 list_of_runs_reduced: null
-number_of_obs: 3
-proton_charge: 0.1
-experiment_title: testing_the_eic_loop_from_notebook_with_ni_powder
-scan_description: testing EIC with Shimin and Jean
+number_of_tiff_for_each_run: 1500
+debugging_mcp_folder: /SNS/VENUS/IPTS-35790/shared/ai_test_data/images/mcp
+mcp_folder: /SNS/VENUS/IPTS-35790/images/mcp/images
+debugging_output_folder_on_hype: /data/VENUS/IPTS-35790/images/mcp/2025_03_07/
