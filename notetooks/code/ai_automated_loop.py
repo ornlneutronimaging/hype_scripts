@@ -19,7 +19,7 @@ from scripts.EICClient import EICClient
 from . import LAST_RUN_NUMBER_PV
 
 
-PROJECT_ROOT_FOLDER = "/SNS/VENUS/IPTS-35790/shared/hype"
+PROJECT_ROOT_FOLDER = "/SNS/VENUS/shared/software/git/hype_scripts"
 file_name, ext = os.path.splitext(os.path.basename(__file__))
 LOG_FILE_NAME = f"{PROJECT_ROOT_FOLDER}/logs/{file_name}.log"
 
@@ -37,13 +37,13 @@ class AiAutomatedLoop:
             config = yaml.safe_load(stream_config)
         self.config = config
 
-        first_run_number = self.get_first_run_number()
-
         self.ipts = ipts
         self.folder_title = folder_title
         self.description_of_exp = description_of_exp
         self.nbr_obs = nbr_obs
         self.proton_charge = proton_charge
+
+        first_run_number = self.get_first_run_number()
         self.run_number = first_run_number
         self.debug = debug
         self.script1_path = script1_path
@@ -55,10 +55,12 @@ class AiAutomatedLoop:
                             filemode='a',  # 'w'
                             format="[%(levelname)s] - %(asctime)s - %(message)s",
                             level=logging.INFO)
+        
+        logging.info(f"*** Starting AiAutomatedLoop - version 03/06/2025")
+        logging.info(f"*** IPTS: {self.ipts}") 
         logging.info("*** Starting checking for new files - version 03/06/2025")
         print(f"check log file at {LOG_FILE_NAME}")
-
-    @staticmethod
+    
     def get_first_run_number(self):
         eic_token = self.config['EIC_vals']['eic_token']
         ipts = self.ipts
@@ -92,6 +94,7 @@ class AiAutomatedLoop:
         config['EIC_vals']['scan_description'] = self.description_of_exp
         config['ai_pre_process_running'] = True
         config['ob_local_path'] = []
+        config['EIC_vals']['ipts'] = self.ipts
 
         # export
         with open(self.config_file, 'w') as outfile:

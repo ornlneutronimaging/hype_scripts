@@ -7,11 +7,19 @@ import subprocess
 import argparse
 import numpy as np
 
+
 LOG_FILE_MAX_LINES_NUMBER = 1000
 
-PROJECT_ROOT_FOLDER = "/SNS/VENUS/IPTS-35790/shared/hype"
+PROJECT_ROOT_FOLDER = "/SNS/VENUS/shared/software/git/hype_scripts/"
+CONFIG_FILE_NAME = f"{PROJECT_ROOT_FOLDER}/configs/config.yaml"
+with open(CONFIG_FILE_NAME, 'r') as stream:
+    config = yaml.safe_load(stream)
+
+ipts = config['EIC_vals']['ipts']
 file_name, ext = os.path.splitext(os.path.basename(__file__))
-LOG_FILE_NAME = f"{PROJECT_ROOT_FOLDER}/logs/{file_name}.log"
+LOG_FILE_NAME = f"/data/VENUS/IPTS-{ipts}/logs/{file_name}.log"
+if not os.path.exists(os.path.dirname(LOG_FILE_NAME)):
+    os.makedirs(os.path.dirname(LOG_FILE_NAME))
 
 # MCP_FOLDER = '/SNS/VENUS/IPTS-35790/images/mcp/images'
 # OUTPUT_FOLDER_ON_HYPE = "/data/VENUS/IPTS-35790/images/mcp/2025_03_07/"
@@ -20,19 +28,14 @@ LOG_FILE_NAME = f"{PROJECT_ROOT_FOLDER}/logs/{file_name}.log"
 # DEBUG_OUPUT_FOLDER_ON_HYPE = "/data/VENUS/IPTS-35790/images/mcp/2025_03_07/"
 
 LAUNCH_SHIMIN_SCRIPT_EVERY_N_FILES = 3
-SHIMIN_CODE = "/data/VENUS/IPTS-35790/shared/software/run/run_ai_loop.sh"
+SHIMIN_CODE = "/data/VENUS/IPTS-35790/shared/software/run/run_ai_loop.sh"   # FIXME THIS PATH
 
 # OUTPUT_ROOT_FOLDER = '/SNS/VENUS/IPTS-33531/images/mcp/'
 # REDUCED_FOLDER = '/SNS/VENUS/IPTS-33531/shared/autoreduce/mcp/'
 
 # CLUSTER_CONFIG_FOLDER = "/storage/VENUS/IPTS-33531/shared/ai"
 
-CONFIG_FILE_NAME = f"{PROJECT_ROOT_FOLDER}/configs/config.yaml"
-with open(CONFIG_FILE_NAME, 'r') as stream:
-    config = yaml.safe_load(stream)
-
 debugging_flag = config['debugging']
-
 
 if debugging_flag:
     MCP_FOLDER = config['debugging_mcp_folder']
