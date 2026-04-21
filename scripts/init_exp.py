@@ -13,28 +13,38 @@ cfg = yaml.safe_load(open(cfg_file, 'r', encoding = 'utf-8'))
 
 #%%
 # load needed settings
-ipts = cfg['EIC_vals']['ipts']
+ipts = str(cfg['EIC_vals']['ipts'])
 eic_token = cfg['EIC_vals']['eic_token']
 
 # user define
 p_charge = cfg['EIC_vals']['proton_charge']
-exp_name = cfg['EIC_vals']['experiment_title']
+exp_name = cfg['EIC_vals']['sample_name']
+user_con = cfg['EIC_vals']['user_con']
 ob_num = cfg['EIC_vals']['number_of_obs']
 usr_desc = cfg['EIC_vals']['scan_description']
-ang_lst = cfg['provided_ang_list']
+#ang_lst = cfg['provided_ang_list']
 ini_ang_num = cfg['num_ini_ang']
+motor_number = cfg['EIC_vals']['motor_number']
 
 # %%
 # pvs define
-pv_file_name = 'BL10:Exp:IM:FileName'
-pv_sub_dir = 'BL10:Exp:IM:SubDir'
+pv_pos_file_selector = 'BL10:Exp:Align:FileSelector'
+pv_move_trig = 'ScanALFileRunNq'
+pv_smp_name = 'BL10:Exp:IM:UserSampleName'
+pv_user_con = 'BL10:Exp:IM:UserConditions'
 pv_num_dataset = 'BL10:Exp:NumDataSets'
+pv_scan_type = 'BL10:Exp:IM:ScanType'
+pv_aq_type = 'BL10:Exp:IM:AcquireType'
 pv_set_p_charge = 'BL10:Exp:AcquirePCharge'
-pv_scan_trig = 'ScanRDRunNq'
-pv_motor = cfg['EIC_vals']['motor_pv']
+pv_set_time = 'BL10:Exp:IM:AcquireTime'
+pv_scan_trig = 'BL10:Exp:IM:ScanNewNq'
 
+pv_ct_rot_type = 'BL10:Mot:RotUI:Menu'
+pv_rot_option = 'BL10:Exp:Rot:Options'
+pv_ang_fillNum = 'BL10:Exp:Rot:T:AutofillNum'
+pv_ang_prefix = 'BL10:Exp:Rot:T:Pos'
 print_results= True
-simulate_only = True # to test the command
+simulate_only = False# to test the command
 
 angles = cfg['provided_ang_list']
 # get the scan angle list

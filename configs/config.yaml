@@ -1,15 +1,34 @@
+version: april_20_2026
 ai_pre_process_running: false
 ai_process_running: true
 ai_process_paused: false
 debugging: false
-DataPath: /data/VENUS/IPTS-35945/images/mcp/2025_03_07
-OutPath: /data/VENUS/IPTS-35945/shared/outputs
-ob_local_path:
+DataPath: ""
+OutPath: ""
+ob_local_path: ""
+0_and_180_local_path: ""
+top_projections_folder_name: "" 
+
+# Enable or disable cleaning of the data
+use_clean_data: false
+
+# Number of workers for multiprocessing
+num_workers: 16
+
+# Enable or disable NeuNorm library integration
+use_neunorm: false
+
+# Whether to swap axes when loading the data (tpx1: true, tpx3: false)
+swap_axes: false
+
 angle_propose_flag: true
+# provided_ang_list: []
+list_of_initial_angles: []
+
 step: 3
 QIthresh: 6
-provided_ang_list: []
 num_ini_ang: 6
+working_with_first_processing_angles: false
 Max_ang_num: 100
 wav_idx_start:
 - 100
@@ -17,80 +36,79 @@ wav_idx_start:
 wav_idx_end:
 - 290
 - 1005
-Z_START:
-- 100
-- 200
-- 300
-Z_NUM:
-- 50
-- 50
-- 50
+Z_START: [100, 200, 300]
+Z_NUM: [50, 50, 50]
 crop_cols:
 - 5
 - 499
-load_paras:
-  x_off: 2
-  y_off: 2
+
+# Alignment parameters (optional)
+align_paras:
+  neighbor_pix_num: 3
+  x_off: 0
+  y_off: 0
   cent_x: 256
   cent_y: 256
-  unused_pix_num: 1
-  neighbor_pix_num: 3
-  if_clean: false
-  if_cali: false
-  if_save_clean: false
-  bound: 5
-  correct_radius: 1
-background_cali_paras:
-  if_cali: false
-  box_x:
-  - 10
-  - 10
-  - 280
-  - 280
-  box_y:
-  - 10
-  - 450
-  - 10
-  - 450
-  width: 20
-  height: 200
-center_offset: 43.25
+
+center_offset: -101.0
 num_threads: 248
-T: 2.0
-p: 1.2
+
+recon_method: mbirjax  # options: 'mbirjax' or 'svmbir'
 sharpness: 0.0
 snr_db: 30.0
-max_iterations: 200
+num_threads: 32
+
 roi_info:
   roi_x: 30
   roi_y: 50
   roi_height: 420
   roi_width: 420
+# Evluation parameters
 eva_paras:
-  model_pth: /data/gxt/cnn_model_save/New_Epoch-100-Test_loss-0.9707233309745789.pth
+  batch_size: 5
+  device: gpu
   alpha: 0.6
   beta: 0.4
+trained_model_path: /data/gxt/cnn_model_save/New_Epoch-100-Test_loss-0.9707233309745789.pth
+
 EIC_vals:
-  ipts: '35945'
-  eic_token: gAAAAABoI7VHPiBnzvK2Kwmb0LaoXknrzYvZzcB5yFJOC1OXFQpqRJ7nqm4dIbyu3aFNY7ogxEkYZlgd5Ap9LneRHhHcPyzPGB3poQYSsPVuz5cMirhE8jn1iyH6VXwl72BuLWnAirdwf7j_qKnk6MhrqzUpSBJ850xRLeFyTlsEZEnnWhjskWQprOQOo-ObetLBsWhSktaBu9jm82mEstvi4oXIZxVFA2mDA1Qnf5jNT-ttmS_ULWCyf0VlLcfbIyVlTWOZdqqk6hpjXHpO55c9gT9ppclOWV4j_5-_FKkpiWGtI9Te6aOuEgKiPEorgVteW49mMtom7BAmR67SrJJmKLsvErlKDyvfpGn4-jobu_U05KsDOp2m2IQSeTT1mB_Y8JJxq70kbVOW1MUyc2B7jLlvmiyqjuUrOKh4ZAyrgDGuNAmU-895JyVbg8es_ml0foycW6d5na8ZPBdJOK3z4Xf65LQt8QvJmAW7LLceK_V3lXEtYh33IZBMFSM27hY9d9IiB6k3_NVmCp53X1D-ZWlUdJFvIBZfFSVscxIZCsHYM4gZHN1Wpz_dLA1FFaW3UIH6eQBaMIVeVt9bRoHaBOH0On-k9VERsOSAJU0PkvUMmwNKz_fq6RUSxfv7URNq0jherOBVueO3HlO76ytztrPMGIwTAz88SzfTl51HpnvhfLQppnMBDfnwKvTTwo5wQDmpd30spl_UKyX_Bcda9Ifu6EHFJR-tQgorwak5gcjIHnMlU21xYkOIAzEYeouA4IDj7t05
-  motor_pv: BL10:Mot:rot3
-  proton_charge: 5.0
+  ipts: '37493'
+  eic_token: gAAAAABp3W00OndJ2i7Wua4cdgJGGpm41k6D99obv69QJYhETgN7HtqQnUJm03asmZ9nICHTEo-F5Df--uar-hggNzW2AhuljVuGmFwj1BxU2l6te7MY6FQt7ku1mTDvXM-joyi7Z9RoxVAx8Twz2OPoIKDrXIrvqM2vC6uhfKwyliKENpvjPKEcfzvBkYYjLf2KRtesFnG6r04ruLX-18ivEcAWHlMAb-wihWngJr1G3Ebq-g5TMgXE9C6NRpYhbxLPaABacamwAuE97hmhDxtF5YA7VIxKI1AXit1ZAqlcCwpgrykXJdGRsgbsXSKBQyfdVl9oyb_B9KYeTaVQly47pb3en9ZVgda9yoSXxfDyMyqe1ohqV1gNAjUYw1CKg_X7E-oMdLKV1hU_sdkzqbj-qDcvuAQiRTFsKE_8nAqunz5bVv3V8LnvEASZEOe5L4mSVDxyVc7AEWWWiz66twqEtEQv_L8FGqFVIAMRkGReJvDeqriMZWR1QXgntNZOu27v-TjJhAghaHGR0FJ8ivE18prOnzEDQZzOJ7phF399B-bY90T9SwlGikQSA807vY0lnFhJdCbAJX5BpkEXIJELo38enTps71xiv7iciEvkQA7i1qpklnf4glHET5ZISE1cGJxe3A89QDcaLeEpATZ07DYcPMSicWo-ZOJhTMmchcO39vtRmJe0QT3UnLKchMeMuy3x6QVlBhkhgf8Syh-hWA5wNgjYSj0vFpYGyC74443ygM0MUIJLPMxdOhzDZEEI3Y-ewnZI728UKwMyaFtCXPNLWo293A==
+  proton_charge: 0.1
   number_of_obs: 3
-  experiment_title: ai_loop_copper_iron_blocks
-  scan_description: EIC TPX3 1st CT
-canny_paras:
-  a: 0.3
-  b: 0.7
-  sigma: 4
-hough_paras:
-  line_length: 20
-  line_gap: 10
+  motor_nu  mber: 1
+  sample_name: WeT
+  user_con: hyperct
+  scan_description: testing EIC in May with Shimin and Jean
+
+# Edge-alignment proposal parameters
+edge_type: 'vcls' # options: 'ea2s' or 'vcls'
+
+ea2s_paras:
+  hough_paras:
+    line_length: 10
+    line_gap: 3
+
+#####################
+# Set VCLS parameters
+#####################
+
+vcls_paras:
+  geometry_type: 'parallel'  # 'cone' or 'parallel'
+  # r_1 = voxel sampling rate in (0,1]. Smaller => faster; Larger => more accurate
+  r_1: 0.01
+  # r_2 = view sampling rate used for stochastic search in (0,1]. Smaller => faster; Larger => more accurate
+  r_2: 0.5
+  fast: True    # Use built in sparse back projection in mbirjax to speed algorithm
+  num_candidate_views: 360
+
 SIM: false
-run_number_expected: 7352
-starting_run_number: 7293
+run_number_expected: 8774
+starting_run_number: 8769
 number_of_runs_reduced_and_moved: 6
-list_of_runs_reduced: null
-number_of_tiff_for_each_run: 1500
-debugging_mcp_folder: /SNS/VENUS/IPTS-35790/shared/ai_test_data/images/mcp
-mcp_folder: /SNS/VENUS/IPTS-35790/images/mcp/images
-debugging_output_folder_on_hype: /data/VENUS/IPTS-35790/images/mcp/2025_03_07/
+list_of_runs_reduced: []
+number_of_tiff_for_each_run: 2628
+debugging_mcp_folder: /SNS/VENUS/IPTS-35945/shared/ai_test_data/images/mcp
+debugging_output_folder_on_hype: /data/VENUS/IPTS-35945/images/mcp/2025_03_07/
+mcp_folder: ""
+autoreduce_mcp_folder: ""

@@ -13,74 +13,84 @@ cfg_file = args.cfg_file
 #cfg_file = '/SNS/VENUS/IPTS-35790/shared/hype/configs/config.yaml'
 cfg = yaml.safe_load(open(cfg_file, 'r', encoding = 'utf-8'))
 #%%
-ipts = cfg['EIC_vals']['ipts']
+ipts = str(cfg['EIC_vals']['ipts'])
 eic_token = cfg['EIC_vals']['eic_token']
 
 
 # user define
 p_charge = cfg['EIC_vals']['proton_charge']
-exp_name = cfg['EIC_vals']['experiment_title']
+smp_name = cfg['EIC_vals']['sample_name']
+user_con = cfg['EIC_vals']['user_con']
 ob_num = cfg['EIC_vals']['number_of_obs']
 usr_desc = cfg['EIC_vals']['scan_description']
+ini_ang_num = cfg['num_ini_ang']
+pv_motor_selector = 'BL10:Mot:RotUI:Menu'
+motor_number = cfg['EIC_vals']['motor_number']
 
 # %% 
-# pvs define
-pv_file_name = 'BL10:Exp:IM:FileName'
-pv_sub_dir = 'BL10:Exp:IM:SubDir'
+# pvs define # needs to updated based on the new measure mode setup
+pv_pos_file_selector = 'BL10:Exp:Align:FileSelector'
+pv_move_trig = 'ScanALFileRunNq'
+pv_smp_name = 'BL10:Exp:IM:UserSampleName'
+pv_user_con = 'BL10:Exp:IM:UserConditions'
 pv_num_dataset = 'BL10:Exp:NumDataSets'
+pv_scan_type = 'BL10:Exp:IM:ScanType'
+pv_aq_type = 'BL10:Exp:IM:AcquireType'
 pv_set_p_charge = 'BL10:Exp:AcquirePCharge'
-pv_scan_trig = 'ScanRDRunNq'
-pv_motor = cfg['EIC_vals']['motor_pv']
+pv_set_time = 'BL10:Exp:IM:AcquireTime'
+pv_scan_trig = 'BL10:Exp:IM:ScanNewNq'
+
+pv_ct_rot_type = 'BL10:Mot:RotUI:Menu'
+pv_rot_option = 'BL10:Exp:Rot:Options'
+pv_ang_fillNum = 'BL10:Exp:Rot:T:AutofillNum'
+pv_ang_prefix = 'BL10:Exp:Rot:T:Pos'
 
 print_results= True
 simulate_only = False # to test the command
- 
+print(f'{ipts=} {eic_token}')
+
 ob_pos_file = '/SNSlocal/data/IPTS-35790/images/alignment/raw/alignment_calibration/20250313_ ai_cali_ob_pos_alignment_smallrot3_12:36:46.csv'
 sample_pos_file = '/SNSlocal/data/IPTS-35790/images/alignment/raw/alignment_calibration/20250313_ ai_cali_sampe_pos_alignment_smallrot3_12:33:51.csv'
-# %%  move to open beam
-"""
-desc = f'Move to OB pos'
-header = ['BL10:Exp:Align:FileSelector','ScanALFileRunNq']
-rows =[[ob_pos_file, 1]]
-eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results) 
 
+# %%  move to open beam
+desc = f'Move to OB pos'
+header = [pv_pos_file_selector, pv_move_trig]
+rows =[[ob_pos_file, 0]]
+eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results) 
 #%% OB command
 rows = []
+## place holder to check either pcharge or time acquire time
+ob_header = [pv_smp_name, pv_user_con, pv_scan_type, pv_aq_type,  pv_set_p_charge, pv_num_dataset, pv_scan_trig]
+desc = f'{usr_desc}: MCP TPX {ob_num} OB: {p_charge}'
 
-ob_header = [pv_file_name, pv_sub_dir, pv_num_dataset, pv_set_p_charge, pv_scan_trig]
-p_charge_1, p_charge_2 = str(p_charge).split('.')
-_ob_file_name = f'OB_{exp_name}_{p_charge_1:0>2}_{p_charge_2:0<2}C'
-desc = f'{usr_desc}: MCP TPX {ob_num} OB: {_ob_file_name}'
-for i in range(ob_num):
-    #_desc = [[f'MCP TPX OB #{i+1}: {_ob_file_name}']]
-    _fl_name = f'{_ob_file_name}_Dset{i}'
-    #E:\\data\\IPTS-{ipts}\\{_ob_folder_name}\\
-    rows.append([_fl_name, _fl_name, 1,  p_charge, 0])
-    #_rows =[[[_fl_name, _fl_name, 1,  p_charge, 0]]]
-#print(f'{header=}\n{rows=}')
+rows.append([smp_name, user_con, 'Open Beam',  1, p_charge, 1, 0])
+
 eic_submit_table_scan(ipts, eic_token, desc, ob_header, rows, simulate_only, print_results) 
 
 # %%  move up the sample
-
+#"""
 desc = f'Sample moving up'
-header = ['BL10:Exp:Align:FileSelector','ScanALFileRunNq']
-rows = [[sample_pos_file, 1]]
+header = [pv_pos_file_selector, pv_move_trig]
+rows = [[sample_pos_file, 0]]
 eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results) 
-"""
+#"""
 # %% 0-180 command
 angles = [0.0, 180.0]
-
+_angle_number = len(angles)
 rows = []
-desc = f'MCP TPX {len(angles)} Radiographs: {angles}'  
-header = [pv_motor, pv_file_name, pv_sub_dir, pv_num_dataset, pv_set_p_charge, pv_scan_trig]
-cnt = 1
-p_charge_1, p_charge_2 = str(p_charge).split('.')
-for ang in angles:
-    _ang_1, _ang_2 = str(ang).split('.')
-    _name = f'{exp_name}_{p_charge_1:0>2}_{p_charge_2:0<2}C_Angle_{_ang_1:0>3}_{_ang_2:0<3}deg'
-    
-    rows.append([ang, _name, _name, 1, p_charge, 0])
-    cnt +=1
+ang_pv = [f'{pv_ang_prefix}{i+1}' for i in range(_angle_number)]
+desc = f'MCP TPX {len(angles)} Radiographs: {angles}' 
+
+header_ = [pv_smp_name, pv_user_con, pv_scan_type, pv_motor_selector, pv_rot_option, pv_ang_fillNum]
+_header = [pv_aq_type,  pv_set_p_charge, pv_num_dataset, pv_scan_trig]
+
+header = header_ + ang_pv + _header
+
+row_ = [smp_name, user_con, '3D CT', motor_number, 3, _angle_number] 
+_row = [1, p_charge, 1, 0]
+
+rows = row_ + angles + _row
+
 # send out 0-180 scans
 eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results)
     

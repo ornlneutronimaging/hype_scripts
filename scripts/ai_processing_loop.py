@@ -6,34 +6,31 @@ import shutil
 import subprocess
 import argparse
 import numpy as np
-
+import stat
 
 LOG_FILE_MAX_LINES_NUMBER = 1000
 
-PROJECT_ROOT_FOLDER = "/SNS/VENUS/shared/software/git/hype_scripts/"
+PROJECT_ROOT_FOLDER = "/SNS/VENUS/shared/software/git/hype_scripts"
 CONFIG_FILE_NAME = f"{PROJECT_ROOT_FOLDER}/configs/config.yaml"
 with open(CONFIG_FILE_NAME, 'r') as stream:
     config = yaml.safe_load(stream)
 
+version = config['version']
 ipts = config['EIC_vals']['ipts']
 file_name, ext = os.path.splitext(os.path.basename(__file__))
 LOG_FILE_NAME = f"/data/VENUS/IPTS-{ipts}/logs/{file_name}.log"
 if not os.path.exists(os.path.dirname(LOG_FILE_NAME)):
     os.makedirs(os.path.dirname(LOG_FILE_NAME))
 
-# MCP_FOLDER = '/SNS/VENUS/IPTS-35790/images/mcp/images'
-# OUTPUT_FOLDER_ON_HYPE = "/data/VENUS/IPTS-35790/images/mcp/2025_03_07/"
-
-# DEBUG_MCP_FOLDER = '/SNS/VENUS/IPTS-35790/shared/ai_test_data/images/mcp'
-# DEBUG_OUPUT_FOLDER_ON_HYPE = "/data/VENUS/IPTS-35790/images/mcp/2025_03_07/"
+logging.basicConfig(filename=LOG_FILE_NAME,
+                    filemode='a',  # 'w'
+                    format="[%(levelname)s] - %(asctime)s - %(message)s",
+                    level=logging.INFO)
+logging.info(f"*** Starting checking for new files - version {version}")
+print(f"check log file at {LOG_FILE_NAME}")
 
 LAUNCH_SHIMIN_SCRIPT_EVERY_N_FILES = 3
-SHIMIN_CODE = "/data/VENUS/IPTS-35790/shared/software/run/run_ai_loop.sh"   # FIXME THIS PATH
-
-# OUTPUT_ROOT_FOLDER = '/SNS/VENUS/IPTS-33531/images/mcp/'
-# REDUCED_FOLDER = '/SNS/VENUS/IPTS-33531/shared/autoreduce/mcp/'
-
-# CLUSTER_CONFIG_FOLDER = "/storage/VENUS/IPTS-33531/shared/ai"
+SHIMIN_CODE = "/data/VENUS/shared/software/run/run_ai_loop.sh"   
 
 debugging_flag = config['debugging']
 
@@ -41,7 +38,8 @@ if debugging_flag:
     MCP_FOLDER = config['debugging_mcp_folder']
     OUTPUT_FOLDER_ON_HYPE = config['debugging_output_folder_on_hype']
 else:
-    MCP_FOLDER = config['mcp_folder']
+    # MCP_FOLDER = config['mcp_folder']
+    MCP_FOLDER = os.path.join(f"/SNS/VENUS/IPTS-{ipts}", "shared/autoreduce/images/tpx1/raw/ct")
     OUTPUT_FOLDER_ON_HYPE = config['DataPath']
 
 CONFIG_LIST_OF_RUNS_FOUND_IN_FOLDER = f"{PROJECT_ROOT_FOLDER}/logs/list_of_runs_found_in_folder.yaml"
@@ -77,7 +75,7 @@ def get_new_short_name_of_run_number_expected(full_path_of_run_number_expected):
     ex: 20250312_Run_7287_testing_the_eic_loop_pre_exp_test_00_10C_Angle_090_000deg_000_1914480.tiff
     new name: 20250312_Run_7287_testing_the_eic_loop_pre_exp_test_00_10C_Angle_090_000deg_000"""
 
-    list_tiff = glob.glob(f"{full_path_of_run_number_expected}/tpx3/*.tif*")    # add tpx3 for real case
+    list_tiff = glob.glob(f"{full_path_of_run_number_expected}/*.tif*")    # add tpx3 for real case
     list_tiff.sort()
     first_file = os.path.basename(list_tiff[0])
     splitted_first_file = first_file.split("_")
@@ -87,13 +85,17 @@ def get_new_short_name_of_run_number_expected(full_path_of_run_number_expected):
 
 def  all_the_files_are_there(full_path_of_run_number_expected):
     logging.info(f"checking if the system is done writing all the files ...")
-    list_of_files = glob.glob(f"{full_path_of_run_number_expected}/tpx3/*.tif*")   # add/remove /tpx3 for real case
+    list_of_files = glob.glob(f"{full_path_of_run_number_expected}/*.tif*")   # add/remove /tpx3 for real case
     logging.info(f"number of files found: {len(list_of_files)}")
     number_of_files_for_each_run_expected = config['number_of_tiff_for_each_run']
     logging.info(f"number of files expected: {number_of_files_for_each_run_expected}")
     if len(list_of_files) < number_of_files_for_each_run_expected:
         return False
     return True
+
+
+
+
 
 
 def processing():
@@ -111,11 +113,16 @@ def processing():
     logging.info(f"debugging mode: {debugging_flag}")
     logging.info(f"MCP_FOLDER: {MCP_FOLDER}")
     logging.info(f"OUTPUT_FOLDER_ON_HYPE: {OUTPUT_FOLDER_ON_HYPE}")
-
     logging.info(f"AI process is now checking for new files!")
     run_number_expected = config['run_number_expected']
     logging.info(f"run_number_expected: {run_number_expected}")
-    number_of_files_to_expect = config['step']
+    
+    working_with_first_processing_angles = config['working_with_first_processing_angles']
+    logging.info(f"working_with_first_processing_angles: {working_with_first_processing_angles}")
+    if working_with_first_processing_angles:
+        number_of_files_to_expect = config['num_ini_ang']
+    else:
+        number_of_files_to_expect = config['step']
     logging.info(f"number_of_files_to_expect: {number_of_files_to_expect}")
 
     # check if run number expected showed up in the folder
@@ -160,13 +167,29 @@ def processing():
     # launch Shimin's script #2
     logging.info(f"launching Shimin's script ...")
     logging.info(f"SHIMIN_CODE = {SHIMIN_CODE}")
-    os.system(SHIMIN_CODE)
-    
+    # os.system(SHIMIN_CODE)
+    subprocess.run([SHIMIN_CODE])
+   
     # update value of next run number expected
     config['run_number_expected'] += number_of_files_to_expect
     with open(CONFIG_FILE_NAME, 'w') as write_out:
         yaml.dump(config, write_out, sort_keys=False)        
     
+
+def change_permissions_recursive(path):
+    """
+    Change permissions of a directory and all its subdirectories recursively.
+
+    Args:
+        path (str): The path to the directory.
+        mode (int): The permission mode to set (e.g., 0o755 for rwxr-xr-x).
+    """
+    for root, dirs, _ in os.walk(path):
+      for dirname in dirs:
+        os.chmod(os.path.join(root, dirname), stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
+        print(f"Changed permission of {os.path.join(root, dirname)} to full read write excecute access")
+    os.chmod(path, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
+
 
 def pre_processing():
 
@@ -205,6 +228,20 @@ def pre_processing():
         logging.info(f"{list_of_runs_expected = }")
         list_of_obs_expected = list_of_runs_expected[:-2]
         logging.info(f"{list_of_obs_expected = }")
+        logging.info(f"list of obs expected: {list_of_obs_expected}")
+        list_of_0_and_180_expected = list_of_runs_expected[-2:]
+        logging.info(f"{list_of_0_and_180_expected = }")
+
+    # create the output path on hype
+    data_path = config['DataPath']
+    if not os.path.exists(data_path):
+        logging.info(f"creating the output path on hype: {data_path}")
+        os.makedirs(data_path)
+
+        # making sure the folder is fully accessible
+        output_path = f"/data/VENUS/IPTS-{ipts}"
+        logging.info(f"making sure the permission to the shared folder are right!")
+        change_permissions_recursive(output_path)
 
     # check if run number expected showed up in the folder
     logging.info(f"looking at {MCP_FOLDER}/Run_{run_number_expected:04d}")
@@ -242,6 +279,14 @@ def pre_processing():
                 yaml.dump(config, write_out, sort_keys=False)
             logging.info(f"added {new_name_of_run_number_expected} to the list of obs!")
         
+        if run_number_expected in list_of_0_and_180_expected:
+            list_of_0_and_180 = config['0_and_180_local_path']
+            list_of_0_and_180.append(os.path.join(OUTPUT_FOLDER_ON_HYPE, os.path.basename(new_name_of_run_number_expected)))
+            config['0_and_180_local_path'] = list_of_0_and_180
+            with open(CONFIG_FILE_NAME, 'w') as write_out:
+                yaml.dump(config, write_out, sort_keys=False)
+            logging.info(f"added {new_name_of_run_number_expected} to the list of 0 and 180 degrees!")
+
     # check if we collected all the runs we wanted (2 + # of obs)
     logging.info(f"checking if we collected all the runs we wanted:")
     if run_number_expected == list_of_runs_expected[-1]:
@@ -254,13 +299,21 @@ def pre_processing():
         logging.info(f"done with pre-processing scripts!")
         #increment run_number_expected
         config['run_number_expected'] += 1
+        config['working_with_first_processing_angles'] = False  # next time we will look for 'step' number of files
         with open(CONFIG_FILE_NAME, 'w') as write_out:
             yaml.dump(config, write_out, sort_keys=False)
 
         # copying the config file to the output folder
-        logging.info(f"copying the config file to the output folder ...")
-        shutil.copy(CONFIG_FILE_NAME, OUTPUT_FOLDER_ON_HYPE)
-        logging.info(f"done!")
+        logging.info(f"copying the config file to the output folder /data/VENUS/shared.")
+        logging.info(f"\t{CONFIG_FILE_NAME =}")
+        path_copied = shutil.copy(CONFIG_FILE_NAME, "/data/VENUS/shared")
+        logging.info(f"done with {path_copied}")
+
+        shutil.copy(CONFIG_FILE_NAME, "~/")
+        
+        # os.system("/data/VENUS/shared/software/auto_gen_run_scrs/ini_exp_hype.sh")
+        subprocess.run(["/data/VENUS/shared/software/auto_gen_run_scrs/ini_exp_hype.sh"])
+
 
     else:
         logging.info(f"\twe are not done yet!")
@@ -277,7 +330,7 @@ if __name__ == "__main__":
 						filemode='a',  # 'w'
 						format="[%(levelname)s] - %(asctime)s - %(message)s",
 						level=logging.INFO)
-    logging.info("*** Starting checking for new files - version 03/06/2025")
+    logging.info(f"*** Starting checking for new files - version {version}")
     print(f"check log file at {LOG_FILE_NAME}")
 	
     parser = argparse.ArgumentParser(description='Check for new files and move them to the output folder',

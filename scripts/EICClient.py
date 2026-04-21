@@ -30,8 +30,11 @@ import base64
 import json
 import copy
 import subprocess
-# noinspection PyUnresolvedReferences
-import pkg_resources
+try:
+    # noinspection PyUnresolvedReferences
+    import pkg_resources
+except ModuleNotFoundError:
+    pkg_resources = None
 
 # noinspection PyUnresolvedReferences
 import urllib3
@@ -783,6 +786,9 @@ class EICClient(object):
         """
         is_installed = False
         pkg_txt = 'pip-system-certs'
+        if pkg_resources is None:
+            return False
+
         for pkg in pkg_resources.working_set:
             # print(f'\n\nIn _is_pip_system_certs_installed().\npkg = {pkg}\n\n')
             if pkg_txt in str(pkg):
