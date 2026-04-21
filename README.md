@@ -145,7 +145,7 @@ Otherwise:
 
 ### 5) Flow diagram
 
-![Diagram title](static/your-file.svg)
+![Diagram title](static/ai_pre_processing_workflow.svg)
 
 
 
