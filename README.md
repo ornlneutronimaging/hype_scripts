@@ -145,41 +145,7 @@ Otherwise:
 
 ### 5) Flow diagram
 
-```mermaid
-flowchart TD
-   A[Cron tick] --> B[cron_job_script_pre_processing.sh]
-   B --> C[Append timestamp to logs/cron_jobs.txt]
-   B --> D[Run ai_processing_loop.py -p]
-   D --> E[pre_processing]
-   E --> F[Trim ai_processing_loop.log]
-   F --> G[Load configs/config.yaml]
-   G --> H{ai_pre_process_running?}
-   H -- No --> Z[Exit]
-   H -- Yes --> I[Compute expected runs OB + 0/180]
-   I --> J{Run_<run_number_expected> exists?}
-   J -- No --> Z
-   J -- Yes --> K{All TIFF files present?}
-   K -- No --> Z
-   K -- Yes --> L[Copy + rename to DataPath if new]
-   L --> M{Run belongs to OB list?}
-   M -- Yes --> N[Append to ob_local_path]
-   M -- No --> O
-   N --> O{Run belongs to 0/180 list?}
-   O -- Yes --> P[Append to 0_and_180_local_path]
-   O -- No --> Q
-   P --> Q{Last expected run reached?}
-   Q -- No --> R[run_number_expected += 1; save config; exit]
-   Q -- Yes --> S[Set ai_pre_process_running false]
-   S --> T[working_with_first_processing_angles false]
-   T --> U[run_number_expected += 1; save config]
-   U --> V[Copy config to /data/VENUS/shared and ~/]
-   V --> W[Run ini_exp_hype.sh]
-   W --> Z
-   R --> Z
-```
-
-
-
+![Diagram title](static/your-file.svg)
 
 
 
