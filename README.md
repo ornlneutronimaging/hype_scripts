@@ -272,7 +272,7 @@ Once all runs in the batch are confirmed and copied:
 
 ### 5) Flow diagram
 
-![Diagram title](static/ai_processing_workflow.svg)
+![Diagram title](static/ai_processing_workflow.png)
 
 
 
