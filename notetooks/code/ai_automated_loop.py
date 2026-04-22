@@ -51,6 +51,7 @@ class AiAutomatedLoop:
                  new_experiment=False,
                  live=True,
                  first_run=None,
+                 motor=1,
                  number_of_tiff_for_each_run=2628):
 
         # load config file
@@ -79,6 +80,7 @@ class AiAutomatedLoop:
 
         config['EIC_vals']['sample_name'] = sample_name
         config['EIC_vals']['user_con'] = user_conditions
+        config['EIC_vals']['motor_number'] = motor
 
         autoreduce_folder = f"/SNS/VENUS/IPTS-{self.ipts}/shared/autoreduce/images/mcp/tpx1/raw/ct"
         config['autoreduce_mcp_folder'] = autoreduce_folder
