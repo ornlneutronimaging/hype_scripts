@@ -276,11 +276,38 @@ Once all runs in the batch are confirmed and copied:
 
 
 
-
-
 ## Shimin Notes
 
-1. In ai_automated_loop missing:
+### 0. In ai_automated_loop missing:
   - define paremeter: sample name, user_condition, number of init angles, acquire type (pCharge/time), sample postion files paths
   - remove experiment titile
   - 
+
+### 1. @Hype the hyperct related scripts are saved at /data/VENUS/shared/software/
+- /data/VENUS/shared/software
+  |_hyperct_toolkit_depoly
+  | |_ainct_lib
+  | |_ctqa
+  | |_hyperct_loop_autogen
+  | |_pixi.lock
+  | |_pixi.toml
+  |_logs
+  |_run
+  | |_ang_prop.sh
+  | |_eva.sh
+  | |_load_1.sh
+  | |_rec_1.sh
+  |_scrs
+  | |_ai_loop.py
+  | |_AIRobo.py
+  | |_sync_data.py
+  |_run_ai_loop.sh
+### 2. hyperct_toolkit_deploy saved all dependents and pixi enviornment
+### 3.  ./scrs/: HyperCT main scripts
+- AIRobo.py: there are four modes: 1). Load 2). Recon 3). Evaluate 4). Angle Propose
+- ai_loop.py is the script calling AIRobo to run different mode at different node
+- sync_data.py: move the results back to /SNS/VENUS/IPTS-XXXX/shared/hyperct_output
+![Diagram title](static/AIRobo_flowchart.png)
+### 4. ./run/: bash scripts to submit different mode to mulitple node
+- run /data/VENUS/shared/software/hyperct_toolkit_depoly/hyperct_loop_autogen/ini_exp_hype.sh to automatically generate running scripts
+### 5. excute the /data/VENUS/shared/software/run_ai_loop.sh to start the hyperct
