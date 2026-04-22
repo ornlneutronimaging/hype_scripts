@@ -278,6 +278,13 @@ Once all runs in the batch are confirmed and copied:
 
 ## Shimin Notes
 
+## - instruction at hype
+0. config.ymal copied to /data/VENUS/shared/software/
+1. run "/data/VENUS/shared/software/hyperct_toolkit_depoly/hyperct_loop_autogen/ini_exp_hype.sh" to automatically generate running scripts
+2. Cron job start
+3. Cron job run: "/data/VENUS/shared/software/run_ai_loop.sh"
+
+
 ### 0. In ai_automated_loop missing:
   - define paremeter: sample name, user_condition, number of init angles, acquire type (pCharge/time), sample postion files paths
   - remove experiment titile
