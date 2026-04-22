@@ -291,24 +291,26 @@ Once all runs in the batch are confirmed and copied:
   - 
 
 ### 1. @Hype the hyperct related scripts are saved at /data/VENUS/shared/software/
-- /data/VENUS/shared/software
-  |_hyperct_toolkit_depoly
-  | |_ainct_lib
-  | |_ctqa
-  | |_hyperct_loop_autogen
-  | |_pixi.lock
-  | |_pixi.toml
-  |_logs
-  |_run
-  | |_ang_prop.sh
-  | |_eva.sh
-  | |_load_1.sh
-  | |_rec_1.sh
-  |_scrs
-  | |_ai_loop.py
-  | |_AIRobo.py
-  | |_sync_data.py
-  |_run_ai_loop.sh
+```
+/data/VENUS/shared/software
+├─ hyperct_toolkit_depoly
+│  ├─ ainct_lib
+│  ├─ ctqa
+│  ├─ hyperct_loop_autogen
+│  ├─ pixi.lock
+│  └─ pixi.toml
+├─ logs
+├─ run
+│  ├─ ang_prop.sh
+│  ├─ eva.sh
+│  ├─ load_1.sh
+│  └─ rec_1.sh
+├─ scrs
+│  ├─ ai_loop.py
+│  ├─ AIRobo.py
+│  └─ sync_data.py
+└─ run_ai_loop.sh
+```
 ### 2. hyperct_toolkit_deploy saved all dependents and pixi enviornment
 ### 3.  ./scrs/: HyperCT main scripts
 - AIRobo.py: there are four modes: 1). Load 2). Recon 3). Evaluate 4). Angle Propose
