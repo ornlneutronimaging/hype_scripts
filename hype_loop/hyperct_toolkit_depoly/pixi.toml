@@ -1,0 +1,109 @@
+[workspace]
+name = "hpc-image-template"
+channels = ["conda-forge", "nvidia", "pytorch"]
+platforms = ["linux-64"]
+
+# ============================================================
+# default environment
+# ============================================================
+[dependencies]
+python = "3.10.*"
+
+# ---- NumPy pinned (ABI safety for optional svmbir) ----
+numpy = "1.26.*"
+
+# ---- Core scientific stack ----
+scipy = "*"
+pandas = "*"
+matplotlib = "*"
+scikit-image = "*"
+
+# ---- Scientific I/O / formats ----
+h5py = "*"
+dxchange = "*"
+tifffile = "<2023.8"
+
+# ---- Jupyter / VS Code ----
+ipykernel = "*"
+jupyterlab = "*"
+
+# ---- package tooling ----
+pip = "*"
+setuptools = "<82"
+
+# ============================================================
+# Optional features
+# ============================================================
+
+# ---- svmbir + online prerelease mbirjax + local AI tools ----
+[feature.svmbir.dependencies]
+astropy = "*"
+
+[feature.svmbir.pypi-dependencies]
+svmbir = "*"
+mbirjax = { git = "https://github.com/cabouman/mbirjax.git", rev = "276d5f9", extras = ["cuda12"] }
+AInCT = { path = "./ainct_lib", editable = true }
+ctqa = { path = "./ctqa", editable = true }
+
+# ---- Image I/O helpers (opt-in) ----
+[feature.image-io.dependencies]
+pillow = "*"
+imageio = "*"
+
+# ---- PyTorch CPU ----
+[feature.torch.dependencies]
+pytorch = "*"
+
+# ---- PyTorch GPU ----
+[feature.gpu-torch.dependencies]
+pytorch = { channel = "pytorch" }
+pytorch-cuda = "12.*"
+
+# ---- JAX GPU ----
+[feature.gpu-jax.pypi-dependencies]
+jax = { version = "==0.6.2", extras = ["cuda12"] }
+
+# ---- TIFF / OME-TIFF ----
+[feature.tiff.dependencies]
+imagecodecs = "*"
+
+# ---- Visualization helpers ----
+[feature.viz.dependencies]
+seaborn = "*"
+
+# ---- Dev / lint / test ----
+[feature.dev.dependencies]
+pytest = "*"
+black = "*"
+ruff = "*"
+
+# ============================================================
+# Tasks
+# ============================================================
+[tasks]
+regkernel = "bash -c 'proj=$(basename $PWD); python -m ipykernel install --user --name pixi-${proj} --display-name \"Pixi (${proj})\"'"
+lab = "jupyter lab"
+py = "python -V"
+
+check-svmbir = "python -c \"import numpy as np, svmbir; print('numpy', np.__version__); print('svmbir ok')\""
+check-torch = "python -c \"import torch; print('torch', torch.__version__, 'cuda_available', torch.cuda.is_available(), 'torch_cuda', torch.version.cuda)\""
+check-jax = "python -c \"import jax; print('jax', jax.__version__, 'backend', jax.default_backend(), 'devices', jax.devices())\""
+
+check-local-tools = "python -c \"import importlib.metadata as md; import mbirjax, ctqa, AInCT; print('mbirjax file', mbirjax.__file__); print('mbirjax version', md.version('mbirjax')); print('ctqa file', ctqa.__file__); print('AInCT file', AInCT.__file__)\""
+
+# ============================================================
+# Environments
+# ============================================================
+[environments]
+default = []
+svmbir = ["svmbir"]
+image-io = ["image-io"]
+torch = ["torch"]
+gpu-torch = ["gpu-torch"]
+gpu-jax = ["gpu-jax"]
+tiff = ["tiff"]
+viz = ["viz"]
+dev = ["dev"]
+svmbir-gpu = ["svmbir", "gpu-torch"]
+svmbir-jax = ["svmbir", "gpu-jax"]
+svmbir-gpu-jax = ["svmbir", "gpu-torch", "gpu-jax"]

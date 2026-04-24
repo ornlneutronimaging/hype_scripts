@@ -1,0 +1,32 @@
+Job start at Thu Apr 23 10:04:21 PM EDT 2026
+Running on host: gnode002
+Python: /data/VENUS/shared/software/hype_scripts/hype_loop/hyperct_toolkit_depoly/.pixi/envs/svmbir-gpu-jax/bin/python
+Script: /data/VENUS/shared/software/hype_scripts/hype_loop/scrs/ai_loop.py
+Config: /data/VENUS/shared/software/hype_scripts/configs/config.yaml
+Processing data from 100th to 290th wavelength
+Recon /data/VENUS/IPTS-20121/shared/test_sample_T10K/Recons/wav_100_290/Ang_num_007.tiff is not exist!
+Load existed recon from /data/VENUS/IPTS-20121/shared/test_sample_T10K/Recons/wav_100_290/Ang_num_010.tiff...
+No previous reconstruction to compare!
+Recon Ang_num_010 score is 3.374
+Subsequent improvement from Ang_num_007 is None
+Comprehensive QI of Ang_num_010 is None
+2026-04-23 22:05:02.223955
+ >>>>>> Need new angles proposing <<<<<<
+Job end at Thu Apr 23 10:05:02 PM EDT 2026
+Execution time was 41 seconds.
+Evaluation Job start at Thu Apr 23 10:06:36 PM EDT 2026
+Running on host: gnode001
+Python: /data/VENUS/shared/software/hype_scripts/hype_loop/hyperct_toolkit_depoly/.pixi/envs/svmbir-gpu-jax/bin/python
+Script: /data/VENUS/shared/software/hype_scripts/hype_loop/scrs/ai_loop.py
+Config: /data/VENUS/shared/software/hype_scripts/configs/config.yaml
+Processing data from 100th to 290th wavelength
+Recon /data/VENUS/IPTS-20121/shared/test_sample_T10K/Recons/wav_100_290/Ang_num_007.tiff is not exist!
+Load existed recon from /data/VENUS/IPTS-20121/shared/test_sample_T10K/Recons/wav_100_290/Ang_num_010.tiff...
+No previous reconstruction to compare!
+Recon Ang_num_010 score is 3.374
+Subsequent improvement from Ang_num_007 is None
+Comprehensive QI of Ang_num_010 is None
+2026-04-23 22:07:13.778312
+ >>>>>> Need new angles proposing <<<<<<
+Job end at Thu Apr 23 10:07:14 PM EDT 2026
+Execution time was 38 seconds.
