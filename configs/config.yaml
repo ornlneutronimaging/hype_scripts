@@ -4,15 +4,20 @@ ai_process_running: true
 ai_process_paused: false
 debugging: false
 DataPath: /data/VENUS/IPTS-37493/images/tpx1/raw/ct/*_test_sample_T10K_*
-OutPath: ''
-ob_local_path: []
+OutPath: /data/VENUS/IPTS-20121/shared 
+ob_local_path: 
+  - /data/VENUS/IPTS-20121/shared/autoreduce/images/tpx1/ob/20250313_OB_ai_loop_copper_iron_blocks_05_00C/20250313_Run_7293_OB_ai_loop_copper_iron_blocks_05_00C_Dset0_0000
+  - /data/VENUS/IPTS-20121/shared/autoreduce/images/tpx1/ob/20250313_OB_ai_loop_copper_iron_blocks_05_00C/20250313_Run_7295_OB_ai_loop_copper_iron_blocks_05_00C_Dset2_0000
+  - /data/VENUS/IPTS-20121/shared/autoreduce/images/tpx1/ob/20250313_OB_ai_loop_copper_iron_blocks_05_00C/20250313_Run_7294_OB_ai_loop_copper_iron_blocks_05_00C_Dset1_0000
+
 0_and_180_local_path: []
-top_projections_folder_name: ''
+top_projections_folder_name: /data/VENUS/IPTS-20121/shared/autoreduce/images/tpx1/raw/ct/20250313_copper_iron_blocks_05_000C_0_700AngsMin  
 use_clean_data: false
 num_workers: 16
 use_neunorm: false
 swap_axes: false
 angle_propose_flag: true
+provided_ang_list: []
 list_of_initial_angles: []
 step: 3
 QIthresh: 6
@@ -42,7 +47,7 @@ align_paras:
   y_off: 0
   cent_x: 256
   cent_y: 256
-center_offset: -101.0
+center_offset: 30.5
 num_threads: 32
 recon_method: mbirjax
 sharpness: 0.0
@@ -59,7 +64,7 @@ eva_paras:
   beta: 0.4
 trained_model_path: /data/gxt/cnn_model_save/New_Epoch-100-Test_loss-0.9707233309745789.pth
 EIC_vals:
-  ipts: '37493'
+  ipts: '20121'
   eic_token: gAAAAABp3W00OndJ2i7Wua4cdgJGGpm41k6D99obv69QJYhETgN7HtqQnUJm03asmZ9nICHTEo-F5Df--uar-hggNzW2AhuljVuGmFwj1BxU2l6te7MY6FQt7ku1mTDvXM-joyi7Z9RoxVAx8Twz2OPoIKDrXIrvqM2vC6uhfKwyliKENpvjPKEcfzvBkYYjLf2KRtesFnG6r04ruLX-18ivEcAWHlMAb-wihWngJr1G3Ebq-g5TMgXE9C6NRpYhbxLPaABacamwAuE97hmhDxtF5YA7VIxKI1AXit1ZAqlcCwpgrykXJdGRsgbsXSKBQyfdVl9oyb_B9KYeTaVQly47pb3en9ZVgda9yoSXxfDyMyqe1ohqV1gNAjUYw1CKg_X7E-oMdLKV1hU_sdkzqbj-qDcvuAQiRTFsKE_8nAqunz5bVv3V8LnvEASZEOe5L4mSVDxyVc7AEWWWiz66twqEtEQv_L8FGqFVIAMRkGReJvDeqriMZWR1QXgntNZOu27v-TjJhAghaHGR0FJ8ivE18prOnzEDQZzOJ7phF399B-bY90T9SwlGikQSA807vY0lnFhJdCbAJX5BpkEXIJELo38enTps71xiv7iciEvkQA7i1qpklnf4glHET5ZISE1cGJxe3A89QDcaLeEpATZ07DYcPMSicWo-ZOJhTMmchcO39vtRmJe0QT3UnLKchMeMuy3x6QVlBhkhgf8Syh-hWA5wNgjYSj0vFpYGyC74443ygM0MUIJLPMxdOhzDZEEI3Y-ewnZI728UKwMyaFtCXPNLWo293A==
   proton_charge: 0.1
   number_of_obs: 3
