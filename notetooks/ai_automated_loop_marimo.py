@@ -26,13 +26,12 @@ def _(mo):
     get_debug_mode_unlocked, set_debug_mode_unlocked = mo.state(False)
     debug_password_w = mo.ui.text(value="", label="Debug mode password")
     unlock_debug_mode_button = mo.ui.run_button(label="Unlock debug mode")
-    unlock_debug_mode_button_row = mo.hstack([unlock_debug_mode_button], justify="start")
+    password_row = mo.hstack([debug_password_w, unlock_debug_mode_button], justify="start", align="end", gap=0.5)
 
     mo.vstack(
         [
-            mo.md("## Debug mode access"),
-            debug_password_w,
-            unlock_debug_mode_button_row,
+            mo.md("<div style='border-left: 4px solid #888; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #555;'>🔒 Debug mode access</span></div>"),
+            password_row,
         ]
     )
 
@@ -45,6 +44,7 @@ def _(debug_password_w, mo, set_debug_mode_unlocked, unlock_debug_mode_button):
 
     is_correct_password = str(debug_password_w.value).strip() == "imaging"
     set_debug_mode_unlocked(is_correct_password)
+    debug = is_correct_password
 
     if is_correct_password:
         status = mo.callout(
@@ -57,7 +57,7 @@ def _(debug_password_w, mo, set_debug_mode_unlocked, unlock_debug_mode_button):
             kind="warn",
         )
 
-    return (status,)
+    return debug, status
 
 
 @app.cell
@@ -66,11 +66,6 @@ def _(mo, get_debug_mode_unlocked, get_pre_proc_started):
     _is_unlocked = get_debug_mode_unlocked()
     _debug_locked = not _is_unlocked
 
-    debug_w = mo.ui.checkbox(
-        value=False,
-        label="debug (used by imaging team only)",
-        disabled=_started or _debug_locked,
-    )
     create_0deg_projection_button = mo.ui.run_button(
         label="Create 0degree projection",
         disabled=_started or _debug_locked,
@@ -102,8 +97,7 @@ def _(mo, get_debug_mode_unlocked, get_pre_proc_started):
 
     imaging_controls = mo.vstack(
         [
-            mo.md("## Imaging team controls"),
-            debug_w,
+            mo.md("<div style='border-left: 4px solid #e67e22; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #e67e22;'>🛠 Imaging team controls</span></div>"),
             projection_buttons_row,
             ob_buttons_row,
         ]
@@ -112,7 +106,6 @@ def _(mo, get_debug_mode_unlocked, get_pre_proc_started):
     imaging_controls
 
     return (
-        debug_w,
         create_0deg_projection_button,
         create_180deg_projection_button,
         create_ob_1_button,
@@ -179,7 +172,7 @@ def _(mo, get_pre_proc_started):
 
     controls = mo.vstack(
         [
-            mo.md("## Runtime parameters"),
+            mo.md("<div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>⚙️ Runtime parameters</span></div>"),
             live_w,
             new_experiment_w,
             ipts_row,
@@ -239,7 +232,7 @@ def _(mo, sample_name_w, user_conditions_w, first_run_w, get_pre_proc_started):
 
 @app.cell
 def _(
-    debug_w,
+    debug,
     description_w,
     first_run_w,
     initial_angles_w,
@@ -259,7 +252,6 @@ def _(
     mo.stop(not start_pre_processing_button.value)
 
     # Read widget values at click time so pre-processing uses the latest UI input.
-    debug = bool(debug_w.value)
     live = bool(live_w.value)
     new_experiment = bool(new_experiment_w.value)
     IPTS = int(ipts_w.value)
@@ -287,6 +279,7 @@ def _(
         user_conditions=user_conditions,
         new_experiment=new_experiment,
         ipts=IPTS,
+        debug=debug,
         description_of_exp=description_of_exp,
         nbr_obs=nbr_obs,
         proton_charge=proton_charge,
@@ -294,14 +287,12 @@ def _(
         live=live,
         first_run=first_run,
         motor=motor,
-        debug=debug,
     )
     o_ai.launch_pre_processing_step()
     set_pre_proc_started(True)
 
     return (
         IPTS,
-        debug,
         description_of_exp,
         first_run,
         list_of_initial_angles,
