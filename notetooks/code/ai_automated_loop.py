@@ -321,6 +321,12 @@ class AiAutomatedLoop:
             with open(self.config_file, 'w') as outfile:
                 yaml.dump(config, outfile, sort_keys=False)
 
+    def crop_images(self):
+        pass
+    
+    def select_tof_ranges(self):
+        pass
+
     def logging_error_messages(message, type='error'):
         formatted_message = message.split("\n")
         for _message in formatted_message:

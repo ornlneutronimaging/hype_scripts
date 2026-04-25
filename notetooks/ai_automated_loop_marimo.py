@@ -21,30 +21,110 @@ def _():
     return mo
 
 
-# @app.cell
-# def _(mo):
-#     mo.md("""
-#     # AI Automated Loop
+@app.cell
+def _(mo):
+    get_debug_mode_unlocked, set_debug_mode_unlocked = mo.state(False)
+    debug_password_w = mo.ui.text(value="", label="Debug mode password")
+    unlock_debug_mode_button = mo.ui.run_button(label="Unlock debug mode")
+    unlock_debug_mode_button_row = mo.hstack([unlock_debug_mode_button], justify="start")
 
-#     Workflow:
-#     1. Set parameters.
-#     2. Create `AiAutomatedLoop` object.
-#     3. Optionally launch pre-processing (OB + 0/180).
-#     4. Check pre-processing status.
-#     5. Calculate center of rotation.
-#     6. Optionally launch AI loop.
+    mo.vstack(
+        [
+            mo.md("## Debug mode access"),
+            debug_password_w,
+            unlock_debug_mode_button_row,
+        ]
+    )
 
-#     Safety note:
-#     - Side-effect steps are behind explicit boolean toggles.
-#     - Keep them `False` until you are ready.
-#     """)
-#     return
+    return debug_password_w, get_debug_mode_unlocked, set_debug_mode_unlocked, unlock_debug_mode_button
+
+
+@app.cell
+def _(debug_password_w, mo, set_debug_mode_unlocked, unlock_debug_mode_button):
+    mo.stop(not unlock_debug_mode_button.value)
+
+    is_correct_password = str(debug_password_w.value).strip() == "imaging"
+    set_debug_mode_unlocked(is_correct_password)
+
+    if is_correct_password:
+        status = mo.callout(
+            mo.md("Debug mode unlocked."),
+            kind="success",
+        )
+    else:
+        status = mo.callout(
+            mo.md("Incorrect password. Debug mode remains locked."),
+            kind="warn",
+        )
+
+    return (status,)
+
+
+@app.cell
+def _(mo, get_debug_mode_unlocked, get_pre_proc_started):
+    _started = get_pre_proc_started()
+    _is_unlocked = get_debug_mode_unlocked()
+    _debug_locked = not _is_unlocked
+
+    debug_w = mo.ui.checkbox(
+        value=False,
+        label="debug (used by imaging team only)",
+        disabled=_started or _debug_locked,
+    )
+    create_0deg_projection_button = mo.ui.run_button(
+        label="Create 0degree projection",
+        disabled=_started or _debug_locked,
+    )
+    create_180deg_projection_button = mo.ui.run_button(
+        label="Create 180degrees projection",
+        disabled=_started or _debug_locked,
+    )
+    projection_buttons_row = mo.hstack(
+        [create_0deg_projection_button, create_180deg_projection_button],
+        justify="start",
+    )
+    create_ob_1_button = mo.ui.run_button(
+        label="Create OB #1",
+        disabled=_started or _debug_locked,
+    )
+    create_ob_2_button = mo.ui.run_button(
+        label="Create OB #2",
+        disabled=_started or _debug_locked,
+    )
+    create_ob_3_button = mo.ui.run_button(
+        label="Create OB #3",
+        disabled=_started or _debug_locked,
+    )
+    ob_buttons_row = mo.hstack(
+        [create_ob_1_button, create_ob_2_button, create_ob_3_button],
+        justify="start",
+    )
+
+    imaging_controls = mo.vstack(
+        [
+            mo.md("## Imaging team controls"),
+            debug_w,
+            projection_buttons_row,
+            ob_buttons_row,
+        ]
+    ) if _is_unlocked else mo.md("")
+
+    imaging_controls
+
+    return (
+        debug_w,
+        create_0deg_projection_button,
+        create_180deg_projection_button,
+        create_ob_1_button,
+        create_ob_2_button,
+        create_ob_3_button,
+    )
 
 
 @app.cell
 def _(mo, get_pre_proc_started):
     _started = get_pre_proc_started()
-    debug_w = mo.ui.checkbox(value=False, label="debug (used by imaging team only)", disabled=_started)
+
     live_w = mo.ui.checkbox(value=False, label="live (will update the config file)", disabled=_started)
     new_experiment_w = mo.ui.checkbox(value=True, label="new_experiment", disabled=_started)
     ipts_w = mo.ui.text(value="37493", label="IPTS-", disabled=_started)
@@ -90,7 +170,6 @@ def _(mo, get_pre_proc_started):
         justify="start",
         align="end",
         gap=0.25,
-        # widths=[100, 0],
     )
     initial_angles_w = mo.ui.text(
         value="",
@@ -101,7 +180,6 @@ def _(mo, get_pre_proc_started):
     controls = mo.vstack(
         [
             mo.md("## Runtime parameters"),
-            debug_w,
             live_w,
             new_experiment_w,
             ipts_row,
@@ -117,8 +195,21 @@ def _(mo, get_pre_proc_started):
         ]
     )
     controls
-    
-    return (ipts_w, debug_w, description_w, first_run_w, live_w, motor_w, nbr_obs_w, new_experiment_w, n_tiff_w, proton_charge_w, sample_name_w, user_conditions_w, initial_angles_w)
+
+    return (
+        ipts_w,
+        description_w,
+        first_run_w,
+        live_w,
+        motor_w,
+        nbr_obs_w,
+        new_experiment_w,
+        n_tiff_w,
+        proton_charge_w,
+        sample_name_w,
+        user_conditions_w,
+        initial_angles_w,
+    )
 
 
 @app.cell
@@ -141,9 +232,7 @@ def _(mo, sample_name_w, user_conditions_w, first_run_w, get_pre_proc_started):
             ]
         ),
     )
-    
-    
-    
+
     start_pre_processing_button
     return (start_pre_processing_button,)
 
@@ -192,18 +281,21 @@ def _(
 
     # this is where we start running the pre-processing algo
     from notetooks.code import AiAutomatedLoop
-    o_ai = AiAutomatedLoop(sample_name=sample_name,
-                       user_conditions=user_conditions,
-                       new_experiment=new_experiment,
-                       ipts=IPTS,
-                       description_of_exp=description_of_exp,
-                       nbr_obs=nbr_obs,
-                       proton_charge=proton_charge,
-                       number_of_tiff_for_each_run=number_of_tiff_for_each_run,
-                       live=live,
-                       first_run=first_run,
-                       motor=motor,
-                       debug=debug)
+
+    o_ai = AiAutomatedLoop(
+        sample_name=sample_name,
+        user_conditions=user_conditions,
+        new_experiment=new_experiment,
+        ipts=IPTS,
+        description_of_exp=description_of_exp,
+        nbr_obs=nbr_obs,
+        proton_charge=proton_charge,
+        number_of_tiff_for_each_run=number_of_tiff_for_each_run,
+        live=live,
+        first_run=first_run,
+        motor=motor,
+        debug=debug,
+    )
     o_ai.launch_pre_processing_step()
     set_pre_proc_started(True)
 
@@ -221,6 +313,7 @@ def _(
         proton_charge,
         sample_name,
         user_conditions,
+        o_ai,
     )
 
 
@@ -247,14 +340,31 @@ def _(mo, check_pre_process_status_button):
 
     if _cfg.get("ai_pre_process_running", False):
         mo.callout(
-            mo.md("Pre-processing is **still running** — check back in a few minutes."),
+            mo.md("Pre-processing is **still running** - check back in a few minutes."),
             kind="warn",
         )
+        pre_process_is_done = False
     else:
         mo.callout(
             mo.md("Pre-processing is **DONE!** Feel free to move to the next step."),
             kind="success",
         )
+        pre_process_is_done = True
+    return (pre_process_is_done,)
+
+
+@app.cell
+def _(mo, pre_process_is_done, o_ai):
+    mo.stop(not pre_process_is_done)
+
+    # we need to calculate the center of rotation
+    o_ai.calculate_center_of_rotation()
+
+    # we need to crop
+    o_ai.crop_images()
+
+    # we need to define up to 5 TOF ranges
+    o_ai.define_tof_ranges()
 
 
 if __name__ == "__main__":
