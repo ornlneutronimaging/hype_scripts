@@ -1,5 +1,8 @@
 
 #%%
+import sys
+sys.path.insert(0, "/data/VENUS/shared/software/hype_scripts/scripts")
+
 from _temp_hyperct_utils import eic_submit_table_scan
 import yaml, argparse
 # %%
@@ -9,8 +12,8 @@ parser.add_argument("--cfg_file", type=str, help='configure file path')
 args = parser.parse_args()
 
 # %%
-cfg_file = args.cfg_file
-#cfg_file = '/SNS/VENUS/IPTS-35790/shared/hype/configs/config.yaml'
+#cfg_file = args.cfg_file
+cfg_file = '/data/VENUS/shared/software/hype_scripts/configs/config.yaml'
 cfg = yaml.safe_load(open(cfg_file, 'r', encoding = 'utf-8'))
 #%%
 ipts = str(cfg['EIC_vals']['ipts'])
@@ -20,7 +23,7 @@ eic_token = cfg['EIC_vals']['eic_token']
 # user define
 p_charge = cfg['EIC_vals']['proton_charge']
 smp_name = cfg['EIC_vals']['sample_name']
-user_con = cfg['EIC_vals']['user_con']
+user_con = cfg['EIC_vals']['user_conditions']
 ob_num = cfg['EIC_vals']['number_of_obs']
 usr_desc = cfg['EIC_vals']['scan_description']
 ini_ang_num = cfg['num_ini_ang']
