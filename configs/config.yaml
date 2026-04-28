@@ -66,11 +66,13 @@ trained_model_path: /data/gxt/cnn_model_save/New_Epoch-100-Test_loss-0.970723330
 EIC_vals:
   ipts: '20121'
   eic_token: gAAAAABp3W00OndJ2i7Wua4cdgJGGpm41k6D99obv69QJYhETgN7HtqQnUJm03asmZ9nICHTEo-F5Df--uar-hggNzW2AhuljVuGmFwj1BxU2l6te7MY6FQt7ku1mTDvXM-joyi7Z9RoxVAx8Twz2OPoIKDrXIrvqM2vC6uhfKwyliKENpvjPKEcfzvBkYYjLf2KRtesFnG6r04ruLX-18ivEcAWHlMAb-wihWngJr1G3Ebq-g5TMgXE9C6NRpYhbxLPaABacamwAuE97hmhDxtF5YA7VIxKI1AXit1ZAqlcCwpgrykXJdGRsgbsXSKBQyfdVl9oyb_B9KYeTaVQly47pb3en9ZVgda9yoSXxfDyMyqe1ohqV1gNAjUYw1CKg_X7E-oMdLKV1hU_sdkzqbj-qDcvuAQiRTFsKE_8nAqunz5bVv3V8LnvEASZEOe5L4mSVDxyVc7AEWWWiz66twqEtEQv_L8FGqFVIAMRkGReJvDeqriMZWR1QXgntNZOu27v-TjJhAghaHGR0FJ8ivE18prOnzEDQZzOJ7phF399B-bY90T9SwlGikQSA807vY0lnFhJdCbAJX5BpkEXIJELo38enTps71xiv7iciEvkQA7i1qpklnf4glHET5ZISE1cGJxe3A89QDcaLeEpATZ07DYcPMSicWo-ZOJhTMmchcO39vtRmJe0QT3UnLKchMeMuy3x6QVlBhkhgf8Syh-hWA5wNgjYSj0vFpYGyC74443ygM0MUIJLPMxdOhzDZEEI3Y-ewnZI728UKwMyaFtCXPNLWo293A==
+  acquire_type: time # or pCharge
   proton_charge: 0.1
+  time_s: 0
   number_of_obs: 3
   motor_number: 1
   sample_name: test_sample
-  user_con: T10K
+  user_conditions: T10K
   scan_description: testing EIC in May with Shimin and Jean
 edge_type: vcls
 ea2s_paras:
