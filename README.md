@@ -71,7 +71,7 @@ When the last expected pre-processing run is collected:
 2. working_with_first_processing_angles is set to false.
 3. run_number_expected is incremented.
 4. config is copied to /data/VENUS/shared and ~/.
-5. /data/VENUS/shared/software/auto_gen_run_scrs/ini_exp_hype.sh is launched.
+5. /data/VENUS/shared/software/hype_scripts/hype_loop/hyperct_toolkit_depoly/hyperct_loop_autogen/ini_exp_hype.sh is launched.
 
 ### E) Live status checks
 
