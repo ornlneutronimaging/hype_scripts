@@ -9,6 +9,8 @@ ob_local_path:
   - /data/VENUS/IPTS-20121/shared/autoreduce/images/tpx1/ob/20250313_OB_ai_loop_copper_iron_blocks_05_00C/20250313_Run_7293_OB_ai_loop_copper_iron_blocks_05_00C_Dset0_0000
   - /data/VENUS/IPTS-20121/shared/autoreduce/images/tpx1/ob/20250313_OB_ai_loop_copper_iron_blocks_05_00C/20250313_Run_7295_OB_ai_loop_copper_iron_blocks_05_00C_Dset2_0000
   - /data/VENUS/IPTS-20121/shared/autoreduce/images/tpx1/ob/20250313_OB_ai_loop_copper_iron_blocks_05_00C/20250313_Run_7294_OB_ai_loop_copper_iron_blocks_05_00C_Dset1_0000
+ob_alignment_file: XXXXX.csv
+sample_alignment_file: XXXXX.csv
 
 0_and_180_local_path: []
 top_projections_folder_name: /data/VENUS/IPTS-20121/shared/autoreduce/images/tpx1/raw/ct/20250313_copper_iron_blocks_05_000C_0_700AngsMin  
