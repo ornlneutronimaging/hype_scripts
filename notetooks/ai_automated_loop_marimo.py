@@ -204,14 +204,14 @@ def _(checklist_ready, ipts_w, mo):
             filetypes=[".csv"],
             selection_mode="file",
             multiple=False,
-            label="Sample alignment file",
+            label="Sample alignment file <span style='color: red;'>✱</span>",
         )
         ob_alignment_w = mo.ui.file_browser(
             initial_path=_alignment_dir,
             filetypes=[".csv"],
             selection_mode="file",
             multiple=False,
-            label="Open beam alignment file",
+            label="Open beam alignment file <span style='color: red;'>✱</span>",
         )
 
         alignment_ui = mo.vstack([sample_alignment_w, ob_alignment_w], gap=0.5)
@@ -312,7 +312,7 @@ def _(checklist_ready, mo, get_debug_mode_unlocked, get_pre_proc_started):
         disabled=_started or _debug_locked,
     )
     create_180deg_projection_button = mo.ui.run_button(
-        label="Create 180degrees projection",
+        label="Create 180° projection",
         disabled=_started or _debug_locked,
     )
     projection_buttons_row = mo.hstack(
@@ -356,23 +356,55 @@ def _(checklist_ready, mo, get_debug_mode_unlocked, get_pre_proc_started):
 
 
 @app.cell
-def _(checklist_ready, mo, sample_name_w, user_conditions_w, first_run_w, get_pre_proc_started):
+def _(
+    checklist_ready,
+    mo,
+    sample_name_w,
+    user_conditions_w,
+    first_run_w,
+    ipts_w,
+    sample_alignment_w,
+    ob_alignment_w,
+    get_pre_proc_started,
+):
     mo.stop(not checklist_ready)
 
     _started = get_pre_proc_started()
-    start_pre_processing_button = mo.ui.run_button(
-        label="Start pre-processing",
-        full_width=True,
-        disabled=_started or not all(
-            [
-                str(sample_name_w.value).strip(),
-                str(user_conditions_w.value).strip(),
-                str(first_run_w.value).strip(),
-            ]
-        ),
+    _missing_parameters = []
+    if not str(ipts_w.value).strip():
+        _missing_parameters.append("IPTS")
+    if not str(sample_name_w.value).strip():
+        _missing_parameters.append("sample name")
+    if not str(user_conditions_w.value).strip():
+        _missing_parameters.append("sample conditions")
+    if not str(first_run_w.value).strip():
+        _missing_parameters.append("first run")
+    if sample_alignment_w is None or not sample_alignment_w.value:
+        _missing_parameters.append("sample alignment file")
+    if ob_alignment_w is None or not ob_alignment_w.value:
+        _missing_parameters.append("open beam alignment file")
+
+    _mandatory_fields_filled = not _missing_parameters
+
+    missing_parameters_box = (
+        mo.callout(
+            mo.md(
+                "**Missing parameters:**\n\n"
+                + "\n".join(f"- {parameter}" for parameter in _missing_parameters)
+            ),
+            kind="warn",
+        )
+        if _missing_parameters
+        else mo.md("")
     )
 
-    start_pre_processing_button
+    start_pre_processing_button = mo.ui.run_button(
+        label="Start open beams, 0 and 180° projections",
+        full_width=True,
+        disabled=_started or not _mandatory_fields_filled,
+    )
+
+    mo.vstack([missing_parameters_box, start_pre_processing_button], gap=0.5)
     return (start_pre_processing_button,)
 
 
