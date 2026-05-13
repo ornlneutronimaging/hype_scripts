@@ -38,7 +38,8 @@ def _(mo):
 
     checklist_ui = mo.vstack(
         [
-            mo.md("### 📋  Starting checklist"),
+            # mo.md("<span style='color: #90caf9;'>📋  Starting checklist</span>"),
+            mo.md("<div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>📋  Starting checklist</span> <span style='font-size: 0.85rem; font-weight: 400; color: #888; text-transform: none;'></span></div>"),
             hyperct_mode_checked,
             remote_key_checked,
             cronjob_checked,
@@ -86,7 +87,7 @@ def _(checklist_ready, get_debug_mode_unlocked, get_live_enabled, mo, set_live_e
         }
     ) if _debug_locked else live_w
     new_experiment_w = mo.ui.checkbox(value=True, label="new experiment")
-    ipts_w = mo.ui.text(value="37493", label="IPTS-", disabled=_started)
+    ipts_w = mo.ui.text(value="36914", label="IPTS-", disabled=_started)
     required_marker = mo.md("<span style='color: red; font-size: 1.25rem;'>*</span>")
     ipts_row = mo.hstack([ipts_w, required_marker], justify="start", align="end", gap=0.25)
     sample_name_w = mo.ui.text(value="test_sample", label="sample name (10 chars max)", disabled=_started)
@@ -186,25 +187,36 @@ def _(checklist_ready, get_debug_mode_unlocked, get_live_enabled, mo, set_live_e
 
 @app.cell
 def _(checklist_ready, ipts_w, mo):
+    import os
     mo.stop(not checklist_ready)
 
     _alignment_dir = f"/SNS/VENUS/IPTS-{ipts_w.value}/images/tpx1/alignment"
-    sample_alignment_w = mo.ui.file_browser(
-        initial_path=_alignment_dir,
-        filetypes=[".txt"],
-        selection_mode="file",
-        multiple=False,
-        label="Sample alignment file",
-    )
-    ob_alignment_w = mo.ui.file_browser(
-        initial_path=_alignment_dir,
-        filetypes=[".txt"],
-        selection_mode="file",
-        multiple=False,
-        label="Open beam alignment file",
-    )
+    if not os.path.exists(_alignment_dir):
+        sample_alignment_w = None
+        ob_alignment_w = None
+        alignment_ui = mo.callout(
+            mo.md("**Check the IPTS number! Path does not exist!**"),
+            kind="danger",
+        )
+    else:
+        sample_alignment_w = mo.ui.file_browser(
+            initial_path=_alignment_dir,
+            filetypes=[".csv"],
+            selection_mode="file",
+            multiple=False,
+            label="Sample alignment file",
+        )
+        ob_alignment_w = mo.ui.file_browser(
+            initial_path=_alignment_dir,
+            filetypes=[".csv"],
+            selection_mode="file",
+            multiple=False,
+            label="Open beam alignment file",
+        )
 
-    mo.vstack([sample_alignment_w, ob_alignment_w], gap=0.5)
+        alignment_ui = mo.vstack([sample_alignment_w, ob_alignment_w], gap=0.5)
+
+    alignment_ui
     return sample_alignment_w, ob_alignment_w
 
 
