@@ -68,12 +68,23 @@ def _(cronjob_checked, hyperct_mode_checked, remote_key_checked):
 
 
 @app.cell
-def _(checklist_ready, mo, get_pre_proc_started):
+def _(checklist_ready, get_debug_mode_unlocked, get_live_enabled, mo, set_live_enabled, get_pre_proc_started):
     mo.stop(not checklist_ready)
 
     _started = get_pre_proc_started()
+    _debug_locked = get_debug_mode_unlocked()
 
-    live_w = mo.ui.checkbox(value=False, label="live (will update the config file)")
+    live_w = mo.ui.checkbox(
+        value=get_live_enabled(),
+        label="live (hyperct code will be executed)",
+        on_change=set_live_enabled,
+    )
+    live_row = mo.vstack([live_w]).style(
+        {
+            "pointer-events": "none",
+            "opacity": "0.45",
+        }
+    ) if _debug_locked else live_w
     new_experiment_w = mo.ui.checkbox(value=True, label="new experiment")
     ipts_w = mo.ui.text(value="37493", label="IPTS-", disabled=_started)
     required_marker = mo.md("<span style='color: red; font-size: 1.25rem;'>*</span>")
@@ -92,7 +103,7 @@ def _(checklist_ready, mo, get_pre_proc_started):
         align="end",
         gap=0.25,
     )
-    motor_w = mo.ui.number(start=1, step=1, value=1, label="motor")
+    motor_w = mo.ui.number(start=1, stop=6, step=1, value=1, label="motor")
     motor_row = mo.hstack([motor_w], justify="start", widths=[5])
     description_w = mo.ui.text(
         value="testing EIC in May with Shimin and Jean",
@@ -141,7 +152,7 @@ def _(checklist_ready, mo, get_pre_proc_started):
     controls = mo.vstack(
         [
             mo.md("<div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>⚙️ Runtime parameters</span> <span style='font-size: 0.85rem; font-weight: 400; color: #888; text-transform: none;'>(fields marked with <span style='color: red;'>✱</span> are mandator)</span></div>"),
-            live_w,
+            live_row,
             new_experiment_w,
             ipts_row,
             sample_name_row,
@@ -171,6 +182,30 @@ def _(checklist_ready, mo, get_pre_proc_started):
         user_conditions_w,
         initial_angles_w,
     )
+
+
+@app.cell
+def _(checklist_ready, ipts_w, mo):
+    mo.stop(not checklist_ready)
+
+    _alignment_dir = f"/SNS/VENUS/IPTS-{ipts_w.value}/images/tpx1/alignment"
+    sample_alignment_w = mo.ui.file_browser(
+        initial_path=_alignment_dir,
+        filetypes=[".txt"],
+        selection_mode="file",
+        multiple=False,
+        label="Sample alignment file",
+    )
+    ob_alignment_w = mo.ui.file_browser(
+        initial_path=_alignment_dir,
+        filetypes=[".txt"],
+        selection_mode="file",
+        multiple=False,
+        label="Open beam alignment file",
+    )
+
+    mo.vstack([sample_alignment_w, ob_alignment_w], gap=0.5)
+    return sample_alignment_w, ob_alignment_w
 
 
 @app.cell
@@ -206,7 +241,13 @@ def _(mo):
 
 
 @app.cell
-def _(checklist_ready, debug_password_w, get_debug_mode_unlocked, mo, set_debug_mode_password, set_debug_mode_unlocked, unlock_debug_mode_button):
+def _(mo):
+    get_live_enabled, set_live_enabled = mo.state(True)
+    return get_live_enabled, set_live_enabled
+
+
+@app.cell
+def _(checklist_ready, debug_password_w, get_debug_mode_unlocked, mo, set_debug_mode_password, set_debug_mode_unlocked, set_live_enabled, unlock_debug_mode_button):
     mo.stop(not checklist_ready)
     mo.stop(not unlock_debug_mode_button.value)
 
@@ -222,6 +263,8 @@ def _(checklist_ready, debug_password_w, get_debug_mode_unlocked, mo, set_debug_
         is_correct_password = str(debug_password_w.value).strip() == "imaging"
         set_debug_mode_unlocked(is_correct_password)
         set_debug_mode_password("")
+        if is_correct_password:
+            set_live_enabled(False)
         debug = is_correct_password
 
         if is_correct_password:
