@@ -24,12 +24,16 @@ def _():
 @app.cell
 def _(mo):
     hyperct_mode_checked = mo.ui.checkbox(
-        value=False,
+        value=True,
         label="The instrument has been configure for HyperCT mode (in the DAS console)",
     )
     remote_key_checked = mo.ui.checkbox(
-        value=False,
+        value=True,
         label="Remote key has been configured by the imaging team (added to config file)",
+    )
+    cronjob_checked = mo.ui.checkbox(
+        value=True,
+        label="pre-processing script running (cronjob)",
     )
 
     checklist_ui = mo.vstack(
@@ -37,6 +41,7 @@ def _(mo):
             mo.md("### 📋  Starting checklist"),
             hyperct_mode_checked,
             remote_key_checked,
+            cronjob_checked,
         ],
         gap=0.5,
     ).style(
@@ -51,31 +56,131 @@ def _(mo):
     )
 
     checklist_ui
-    return hyperct_mode_checked, remote_key_checked
+    return hyperct_mode_checked, remote_key_checked, cronjob_checked
 
 
 @app.cell
-def _(hyperct_mode_checked, remote_key_checked):
-    checklist_ready = bool(hyperct_mode_checked.value and remote_key_checked.value)
+def _(cronjob_checked, hyperct_mode_checked, remote_key_checked):
+    checklist_ready = bool(
+        hyperct_mode_checked.value and remote_key_checked.value and cronjob_checked.value
+    )
     return (checklist_ready,)
 
 
 @app.cell
-def _(checklist_ready, mo):
-    if not checklist_ready:
-        mo.callout(
-            mo.md("Complete both checklist items to unlock the rest of the widgets."),
-            kind="warn",
-        )
+def _(checklist_ready, mo, get_pre_proc_started):
+    mo.stop(not checklist_ready)
+
+    _started = get_pre_proc_started()
+
+    live_w = mo.ui.checkbox(value=False, label="live (will update the config file)")
+    new_experiment_w = mo.ui.checkbox(value=True, label="new experiment")
+    ipts_w = mo.ui.text(value="37493", label="IPTS-", disabled=_started)
+    required_marker = mo.md("<span style='color: red; font-size: 1.25rem;'>*</span>")
+    ipts_row = mo.hstack([ipts_w, required_marker], justify="start", align="end", gap=0.25)
+    sample_name_w = mo.ui.text(value="test_sample", label="sample name (10 chars max)", disabled=_started)
+    user_conditions_w = mo.ui.text(value="T10K", label="sample conditions (10 chars max)", disabled=_started)
+    sample_name_row = mo.hstack(
+        [sample_name_w, required_marker],
+        justify="start",
+        align="end",
+        gap=0.25,
+    )
+    user_conditions_row = mo.hstack(
+        [user_conditions_w, required_marker],
+        justify="start",
+        align="end",
+        gap=0.25,
+    )
+    motor_w = mo.ui.number(start=1, step=1, value=1, label="motor")
+    motor_row = mo.hstack([motor_w], justify="start", widths=[5])
+    description_w = mo.ui.text(
+        value="testing EIC in May with Shimin and Jean",
+        label="description of experiment",
+        full_width=True,
+        disabled=_started,
+    ).style({"width": "700px", "min-width": "700px"})    
+    description_row = mo.hstack(
+        [description_w, mo.md("<span style='color: #888; font-size: 0.85rem; font-style: italic;'>Optional</span>")],
+        justify="start",
+        align="end",
+        gap=0.5,
+        widths=["1fr", "auto"],
+    ).style({"width": "100%"})    
+    nbr_obs_w = mo.ui.number(start=1, step=1, value=3, label="nbr of open beams")
+    nbr_obs_row = mo.hstack([nbr_obs_w], justify="start", widths=[10])
+    proton_charge_w = mo.ui.number(start=0.0, step=0.01, value=0.1, label="proton charge (C)")
+    proton_charge_row = mo.hstack([proton_charge_w], justify="start", widths=[10])
+    n_tiff_w = mo.ui.number(
+        start=1,
+        step=1,
+        value=2628,
+        label="number of tiff images for each run",
+    )
+    n_tiff_row = mo.hstack([n_tiff_w], justify="start", widths=[20])
+    first_run_w = mo.ui.text(value="8769", label="first run", disabled=_started)
+    first_run_row = mo.hstack(
+        [first_run_w, required_marker],
+        justify="start",
+        align="end",
+        gap=0.25,
+    )
+    initial_angles_w = mo.ui.text(
+        value="",
+        label="list of initial angles (e.g., 0.0, 90.0, 180.0)",
+        disabled=_started,
+        full_width=True,
+    ).style({"width": "700px", "min-width": "700px"})
+    initial_angles_row = mo.hstack(
+        [initial_angles_w, mo.md("<span style='color: #888; font-size: 0.85rem; font-style: italic;'>Optional</span>")],
+        justify="start",
+        align="end",
+        gap=0.5,
+    )
+
+    controls = mo.vstack(
+        [
+            mo.md("<div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>⚙️ Runtime parameters</span> <span style='font-size: 0.85rem; font-weight: 400; color: #888; text-transform: none;'>(fields marked with <span style='color: red;'>✱</span> are mandator)</span></div>"),
+            live_w,
+            new_experiment_w,
+            ipts_row,
+            sample_name_row,
+            user_conditions_row,
+            motor_row,
+            description_row,
+            nbr_obs_row,
+            proton_charge_row,
+            n_tiff_row,
+            first_run_row,
+            initial_angles_row,
+        ]
+    )
+    controls
+
+    return (
+        ipts_w,
+        description_w,
+        first_run_w,
+        live_w,
+        motor_w,
+        nbr_obs_w,
+        new_experiment_w,
+        n_tiff_w,
+        proton_charge_w,
+        sample_name_w,
+        user_conditions_w,
+        initial_angles_w,
+    )
 
 
 @app.cell
-def _(checklist_ready, mo):
+def _(checklist_ready, get_debug_mode_password, get_debug_mode_unlocked, mo):
     mo.stop(not checklist_ready)
 
-    get_debug_mode_unlocked, set_debug_mode_unlocked = mo.state(False)
-    debug_password_w = mo.ui.text(value="", label="Debug mode password")
-    unlock_debug_mode_button = mo.ui.run_button(label="Unlock debug mode")
+    debug_password_w = mo.ui.text(value=get_debug_mode_password(), label="Debug mode password")
+    unlock_debug_mode_button = mo.ui.run_button(
+        label="Lock debug mode" if get_debug_mode_unlocked() else "Unlock debug mode"
+    )
     password_row = mo.hstack([debug_password_w, unlock_debug_mode_button], justify="start", align="end", gap=0.5)
 
     mo.vstack(
@@ -85,30 +190,58 @@ def _(checklist_ready, mo):
         ]
     )
 
-    return debug_password_w, get_debug_mode_unlocked, set_debug_mode_unlocked, unlock_debug_mode_button
+    return debug_password_w, unlock_debug_mode_button
 
 
 @app.cell
-def _(checklist_ready, debug_password_w, mo, set_debug_mode_unlocked, unlock_debug_mode_button):
+def _(mo):
+    get_debug_mode_unlocked, set_debug_mode_unlocked = mo.state(False)
+    return get_debug_mode_unlocked, set_debug_mode_unlocked
+
+
+@app.cell
+def _(mo):
+    get_debug_mode_password, set_debug_mode_password = mo.state("")
+    return get_debug_mode_password, set_debug_mode_password
+
+
+@app.cell
+def _(checklist_ready, debug_password_w, get_debug_mode_unlocked, mo, set_debug_mode_password, set_debug_mode_unlocked, unlock_debug_mode_button):
     mo.stop(not checklist_ready)
     mo.stop(not unlock_debug_mode_button.value)
 
-    is_correct_password = str(debug_password_w.value).strip() == "imaging"
-    set_debug_mode_unlocked(is_correct_password)
-    debug = is_correct_password
-
-    if is_correct_password:
+    if get_debug_mode_unlocked():
+        set_debug_mode_unlocked(False)
+        set_debug_mode_password("")
+        debug = False
         status = mo.callout(
-            mo.md("Debug mode unlocked."),
-            kind="success",
-        )
-    else:
-        status = mo.callout(
-            mo.md("Incorrect password. Debug mode remains locked."),
+            mo.md("Debug mode locked."),
             kind="warn",
         )
+    else:
+        is_correct_password = str(debug_password_w.value).strip() == "imaging"
+        set_debug_mode_unlocked(is_correct_password)
+        set_debug_mode_password("")
+        debug = is_correct_password
+
+        if is_correct_password:
+            status = mo.callout(
+                mo.md("Debug mode unlocked."),
+                kind="success",
+            )
+        else:
+            status = mo.callout(
+                mo.md("Incorrect password. Debug mode remains locked."),
+                kind="warn",
+            )
 
     return debug, status
+
+
+@app.cell
+def _(mo):
+    get_pre_proc_started, set_pre_proc_started = mo.state(False)
+    return get_pre_proc_started, set_pre_proc_started
 
 
 @app.cell
@@ -165,105 +298,6 @@ def _(checklist_ready, mo, get_debug_mode_unlocked, get_pre_proc_started):
         create_ob_2_button,
         create_ob_3_button,
     )
-
-
-@app.cell
-def _(checklist_ready, mo, get_pre_proc_started):
-    mo.stop(not checklist_ready)
-
-    _started = get_pre_proc_started()
-
-    live_w = mo.ui.checkbox(value=False, label="live (will update the config file)", disabled=_started)
-    new_experiment_w = mo.ui.checkbox(value=True, label="new_experiment", disabled=_started)
-    ipts_w = mo.ui.text(value="37493", label="IPTS-", disabled=_started)
-    ipts_row = mo.hstack([ipts_w], justify="start", widths=[50])
-    sample_name_w = mo.ui.text(value="test_sample", label="sample_name (10 chars max)", disabled=_started)
-    user_conditions_w = mo.ui.text(value="T10K", label="user_conditions (10 chars max)", disabled=_started)
-    required_marker = mo.md("<span style='color: red; font-size: 1.25rem;'>*</span>")
-    sample_name_row = mo.hstack(
-        [sample_name_w, required_marker],
-        justify="start",
-        align="end",
-        gap=0.25,
-    )
-    user_conditions_row = mo.hstack(
-        [user_conditions_w, required_marker],
-        justify="start",
-        align="end",
-        gap=0.25,
-    )
-    motor_w = mo.ui.number(start=1, step=1, value=1, label="motor", disabled=_started)
-    motor_row = mo.hstack([motor_w], justify="start", widths=[5])
-    description_w = mo.ui.text(
-        value="testing EIC in May with Shimin and Jean",
-        label="description_of_exp",
-        full_width=True,
-        disabled=_started,
-    )
-    nbr_obs_w = mo.ui.number(start=1, step=1, value=3, label="nbr_obs", disabled=_started)
-    nbr_obs_row = mo.hstack([nbr_obs_w], justify="start", widths=[10])
-    proton_charge_w = mo.ui.number(start=0.0, step=0.01, value=0.1, label="proton_charge (C)", disabled=_started)
-    proton_charge_row = mo.hstack([proton_charge_w], justify="start", widths=[10])
-    n_tiff_w = mo.ui.number(
-        start=1,
-        step=1,
-        value=2628,
-        label="number_of_tiff_for_each_run",
-        disabled=_started,
-    )
-    n_tiff_row = mo.hstack([n_tiff_w], justify="start", widths=[20])
-    first_run_w = mo.ui.text(value="8769", label="first_run", disabled=_started)
-    first_run_row = mo.hstack(
-        [first_run_w, required_marker],
-        justify="start",
-        align="end",
-        gap=0.25,
-    )
-    initial_angles_w = mo.ui.text(
-        value="",
-        label="list_of_initial_angles (optional, comma-separated)",
-        disabled=_started,
-    )
-
-    controls = mo.vstack(
-        [
-            mo.md("<div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>⚙️ Runtime parameters</span></div>"),
-            live_w,
-            new_experiment_w,
-            ipts_row,
-            sample_name_row,
-            user_conditions_row,
-            motor_row,
-            description_w,
-            nbr_obs_row,
-            proton_charge_row,
-            n_tiff_row,
-            first_run_row,
-            initial_angles_w,
-        ]
-    )
-    controls
-
-    return (
-        ipts_w,
-        description_w,
-        first_run_w,
-        live_w,
-        motor_w,
-        nbr_obs_w,
-        new_experiment_w,
-        n_tiff_w,
-        proton_charge_w,
-        sample_name_w,
-        user_conditions_w,
-        initial_angles_w,
-    )
-
-
-@app.cell
-def _(mo):
-    get_pre_proc_started, set_pre_proc_started = mo.state(False)
-    return get_pre_proc_started, set_pre_proc_started
 
 
 @app.cell
