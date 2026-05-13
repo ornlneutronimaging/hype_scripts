@@ -23,6 +23,56 @@ def _():
 
 @app.cell
 def _(mo):
+    hyperct_mode_checked = mo.ui.checkbox(
+        value=False,
+        label="The instrument has been configure for HyperCT mode (in the DAS console)",
+    )
+    remote_key_checked = mo.ui.checkbox(
+        value=False,
+        label="Remote key has been configured by the imaging team (added to config file)",
+    )
+
+    checklist_ui = mo.vstack(
+        [
+            mo.md("### 📋  Starting checklist"),
+            hyperct_mode_checked,
+            remote_key_checked,
+        ],
+        gap=0.5,
+    ).style(
+        {
+            "border": "1px solid #334155",
+            "border-radius": "8px",
+            "padding": "12px",
+            "background": "linear-gradient(180deg, #111827 0%, #0b1220 100%)",
+            "color": "#e5e7eb",
+            "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
+        }
+    )
+
+    checklist_ui
+    return hyperct_mode_checked, remote_key_checked
+
+
+@app.cell
+def _(hyperct_mode_checked, remote_key_checked):
+    checklist_ready = bool(hyperct_mode_checked.value and remote_key_checked.value)
+    return (checklist_ready,)
+
+
+@app.cell
+def _(checklist_ready, mo):
+    if not checklist_ready:
+        mo.callout(
+            mo.md("Complete both checklist items to unlock the rest of the widgets."),
+            kind="warn",
+        )
+
+
+@app.cell
+def _(checklist_ready, mo):
+    mo.stop(not checklist_ready)
+
     get_debug_mode_unlocked, set_debug_mode_unlocked = mo.state(False)
     debug_password_w = mo.ui.text(value="", label="Debug mode password")
     unlock_debug_mode_button = mo.ui.run_button(label="Unlock debug mode")
@@ -39,7 +89,8 @@ def _(mo):
 
 
 @app.cell
-def _(debug_password_w, mo, set_debug_mode_unlocked, unlock_debug_mode_button):
+def _(checklist_ready, debug_password_w, mo, set_debug_mode_unlocked, unlock_debug_mode_button):
+    mo.stop(not checklist_ready)
     mo.stop(not unlock_debug_mode_button.value)
 
     is_correct_password = str(debug_password_w.value).strip() == "imaging"
@@ -61,7 +112,9 @@ def _(debug_password_w, mo, set_debug_mode_unlocked, unlock_debug_mode_button):
 
 
 @app.cell
-def _(mo, get_debug_mode_unlocked, get_pre_proc_started):
+def _(checklist_ready, mo, get_debug_mode_unlocked, get_pre_proc_started):
+    mo.stop(not checklist_ready)
+
     _started = get_pre_proc_started()
     _is_unlocked = get_debug_mode_unlocked()
     _debug_locked = not _is_unlocked
@@ -115,7 +168,9 @@ def _(mo, get_debug_mode_unlocked, get_pre_proc_started):
 
 
 @app.cell
-def _(mo, get_pre_proc_started):
+def _(checklist_ready, mo, get_pre_proc_started):
+    mo.stop(not checklist_ready)
+
     _started = get_pre_proc_started()
 
     live_w = mo.ui.checkbox(value=False, label="live (will update the config file)", disabled=_started)
@@ -212,7 +267,9 @@ def _(mo):
 
 
 @app.cell
-def _(mo, sample_name_w, user_conditions_w, first_run_w, get_pre_proc_started):
+def _(checklist_ready, mo, sample_name_w, user_conditions_w, first_run_w, get_pre_proc_started):
+    mo.stop(not checklist_ready)
+
     _started = get_pre_proc_started()
     start_pre_processing_button = mo.ui.run_button(
         label="Start pre-processing",
@@ -232,6 +289,7 @@ def _(mo, sample_name_w, user_conditions_w, first_run_w, get_pre_proc_started):
 
 @app.cell
 def _(
+    checklist_ready,
     debug,
     description_w,
     first_run_w,
@@ -249,6 +307,7 @@ def _(
     start_pre_processing_button,
     user_conditions_w,
 ):
+    mo.stop(not checklist_ready)
     mo.stop(not start_pre_processing_button.value)
 
     # Read widget values at click time so pre-processing uses the latest UI input.
@@ -309,7 +368,8 @@ def _(
 
 
 @app.cell
-def _(mo, get_pre_proc_started):
+def _(checklist_ready, mo, get_pre_proc_started):
+    mo.stop(not checklist_ready)
     mo.stop(not get_pre_proc_started())
     check_pre_process_status_button = mo.ui.run_button(
         label="Check pre-process status",
@@ -320,7 +380,8 @@ def _(mo, get_pre_proc_started):
 
 
 @app.cell
-def _(mo, check_pre_process_status_button):
+def _(checklist_ready, mo, check_pre_process_status_button):
+    mo.stop(not checklist_ready)
     mo.stop(not check_pre_process_status_button.value)
 
     import yaml
@@ -345,7 +406,8 @@ def _(mo, check_pre_process_status_button):
 
 
 @app.cell
-def _(mo, pre_process_is_done, o_ai):
+def _(checklist_ready, mo, pre_process_is_done, o_ai):
+    mo.stop(not checklist_ready)
     mo.stop(not pre_process_is_done)
 
     # we need to calculate the center of rotation
