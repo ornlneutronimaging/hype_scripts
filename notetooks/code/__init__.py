@@ -1,5 +1,6 @@
 list_of_runs_found_file = "/SNS/VENUS/shared/software/git/hype_scripts/logs/list_of_runs_found_in_folder.yaml"
 config_file = "/SNS/VENUS/shared/software/git/hype_scripts/configs/config.yaml"
+debug_config_file = "/SNS/VENUS/shared/software/git/hype_scripts/configs/debug_config.yaml"
 
 script1_path = '/SNS/VENUS/shared/software/git/hype_scripts/scripts/pre_exp.py'
 script2_path = '/SNS/VENUS/shared/software/git/hype_scripts/scripts/init_exp.py'
@@ -15,4 +16,5 @@ __all__ = [
 	"script1_path",
 	"script2_path",
 	"LAST_RUN_NUMBER_PV",
+	"debug_config_file",
 ]

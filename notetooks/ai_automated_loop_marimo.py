@@ -1,3 +1,5 @@
+from random import sample
+
 import marimo
 
 __generated_with = "0.23.5"
@@ -6,6 +8,7 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
+    """Bootstrap: import marimo, locate the repo root via pixi.toml and add it to sys.path."""
     import marimo as mo
     from pathlib import Path
     import sys
@@ -104,6 +107,7 @@ def _(get_pre_proc_cronjob_enabled, mo):
 
 @app.cell
 def _(cronjob_checked, hyperct_mode_checked, remote_key_checked):
+    """Derive checklist_ready: True only when all three checklist boxes are ticked."""
     checklist_ready = bool(
         hyperct_mode_checked.value and remote_key_checked.value and cronjob_checked.value
     )
@@ -243,6 +247,9 @@ def _(
     set_ob_alignment_selection,
     set_sample_alignment_selection,
 ):
+    """Alignment file selection: lists CSV files in the IPTS alignment folder, splits them by
+    the '_OB_' token (sample files exclude it; OB files require it), and presents two filtered
+    dropdowns. Selections are persisted in state so they survive debug-mode cell reruns."""
     import os
     mo.stop(not checklist_ready)
 
@@ -321,6 +328,7 @@ def _(
 
 @app.cell
 def _(checklist_ready, get_debug_mode_password, get_debug_mode_unlocked, mo):
+    """Debug mode access panel: password field and lock/unlock toggle button."""
     mo.stop(not checklist_ready)
 
     debug_password_w = mo.ui.text(value=get_debug_mode_password(), label="Debug mode password")
@@ -340,30 +348,35 @@ def _(checklist_ready, get_debug_mode_password, get_debug_mode_unlocked, mo):
 
 @app.cell
 def _(mo):
+    """State: whether debug mode is currently unlocked (bool)."""
     get_debug_mode_unlocked, set_debug_mode_unlocked = mo.state(False)
     return get_debug_mode_unlocked, set_debug_mode_unlocked
 
 
 @app.cell
 def _(mo):
+    """State: transient password string, cleared immediately after each unlock attempt."""
     get_debug_mode_password, set_debug_mode_password = mo.state("")
     return get_debug_mode_password, set_debug_mode_password
 
 
 @app.cell
 def _(mo):
+    """State: whether live execution (hyperct code) is enabled; set to False when debug mode is unlocked."""
     get_live_enabled, set_live_enabled = mo.state(True)
     return get_live_enabled, set_live_enabled
 
 
 @app.cell
 def _(mo):
+    """State: persisted sample alignment file path (as a list) so selection survives cell reruns."""
     get_sample_alignment_selection, set_sample_alignment_selection = mo.state([])
     return get_sample_alignment_selection, set_sample_alignment_selection
 
 
 @app.cell
 def _(mo):
+    """State: persisted open-beam alignment file path (as a list) so selection survives cell reruns."""
     get_ob_alignment_selection, set_ob_alignment_selection = mo.state([])
     return get_ob_alignment_selection, set_ob_alignment_selection
 
@@ -452,6 +465,7 @@ def _(
 
 @app.cell
 def _(mo):
+    """State: whether the pre-processing step has been launched; disables input fields once True."""
     get_pre_proc_started, set_pre_proc_started = mo.state(False)
     return get_pre_proc_started, set_pre_proc_started
 
@@ -519,6 +533,9 @@ def _(
     sample_name_w,
     user_conditions_w,
 ):
+    """Validation + start button: checks all mandatory fields (IPTS, sample name, conditions,
+    first run, both alignment files) and shows a warning list if any are missing.
+    Enables the 'Start open beams, 0 and 180° projections' button only when all are filled."""
     mo.stop(not checklist_ready)
 
     _started = get_pre_proc_started()
@@ -593,6 +610,8 @@ def _(
     start_pre_processing_button,
     user_conditions_w,
 ):
+    """Pre-processing launch: reads all widget values, instantiates AiAutomatedLoop and calls
+    launch_pre_processing_step(). Marks pre-processing as started so downstream cells can react."""
     mo.stop(not checklist_ready)
     mo.stop(not start_pre_processing_button.value)
 
@@ -609,7 +628,7 @@ def _(
     number_of_tiff_for_each_run = int(n_tiff_w.value)
     raw_first_run = str(first_run_w.value).strip()
     first_run = int(raw_first_run) if raw_first_run else None
-
+    
     # Keep last selected alignments available even when debug-mode toggles rebuild widgets.
     sample_alignment = get_sample_alignment_selection()
     ob_alignment = get_ob_alignment_selection()

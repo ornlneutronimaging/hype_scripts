@@ -30,7 +30,7 @@ print(f"check log file at {LOG_FILE_NAME}")
 from IPython.display import display
 from IPython.core.display import HTML
 
-from . import list_of_runs_found_file, config_file, script1_path, script2_path
+from . import list_of_runs_found_file, config_file, script1_path, script2_path, debug_config_file
 from scripts.EICClient import EICClient
 from . import LAST_RUN_NUMBER_PV
 
@@ -41,31 +41,49 @@ def _worker(fl):
 
 class AiAutomatedLoop:
 
-    def __init__(self, ipts=None, 
-                 description_of_exp="", 
+    def __init__(self, 
+                 live=True,
+                 new_experiment=False,
+                 ipts=None, 
                  sample_name="test_sample",
                  user_conditions="T10K",
+                 debug=False,
+                 description_of_exp="", 
                  nbr_obs=4, 
                  proton_charge=1.0, 
-                 debug=False,
-                 new_experiment=False,
-                 live=True,
+                 number_of_tiff_for_each_run=2628,
                  first_run=None,
                  motor=1,
-                 number_of_tiff_for_each_run=2628):
+                 sample_alignment="",
+                 ob_alignment="",
+                 list_of_initial_angles=None,                 ):
 
         # load config file
-        self.config_file = config_file
+        if debug:
+            self.config_file = debug_config_file
+        else:
+            self.config_file = config_file
+        
         with open(self.config_file, 'r') as stream_config:
             config = yaml.safe_load(stream_config)
         self.config = config
+
+        self.live = live
+        if new_experiment:
+            config['ob_local_path'] = []
+            config['0_and_180_local_path'] = []
 
         self.ipts = ipts
         self.description_of_exp = description_of_exp
         self.nbr_obs = nbr_obs
         self.proton_charge = proton_charge
         self.number_of_tiff_for_each_run = number_of_tiff_for_each_run
-        self.live = live
+        self.sample_alignment = sample_alignment
+        self.ob_alignment = ob_alignment
+        
+        str_list_of_initial_angles = list_of_initial_angles.strip().replace(" ", "")
+        list_of_initial_angles = [float(angle) for angle in str_list_of_initial_angles.split(",")]
+        self.list_of_initial_angles = list_of_initial_angles
 
         first_run_number = self.get_first_run_number() if first_run is None else first_run
         self.run_number = first_run_number
@@ -74,13 +92,13 @@ class AiAutomatedLoop:
         self.script2_path = script2_path
         self.output_config_file = f"/data/VENUS/IPTS-{self.ipts}/shared/ai/"
 
-        if new_experiment:
-            config['ob_local_path'] = []
-            config['0_and_180_local_path'] = []
-
         config['EIC_vals']['sample_name'] = sample_name
         config['EIC_vals']['user_con'] = user_conditions
         config['EIC_vals']['motor_number'] = motor
+
+        config['ob_alignment_file'] = ob_alignment
+        config['sample_alignment_file'] = sample_alignment
+        config['list_of_initial_angles'] = list_of_initial_angles
 
         autoreduce_folder = f"/SNS/VENUS/IPTS-{self.ipts}/shared/autoreduce/images/mcp/tpx1/raw/ct"
         config['autoreduce_mcp_folder'] = autoreduce_folder
