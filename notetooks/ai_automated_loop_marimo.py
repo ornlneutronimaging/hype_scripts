@@ -186,7 +186,21 @@ def _(checklist_ready, get_debug_mode_unlocked, get_live_enabled, mo, set_live_e
 
 
 @app.cell
-def _(checklist_ready, ipts_w, mo):
+def _(
+    checklist_ready,
+    get_alignment_widgets_dir,
+    get_ob_alignment_selection,
+    get_ob_alignment_widget,
+    get_sample_alignment_selection,
+    get_sample_alignment_widget,
+    ipts_w,
+    mo,
+    set_alignment_widgets_dir,
+    set_ob_alignment_selection,
+    set_ob_alignment_widget,
+    set_sample_alignment_selection,
+    set_sample_alignment_widget,
+):
     import os
     mo.stop(not checklist_ready)
 
@@ -199,20 +213,40 @@ def _(checklist_ready, ipts_w, mo):
             kind="danger",
         )
     else:
-        sample_alignment_w = mo.ui.file_browser(
-            initial_path=_alignment_dir,
-            filetypes=[".csv"],
-            selection_mode="file",
-            multiple=False,
-            label="Sample alignment file <span style='color: red;'>✱</span>",
+        _stored_dir = get_alignment_widgets_dir()
+        sample_alignment_w = get_sample_alignment_widget()
+        ob_alignment_w = get_ob_alignment_widget()
+
+        _must_rebuild_widgets = (
+            _stored_dir != _alignment_dir
+            or sample_alignment_w is None
+            or ob_alignment_w is None
         )
-        ob_alignment_w = mo.ui.file_browser(
-            initial_path=_alignment_dir,
-            filetypes=[".csv"],
-            selection_mode="file",
-            multiple=False,
-            label="Open beam alignment file <span style='color: red;'>✱</span>",
-        )
+
+        if _must_rebuild_widgets:
+            sample_alignment_w = mo.ui.file_browser(
+                initial_path=_alignment_dir,
+                filetypes=[".csv"],
+                selection_mode="file",
+                multiple=False,
+                on_change=set_sample_alignment_selection,
+                label="Sample alignment file <span style='color: red;'>✱</span>",
+            )
+            ob_alignment_w = mo.ui.file_browser(
+                initial_path=_alignment_dir,
+                filetypes=[".csv"],
+                selection_mode="file",
+                multiple=False,
+                on_change=set_ob_alignment_selection,
+                label="Open beam alignment file <span style='color: red;'>✱</span>",
+            )
+            set_sample_alignment_widget(sample_alignment_w)
+            set_ob_alignment_widget(ob_alignment_w)
+            set_alignment_widgets_dir(_alignment_dir)
+
+            # New IPTS directory means previous file selections should not be reused.
+            set_sample_alignment_selection([])
+            set_ob_alignment_selection([])
 
         alignment_ui = mo.vstack([sample_alignment_w, ob_alignment_w], gap=0.5)
 
@@ -256,6 +290,36 @@ def _(mo):
 def _(mo):
     get_live_enabled, set_live_enabled = mo.state(True)
     return get_live_enabled, set_live_enabled
+
+
+@app.cell
+def _(mo):
+    get_sample_alignment_selection, set_sample_alignment_selection = mo.state([])
+    return get_sample_alignment_selection, set_sample_alignment_selection
+
+
+@app.cell
+def _(mo):
+    get_ob_alignment_selection, set_ob_alignment_selection = mo.state([])
+    return get_ob_alignment_selection, set_ob_alignment_selection
+
+
+@app.cell
+def _(mo):
+    get_sample_alignment_widget, set_sample_alignment_widget = mo.state(None)
+    return get_sample_alignment_widget, set_sample_alignment_widget
+
+
+@app.cell
+def _(mo):
+    get_ob_alignment_widget, set_ob_alignment_widget = mo.state(None)
+    return get_ob_alignment_widget, set_ob_alignment_widget
+
+
+@app.cell
+def _(mo):
+    get_alignment_widgets_dir, set_alignment_widgets_dir = mo.state("")
+    return get_alignment_widgets_dir, set_alignment_widgets_dir
 
 
 @app.cell
@@ -358,6 +422,8 @@ def _(checklist_ready, mo, get_debug_mode_unlocked, get_pre_proc_started):
 @app.cell
 def _(
     checklist_ready,
+    get_ob_alignment_selection,
+    get_sample_alignment_selection,
     mo,
     sample_name_w,
     user_conditions_w,
@@ -379,9 +445,20 @@ def _(
         _missing_parameters.append("sample conditions")
     if not str(first_run_w.value).strip():
         _missing_parameters.append("first run")
-    if sample_alignment_w is None or not sample_alignment_w.value:
+    _sample_alignment_value = (
+        sample_alignment_w.value
+        if (sample_alignment_w is not None and sample_alignment_w.value)
+        else get_sample_alignment_selection()
+    )
+    _ob_alignment_value = (
+        ob_alignment_w.value
+        if (ob_alignment_w is not None and ob_alignment_w.value)
+        else get_ob_alignment_selection()
+    )
+
+    if not _sample_alignment_value:
         _missing_parameters.append("sample alignment file")
-    if ob_alignment_w is None or not ob_alignment_w.value:
+    if not _ob_alignment_value:
         _missing_parameters.append("open beam alignment file")
 
     _mandatory_fields_filled = not _missing_parameters
@@ -414,6 +491,8 @@ def _(
     debug,
     description_w,
     first_run_w,
+    get_ob_alignment_selection,
+    get_sample_alignment_selection,
     initial_angles_w,
     ipts_w,
     live_w,
@@ -444,6 +523,10 @@ def _(
     number_of_tiff_for_each_run = int(n_tiff_w.value)
     raw_first_run = str(first_run_w.value).strip()
     first_run = int(raw_first_run) if raw_first_run else None
+
+    # Keep last selected alignments available even when debug-mode toggles rebuild widgets.
+    sample_alignment = get_sample_alignment_selection()
+    ob_alignment = get_ob_alignment_selection()
 
     raw_angles = str(initial_angles_w.value).strip()
     if raw_angles:
@@ -483,7 +566,9 @@ def _(
         number_of_tiff_for_each_run,
         proton_charge,
         sample_name,
+        sample_alignment,
         user_conditions,
+        ob_alignment,
         o_ai,
     )
 
