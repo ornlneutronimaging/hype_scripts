@@ -7,18 +7,20 @@ import subprocess
 import argparse
 import numpy as np
 import stat
+from pathlib import Path
 
 LOG_FILE_MAX_LINES_NUMBER = 1000
 
-PROJECT_ROOT_FOLDER = "/SNS/VENUS/shared/software/git/hype_scripts"
-CONFIG_FILE_NAME = f"{PROJECT_ROOT_FOLDER}/configs/config.yaml"
+
+PROJECT_ROOT_FOLDER = Path(__file__).parent.parent
+CONFIG_FILE_NAME = PROJECT_ROOT_FOLDER / "configs" / "config.yaml"
 with open(CONFIG_FILE_NAME, 'r') as stream:
     config = yaml.safe_load(stream)
 
 version = config['version']
 ipts = config['EIC_vals']['ipts']
 file_name, ext = os.path.splitext(os.path.basename(__file__))
-LOG_FILE_NAME = f"/data/VENUS/IPTS-{ipts}/logs/{file_name}.log"
+LOG_FILE_NAME = PROJECT_ROOT_FOLDER / "logs" / f"{file_name}_{ipts}.log"
 if not os.path.exists(os.path.dirname(LOG_FILE_NAME)):
     os.makedirs(os.path.dirname(LOG_FILE_NAME))
 
@@ -42,7 +44,7 @@ else:
     MCP_FOLDER = os.path.join(f"/SNS/VENUS/IPTS-{ipts}", "shared/autoreduce/images/tpx1/raw/ct")
     OUTPUT_FOLDER_ON_HYPE = config['DataPath']
 
-CONFIG_LIST_OF_RUNS_FOUND_IN_FOLDER = f"{PROJECT_ROOT_FOLDER}/logs/list_of_runs_found_in_folder.yaml"
+CONFIG_LIST_OF_RUNS_FOUND_IN_FOLDER = PROJECT_ROOT_FOLDER / "logs" / "list_of_runs_found_in_folder.yaml"
 
 
 def get_list_basename(list_full_folder_name):

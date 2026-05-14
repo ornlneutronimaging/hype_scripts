@@ -2,8 +2,11 @@ list_of_runs_found_file = "/SNS/VENUS/shared/software/git/hype_scripts/logs/list
 config_file = "/SNS/VENUS/shared/software/git/hype_scripts/configs/config.yaml"
 debug_config_file = "/SNS/VENUS/shared/software/git/hype_scripts/configs/debug_config.yaml"
 
-script1_path = '/SNS/VENUS/shared/software/git/hype_scripts/scripts/pre_exp.py'
-script2_path = '/SNS/VENUS/shared/software/git/hype_scripts/scripts/init_exp.py'
+from pathlib import Path
+_top_path = Path(__file__).parent.parent
+
+script1_path = _top_path / "scripts" / "pre_exp.py"
+script2_path = _top_path / "scripts" / "init_exp.py"
 
 LAST_RUN_NUMBER_PV = "BL10:CS:RunControl:LastRunNumber"
 

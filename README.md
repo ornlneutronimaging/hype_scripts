@@ -1,29 +1,39 @@
 ## Notebooks instructions
 
-2. Run the notebook ai_automated_loop.ipynb
-  - define in first cell:
-    - are we running in debug mode (False/True)
-    - are we live (if True, Shimin's code will be executed)
+2. Run the notebook ai_automated_loop_marimo.ipynb
+  - ADMIN
+    - turn on/off the pre-processing cronjob
 
+  - STARTING CHECKLIST
+    - check if the instrument is ready for hyper CT mode
+    - remote key has been provided by Ray and has been inserted in the config file
+    - cronjob is running
+  
   - define parameters
+    - live (if on, hyperct will be executed)
+    - new experiment or not
     - the IPTS (ex: 37493)
     - sample name (ex: 'this is my sample')
     - experiment conditions (ex: 'T10C')
+    - motor index
+    - description of exp (optional)
     - rotation stage number (ex: 1)
     - number of obs requested (ex: 3)
     - proton charge (in coulombs) for each run (ex: 0.1)
     - number of TIFF each run will produce (ex: 2628)
     - first run number (ex: 7864)
     - [optional] list of initial angles (in degrees) (ex: [45, 75, 90])
+    - sample calibration file
+    - ob calibration file
 
-3. Run the next cell (launching acquisition of open beams, 0 and 180 degrees)
-This is the pre-processing step (described in detail below)
+The user will be able to proceed only once all the mandatory fields have been provided.
 
-4. The next cell (to run on a regular basis) will check the state of the pre-processing step and inform when all the OBs and 0, 180 degrees have been found and moved to their final location.
+3. Clicking the "Start open beams, 0 and 180degree projections" to start the pre-processing step (described in detail below)
 
-5. Run next cell to calculate the center of rotation using the 0 and 180 degrees projections
+## FIXME HERE
 
-6. Launch the AI loop by running the last cell
+
+
 
 ---
 
@@ -40,15 +50,8 @@ Use this section as a quick operator runbook.
 3. Confirm write access to:
   - /data/VENUS/IPTS-<ipts>
 
-### B) Start pre-processing loop
 
-1. Edit cron:
-  - crontab -e
-2. Enable this line:
-  - \* \* \* \* \* /SNS/VENUS/shared/software/git/hype_scripts/scripts/cron_job_script_pre_processing.sh > /dev/null
-3. Save and exit.
-
-### C) What each cron tick does
+### B) What each cron tick does
 
 1. Append timestamp to logs/cron_jobs.txt.
 2. Run:
