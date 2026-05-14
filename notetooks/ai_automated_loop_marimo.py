@@ -472,14 +472,14 @@ def _(
                 mo.md("Incorrect password. Debug mode remains locked."),
                 kind="warn",
             )
-    return (debug,)
+    return
 
 
 @app.cell
 def _(mo):
     """State: whether the pre-processing step has been launched; disables input fields once True."""
     get_pre_proc_started, set_pre_proc_started = mo.state(False)
-    return get_pre_proc_started, set_pre_proc_started
+    return (get_pre_proc_started,)
 
 
 @app.cell
@@ -602,8 +602,8 @@ def _(
 
 @app.cell
 def _(
+    Path,
     checklist_ready,
-    debug,
     description_w,
     first_run_w,
     get_ob_alignment_selection,
@@ -618,7 +618,6 @@ def _(
     new_experiment_w,
     proton_charge_w,
     sample_name_w,
-    set_pre_proc_started,
     start_pre_processing_button,
     user_conditions_w,
 ):
@@ -651,26 +650,48 @@ def _(
     else:
         list_of_initial_angles = None
 
-    # this is where we start running the pre-processing algo
-    from notetooks.code import AiAutomatedLoop
+    import logging
 
-    o_ai = AiAutomatedLoop(
-        sample_name=sample_name,
-        user_conditions=user_conditions,
-        new_experiment=new_experiment,
-        ipts=IPTS,
-        debug=debug,
-        description_of_exp=description_of_exp,
-        nbr_obs=nbr_obs,
-        proton_charge=proton_charge,
-        number_of_tiff_for_each_run=number_of_tiff_for_each_run,
-        live=live,
-        first_run=first_run,
-        motor=motor,
+    _log_file = Path(__file__).parent.parent / "logs" / "ai_automated_loop_marimo.log"
+    _log_file.parent.mkdir(parents=True, exist_ok=True)
+    _logger = logging.getLogger("ai_automated_loop_marimo")
+    if not _logger.handlers:
+        _handler = logging.FileHandler(_log_file)
+        _handler.setFormatter(logging.Formatter("%(asctime)s  %(levelname)s  %(message)s"))
+        _logger.addHandler(_handler)
+        _logger.setLevel(logging.INFO)
+
+    _logger.info(
+        "Pre-processing launched | "
+        f"live={live} | new_experiment={new_experiment} | IPTS={IPTS} | "
+        f"sample_name={sample_name!r} | user_conditions={user_conditions!r} | "
+        f"motor={motor} | description={description_of_exp!r} | "
+        f"nbr_obs={nbr_obs} | proton_charge={proton_charge} | "
+        f"n_tiff={number_of_tiff_for_each_run} | first_run={first_run} | "
+        f"sample_alignment={sample_alignment} | ob_alignment={ob_alignment} | "
+        f"initial_angles={list_of_initial_angles}"
     )
-    o_ai.launch_pre_processing_step()
-    set_pre_proc_started(True)
-    return (o_ai,)
+
+    # # this is where we start running the pre-processing algo
+    # from notetooks.code import AiAutomatedLoop
+    # o_ai = AiAutomatedLoop(
+    #     sample_name=sample_name,
+    #     user_conditions=user_conditions,
+    #     new_experiment=new_experiment,
+    #     ipts=IPTS,
+    #     debug=debug,
+    #     description_of_exp=description_of_exp,
+    #     nbr_obs=nbr_obs,
+    #     proton_charge=proton_charge,
+    #     number_of_tiff_for_each_run=number_of_tiff_for_each_run,
+    #     live=live,
+    #     first_run=first_run,
+    #     motor=motor,
+    # )
+    # o_ai.launch_pre_processing_step()
+    # set_pre_proc_started(True)
+    # return (o_ai,)
+    return
 
 
 @app.cell
