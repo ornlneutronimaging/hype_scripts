@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.1"
+__generated_with = "0.23.5"
 app = marimo.App(width="medium")
 
 
@@ -17,12 +17,53 @@ def _():
 
     if str(repo_root) not in sys.path:
         sys.path.insert(0, str(repo_root))
-
-    return mo
+    return (mo,)
 
 
 @app.cell
-def _(mo):
+def _(
+    get_admin_password,
+    get_admin_unlocked,
+    get_pre_proc_cronjob_enabled,
+    mo,
+    set_pre_proc_cronjob_enabled,
+):
+    admin_password_w = mo.ui.text(value=get_admin_password(), label="Admin password")
+    unlock_admin_button = mo.ui.run_button(
+        label="Lock admin" if get_admin_unlocked() else "Unlock admin"
+    )
+    admin_password_row = mo.hstack([admin_password_w, unlock_admin_button], justify="start", align="end", gap=0.5)
+
+    _pre_proc_cronjob_w = mo.ui.checkbox(
+        value=get_pre_proc_cronjob_enabled(),
+        label="Run pre-processing cronjob",
+        on_change=set_pre_proc_cronjob_enabled,
+    )
+    _cronjob_row = _pre_proc_cronjob_w if get_admin_unlocked() else mo.vstack([_pre_proc_cronjob_w]).style(
+        {"pointer-events": "none", "opacity": "0.45"}
+    )
+    _admin_body = mo.vstack([admin_password_row, _cronjob_row], gap=0.5)
+
+    mo.vstack(
+        [
+            mo.md("<div style='border-left: 4px solid #7c3aed; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #7c3aed;'>\U0001f510 Admin</span></div>"),
+            _admin_body,
+        ]
+    ).style(
+        {
+            "border": "1px solid #334155",
+            "border-radius": "8px",
+            "padding": "12px",
+            "background": "linear-gradient(180deg, #111827 0%, #0b1220 100%)",
+            "color": "#e5e7eb",
+            "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
+        }
+    )
+    return admin_password_w, unlock_admin_button
+
+
+@app.cell
+def _(get_pre_proc_cronjob_enabled, mo):
     hyperct_mode_checked = mo.ui.checkbox(
         value=True,
         label="The instrument has been configure for HyperCT mode (in the DAS console)",
@@ -32,8 +73,9 @@ def _(mo):
         label="Remote key has been configured by the imaging team (added to config file)",
     )
     cronjob_checked = mo.ui.checkbox(
-        value=True,
-        label="pre-processing script running (cronjob)",
+        value=get_pre_proc_cronjob_enabled(),
+        label="pre-processing cronjob running cronjob",
+        disabled=True,
     )
 
     checklist_ui = mo.vstack(
@@ -57,7 +99,7 @@ def _(mo):
     )
 
     checklist_ui
-    return hyperct_mode_checked, remote_key_checked, cronjob_checked
+    return cronjob_checked, hyperct_mode_checked, remote_key_checked
 
 
 @app.cell
@@ -69,7 +111,14 @@ def _(cronjob_checked, hyperct_mode_checked, remote_key_checked):
 
 
 @app.cell
-def _(checklist_ready, get_debug_mode_unlocked, get_live_enabled, mo, set_live_enabled, get_pre_proc_started):
+def _(
+    checklist_ready,
+    get_debug_mode_unlocked,
+    get_live_enabled,
+    get_pre_proc_started,
+    mo,
+    set_live_enabled,
+):
     mo.stop(not checklist_ready)
 
     _started = get_pre_proc_started()
@@ -168,20 +217,19 @@ def _(checklist_ready, get_debug_mode_unlocked, get_live_enabled, mo, set_live_e
         ]
     )
     controls
-
     return (
-        ipts_w,
         description_w,
         first_run_w,
+        initial_angles_w,
+        ipts_w,
         live_w,
         motor_w,
+        n_tiff_w,
         nbr_obs_w,
         new_experiment_w,
-        n_tiff_w,
         proton_charge_w,
         sample_name_w,
         user_conditions_w,
-        initial_angles_w,
     )
 
 
@@ -268,7 +316,7 @@ def _(
         alignment_ui = mo.vstack([sample_alignment_w, ob_alignment_w], gap=0.5)
 
     alignment_ui
-    return sample_alignment_w, ob_alignment_w
+    return ob_alignment_w, sample_alignment_w
 
 
 @app.cell
@@ -287,7 +335,6 @@ def _(checklist_ready, get_debug_mode_password, get_debug_mode_unlocked, mo):
             password_row,
         ]
     )
-
     return debug_password_w, unlock_debug_mode_button
 
 
@@ -322,7 +369,55 @@ def _(mo):
 
 
 @app.cell
-def _(checklist_ready, debug_password_w, get_debug_mode_unlocked, mo, set_debug_mode_password, set_debug_mode_unlocked, set_live_enabled, unlock_debug_mode_button):
+def _(mo):
+    get_admin_unlocked, set_admin_unlocked = mo.state(False)
+    return get_admin_unlocked, set_admin_unlocked
+
+
+@app.cell
+def _(mo):
+    get_admin_password, set_admin_password = mo.state("")
+    return get_admin_password, set_admin_password
+
+
+@app.cell
+def _(mo):
+    get_pre_proc_cronjob_enabled, set_pre_proc_cronjob_enabled = mo.state(False)
+    return get_pre_proc_cronjob_enabled, set_pre_proc_cronjob_enabled
+
+
+@app.cell
+def _(
+    admin_password_w,
+    get_admin_unlocked,
+    mo,
+    set_admin_password,
+    set_admin_unlocked,
+    unlock_admin_button,
+):
+    mo.stop(not unlock_admin_button.value)
+
+    if get_admin_unlocked():
+        set_admin_unlocked(False)
+        set_admin_password("")
+    else:
+        _is_correct = str(admin_password_w.value).strip() == "venus"
+        set_admin_unlocked(_is_correct)
+        set_admin_password("")
+    return
+
+
+@app.cell
+def _(
+    checklist_ready,
+    debug_password_w,
+    get_debug_mode_unlocked,
+    mo,
+    set_debug_mode_password,
+    set_debug_mode_unlocked,
+    set_live_enabled,
+    unlock_debug_mode_button,
+):
     mo.stop(not checklist_ready)
     mo.stop(not unlock_debug_mode_button.value)
 
@@ -352,8 +447,7 @@ def _(checklist_ready, debug_password_w, get_debug_mode_unlocked, mo, set_debug_
                 mo.md("Incorrect password. Debug mode remains locked."),
                 kind="warn",
             )
-
-    return debug, status
+    return (debug,)
 
 
 @app.cell
@@ -363,7 +457,7 @@ def _(mo):
 
 
 @app.cell
-def _(checklist_ready, mo, get_debug_mode_unlocked, get_pre_proc_started):
+def _(checklist_ready, get_debug_mode_unlocked, get_pre_proc_started, mo):
     mo.stop(not checklist_ready)
 
     _started = get_pre_proc_started()
@@ -408,29 +502,22 @@ def _(checklist_ready, mo, get_debug_mode_unlocked, get_pre_proc_started):
     ) if _is_unlocked else mo.md("")
 
     imaging_controls
-
-    return (
-        create_0deg_projection_button,
-        create_180deg_projection_button,
-        create_ob_1_button,
-        create_ob_2_button,
-        create_ob_3_button,
-    )
+    return
 
 
 @app.cell
 def _(
     checklist_ready,
+    first_run_w,
     get_ob_alignment_selection,
+    get_pre_proc_started,
     get_sample_alignment_selection,
+    ipts_w,
     mo,
+    ob_alignment_w,
+    sample_alignment_w,
     sample_name_w,
     user_conditions_w,
-    first_run_w,
-    ipts_w,
-    sample_alignment_w,
-    ob_alignment_w,
-    get_pre_proc_started,
 ):
     mo.stop(not checklist_ready)
 
@@ -497,9 +584,9 @@ def _(
     live_w,
     mo,
     motor_w,
+    n_tiff_w,
     nbr_obs_w,
     new_experiment_w,
-    n_tiff_w,
     proton_charge_w,
     sample_name_w,
     set_pre_proc_started,
@@ -552,28 +639,11 @@ def _(
     )
     o_ai.launch_pre_processing_step()
     set_pre_proc_started(True)
-
-    return (
-        IPTS,
-        description_of_exp,
-        first_run,
-        list_of_initial_angles,
-        live,
-        motor,
-        nbr_obs,
-        new_experiment,
-        number_of_tiff_for_each_run,
-        proton_charge,
-        sample_name,
-        sample_alignment,
-        user_conditions,
-        ob_alignment,
-        o_ai,
-    )
+    return (o_ai,)
 
 
 @app.cell
-def _(checklist_ready, mo, get_pre_proc_started):
+def _(checklist_ready, get_pre_proc_started, mo):
     mo.stop(not checklist_ready)
     mo.stop(not get_pre_proc_started())
     check_pre_process_status_button = mo.ui.run_button(
@@ -585,7 +655,7 @@ def _(checklist_ready, mo, get_pre_proc_started):
 
 
 @app.cell
-def _(checklist_ready, mo, check_pre_process_status_button):
+def _(check_pre_process_status_button, checklist_ready, mo):
     mo.stop(not checklist_ready)
     mo.stop(not check_pre_process_status_button.value)
 
@@ -611,7 +681,7 @@ def _(checklist_ready, mo, check_pre_process_status_button):
 
 
 @app.cell
-def _(checklist_ready, mo, pre_process_is_done, o_ai):
+def _(checklist_ready, mo, o_ai, pre_process_is_done):
     mo.stop(not checklist_ready)
     mo.stop(not pre_process_is_done)
 
@@ -623,6 +693,7 @@ def _(checklist_ready, mo, pre_process_is_done, o_ai):
 
     # we need to define up to 5 TOF ranges
     o_ai.define_tof_ranges()
+    return
 
 
 if __name__ == "__main__":

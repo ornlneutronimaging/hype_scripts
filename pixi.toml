@@ -2,7 +2,7 @@
 authors = ["JeanBilheux <bilheuxjm@ornl.gov>"]
 channels = ["conda-forge"]
 name = "hype_scripts"
-platforms = ["linux-64"]
+platforms = ["linux-64", "osx-64"]
 version = "0.1.0"
 
 [tasks]
