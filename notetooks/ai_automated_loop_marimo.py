@@ -1,5 +1,3 @@
-from random import sample
-
 import marimo
 
 __generated_with = "0.23.5"
@@ -20,7 +18,7 @@ def _():
 
     if str(repo_root) not in sys.path:
         sys.path.insert(0, str(repo_root))
-    return (mo,)
+    return Path, mo
 
 
 @app.cell
@@ -63,6 +61,20 @@ def _(
         }
     )
     return admin_password_w, unlock_admin_button
+
+
+@app.cell
+def _(Path, get_pre_proc_cronjob_enabled):
+
+    _cronjobs_dir = Path(__file__).parent.parent / "cronjobs"
+    _flag_file = _cronjobs_dir / "pre_processing_job.enabled"
+    if get_pre_proc_cronjob_enabled():
+        _flag_file.parent.mkdir(parents=True, exist_ok=True)
+        _flag_file.touch()
+    else:
+        if _flag_file.exists():
+            _flag_file.unlink()
+    return
 
 
 @app.cell
@@ -628,7 +640,7 @@ def _(
     number_of_tiff_for_each_run = int(n_tiff_w.value)
     raw_first_run = str(first_run_w.value).strip()
     first_run = int(raw_first_run) if raw_first_run else None
-    
+
     # Keep last selected alignments available even when debug-mode toggles rebuild widgets.
     sample_alignment = get_sample_alignment_selection()
     ob_alignment = get_ob_alignment_selection()
