@@ -8,12 +8,16 @@ import argparse
 import numpy as np
 import stat
 from pathlib import Path
+import sys
+
+PROJECT_ROOT_FOLDER = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT_FOLDER) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT_FOLDER))
+
+from notebooks.code import config_file as CONFIG_FILE_NAME
 
 LOG_FILE_MAX_LINES_NUMBER = 1000
 
-
-PROJECT_ROOT_FOLDER = Path(__file__).parent.parent
-CONFIG_FILE_NAME = PROJECT_ROOT_FOLDER / "configs" / "config.yaml"
 with open(CONFIG_FILE_NAME, 'r') as stream:
     config = yaml.safe_load(stream)
 
@@ -28,8 +32,8 @@ logging.basicConfig(filename=LOG_FILE_NAME,
                     filemode='a',  # 'w'
                     format="[%(levelname)s] - %(asctime)s - %(message)s",
                     level=logging.INFO)
-logging.info(f"*** Starting checking for new files - version {version}")
-print(f"check log file at {LOG_FILE_NAME}")
+logging.info(f"*** Starting checking for new files (ai_processing_loop)- version {version}")
+logging.info(f"check log file at {LOG_FILE_NAME}")
 
 LAUNCH_SHIMIN_SCRIPT_EVERY_N_FILES = 3
 SHIMIN_CODE = "/data/VENUS/shared/software/run/run_ai_loop.sh"   
@@ -195,7 +199,13 @@ def change_permissions_recursive(path):
 
 def pre_processing():
 
+    logging.info(f"pre-processing():")
+
     # clean up log file
+    if not os.path.exists(LOG_FILE_NAME):
+        with open(LOG_FILE_NAME, 'w') as log_file:
+            log_file.write("")
+
     with open(LOG_FILE_NAME, 'r') as log_file:
         log_file_content = log_file.readlines()
 
@@ -206,6 +216,7 @@ def pre_processing():
         log_file.writelines(log_file_content)
 
     # load config file
+    logging.info(f"loading config file {CONFIG_FILE_NAME} ...")
     with open(CONFIG_FILE_NAME, 'r') as stream:
         config = yaml.safe_load(stream)
 

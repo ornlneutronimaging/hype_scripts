@@ -1,7 +1,12 @@
+---
+title: Readme
+marimo-version: 0.23.5
+---
+
 ctqa
 ====
 
-Neutron CT reconstruction quality assessment 
+Neutron CT reconstruction quality assessment
 
 Installing
 ----------

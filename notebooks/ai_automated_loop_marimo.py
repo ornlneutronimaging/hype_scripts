@@ -18,16 +18,23 @@ def _():
 
     if str(repo_root) not in sys.path:
         sys.path.insert(0, str(repo_root))
-    return Path, mo
+
+    # Import only after repo_root is on sys.path. Note: the package is
+    # `notebooks.code`, not `code` (which shadows the stdlib `code` module).
+    from notebooks.code.ai_automated_loop import AiAutomatedLoop
+
+    return AiAutomatedLoop, Path, mo
 
 
 @app.cell
 def _(
+    get_active_config_file_option,
     get_admin_password,
     get_admin_unlocked,
     get_pre_proc_cronjob_enabled,
     get_preview_shown,
     mo,
+    set_active_config_file_option,
     set_pre_proc_cronjob_enabled,
 ):
     admin_password_w = mo.ui.text(value=get_admin_password(), label="Admin password")
@@ -41,10 +48,22 @@ def _(
         label="Run pre-processing cronjob",
         on_change=set_pre_proc_cronjob_enabled,
     )
+    _config_file_w = mo.ui.dropdown(
+        options={
+            "config": "config",
+            "config_debug_jean": "config_debug_jean",
+        },
+        value=get_active_config_file_option(),
+        label="config file",
+        on_change=set_active_config_file_option,
+    )
     _cronjob_row = _pre_proc_cronjob_w if get_admin_unlocked() else mo.vstack([_pre_proc_cronjob_w]).style(
         {"pointer-events": "none", "opacity": "0.45"}
     )
-    _admin_body = mo.vstack([admin_password_row, _cronjob_row], gap=0.5)
+    _config_file_row = _config_file_w if get_admin_unlocked() else mo.vstack([_config_file_w]).style(
+        {"pointer-events": "none", "opacity": "0.45"}
+    )
+    _admin_body = mo.vstack([admin_password_row, _cronjob_row, _config_file_row], gap=0.5)
 
     preview_cron_logs_button = mo.ui.run_button(
         label="\U0001f648 Hide preview" if get_preview_shown() else "\U0001f441\ufe0f Preview",
@@ -75,6 +94,71 @@ def _(
         }
     )
     return admin_password_w, preview_cron_logs_button, unlock_admin_button
+
+
+@app.cell
+def _(Path):
+    _code_init_file = Path(__file__).parent / "code" / "__init__.py"
+    _config_line = 'config_file = _top_path / "configs" / "config.yaml"'
+    _debug_line = 'config_file = _top_path / "configs" / "config_debug_jean.yaml"'
+
+    def _normalize_line(line: str) -> str:
+        _stripped = line.lstrip()
+        if _stripped.startswith("#"):
+            _stripped = _stripped[1:].lstrip()
+        return _stripped.strip()
+
+    def get_active_config_file_option() -> str:
+        try:
+            _lines = _code_init_file.read_text().splitlines()
+        except OSError:
+            return "config_debug_jean"
+
+        for _line in _lines:
+            _normalized = _normalize_line(_line)
+            if _normalized.startswith("config_file") and not _line.lstrip().startswith("#"):
+                if "config_debug_jean.yaml" in _normalized:
+                    return "config_debug_jean"
+                if "config.yaml" in _normalized:
+                    return "config"
+
+        return "config_debug_jean"
+
+    def set_active_config_file_option(option: str) -> None:
+        if option not in {"config", "config_debug_jean"}:
+            return
+
+        try:
+            _lines = _code_init_file.read_text().splitlines(keepends=True)
+        except OSError:
+            return
+
+        _updated_lines = []
+        for _line in _lines:
+            _line_ending = "\n" if _line.endswith("\n") else ""
+            _content = _line[:-1] if _line_ending else _line
+            _indent = _content[: len(_content) - len(_content.lstrip())]
+            _normalized = _normalize_line(_content)
+
+            if _normalized == _config_line:
+                if option == "config":
+                    _updated_lines.append(f"{_indent}{_config_line}{_line_ending}")
+                else:
+                    _updated_lines.append(f"{_indent}# {_config_line}{_line_ending}")
+            elif _normalized == _debug_line:
+                if option == "config_debug_jean":
+                    _updated_lines.append(f"{_indent}{_debug_line}{_line_ending}")
+                else:
+                    _updated_lines.append(f"{_indent}# {_debug_line}{_line_ending}")
+            else:
+                _updated_lines.append(_line)
+
+        try:
+            _code_init_file.write_text("".join(_updated_lines))
+        except OSError:
+            return
+
+    return get_active_config_file_option, set_active_config_file_option
 
 
 @app.cell
@@ -240,9 +324,10 @@ def _(
         label="description of experiment",
         full_width=True,
         disabled=_started,
-    ).style({"width": "700px", "min-width": "700px"})    
+    )
+    description_w_style = description_w.style({"width": "700px", "min-width": "700px"})    
     description_row = mo.hstack(
-        [description_w, mo.md("<span style='color: #888; font-size: 0.85rem; font-style: italic;'>Optional</span>")],
+        [description_w_style, mo.md("<span style='color: #888; font-size: 0.85rem; font-style: italic;'>Optional</span>")],
         justify="start",
         align="end",
         gap=0.5,
@@ -271,9 +356,10 @@ def _(
         label="list of initial angles (e.g., 0.0, 90.0, 180.0)",
         disabled=_started,
         full_width=True,
-    ).style({"width": "700px", "min-width": "700px"})
+    )
+    initial_angles_w_style = initial_angles_w.style({"width": "700px", "min-width": "700px"})
     initial_angles_row = mo.hstack(
-        [initial_angles_w, mo.md("<span style='color: #888; font-size: 0.85rem; font-style: italic;'>Optional</span>")],
+        [initial_angles_w_style, mo.md("<span style='color: #888; font-size: 0.85rem; font-style: italic;'>Optional</span>")],
         justify="start",
         align="end",
         gap=0.5,
@@ -554,6 +640,12 @@ def _(mo):
 
 
 @app.cell
+def _(mo):
+    get_log_preview_shown, set_log_preview_shown = mo.state(False)
+    return get_log_preview_shown, set_log_preview_shown
+
+
+@app.cell
 def _(checklist_ready, get_debug_mode_unlocked, get_pre_proc_started, mo):
     mo.stop(not checklist_ready)
 
@@ -604,6 +696,7 @@ def _(checklist_ready, get_debug_mode_unlocked, get_pre_proc_started, mo):
 
 @app.cell
 def _(
+    Path,
     checklist_ready,
     first_run_w,
     get_ob_alignment_selection,
@@ -667,13 +760,16 @@ def _(
         disabled=_started or not _mandatory_fields_filled,
     )
 
-    mo.vstack([missing_parameters_box, start_pre_processing_button], gap=0.5)
+    _log_file_path = Path(__file__).parent.parent / "logs" / "ai_automated_loop_marimo.log"
+    _log_file_display = mo.md(f"<span style='color: #888; font-size: 0.85rem;'>Log file: `{_log_file_path}`</span>")
+
+    mo.vstack([missing_parameters_box, start_pre_processing_button, _log_file_display], gap=0.5)
     return (start_pre_processing_button,)
 
 
 @app.cell
 def _(
-    Path,
+    AiAutomatedLoop,
     checklist_ready,
     description_w,
     first_run_w,
@@ -723,60 +819,123 @@ def _(
     else:
         list_of_initial_angles = None
 
-    import logging
+    # _remove_me_log = os.path.join("/SNS/VENUS/shared/software/git/hype_scripts", "logs", "REMOVE_ME.log")
+    # _called_params = {
+    #     "live": live,
+    #     "new_experiment": new_experiment,
+    #     "ipts": IPTS,
+    #     "sample_name": sample_name,
+    #     "user_conditions": user_conditions,
+    #     "description_of_exp": description_of_exp,
+    #     "nbr_obs": nbr_obs,
+    #     "proton_charge": proton_charge,
+    #     "number_of_tiff_for_each_run": number_of_tiff_for_each_run,
+    #     "first_run": first_run,
+    #     "motor": motor,
+    #     "sample_alignment": sample_alignment,
+    #     "ob_alignment": ob_alignment,
+    #     "list_of_initial_angles": list_of_initial_angles,
+    # }
+    # import datetime
+    # with open(_remove_me_log, "a") as _f:
+    #     _f.write("\n")
+    #     _f.write(f"AiAutomatedLoop.__init__ called from marimo")
+    #     for _key, _value in _called_params.items():
+    #         _f.write(f"{_key}: {_value}\n")
 
-    _log_file = Path(__file__).parent.parent / "logs" / "ai_automated_loop_marimo.log"
-    _log_file.parent.mkdir(parents=True, exist_ok=True)
-    _logger = logging.getLogger("ai_automated_loop_marimo")
-    if not _logger.handlers:
-        _handler = logging.FileHandler(_log_file)
-        _handler.setFormatter(logging.Formatter("%(asctime)s  %(levelname)s  %(message)s"))
-        _logger.addHandler(_handler)
-        _logger.setLevel(logging.INFO)
-
-    _logger.info(
-        "Pre-processing launched | "
-        f"live={live} | new_experiment={new_experiment} | IPTS={IPTS} | "
-        f"sample_name={sample_name!r} | user_conditions={user_conditions!r} | "
-        f"motor={motor} | description={description_of_exp!r} | "
-        f"nbr_obs={nbr_obs} | proton_charge={proton_charge} | "
-        f"n_tiff={number_of_tiff_for_each_run} | first_run={first_run} | "
-        f"sample_alignment={sample_alignment} | ob_alignment={ob_alignment} | "
-        f"initial_angles={list_of_initial_angles}"
+    o_ai = AiAutomatedLoop(
+        sample_name=sample_name,
+        user_conditions=user_conditions,
+        new_experiment=new_experiment,
+        ipts=IPTS,
+        description_of_exp=description_of_exp,
+        nbr_obs=nbr_obs,
+        proton_charge=proton_charge,
+        number_of_tiff_for_each_run=number_of_tiff_for_each_run,
+        live=live,
+        first_run=first_run,
+        motor=motor,
+        sample_alignment=sample_alignment,
+        ob_alignment=ob_alignment,
+        list_of_initial_angles=list_of_initial_angles,
     )
-
-    # # this is where we start running the pre-processing algo
-    # from notetooks.code import AiAutomatedLoop
-    # o_ai = AiAutomatedLoop(
-    #     sample_name=sample_name,
-    #     user_conditions=user_conditions,
-    #     new_experiment=new_experiment,
-    #     ipts=IPTS,
-    #     debug=debug,
-    #     description_of_exp=description_of_exp,
-    #     nbr_obs=nbr_obs,
-    #     proton_charge=proton_charge,
-    #     number_of_tiff_for_each_run=number_of_tiff_for_each_run,
-    #     live=live,
-    #     first_run=first_run,
-    #     motor=motor,
-    # )
     # o_ai.launch_pre_processing_step()
-    # set_pre_proc_started(True)
-    # return (o_ai,)
-    return
+    set_pre_proc_started(True)
+    return (o_ai,)
 
 
 @app.cell
-def _(checklist_ready, get_pre_proc_started, mo):
+def _(checklist_ready, get_log_preview_shown, get_pre_proc_started, mo):
     mo.stop(not checklist_ready)
     mo.stop(not get_pre_proc_started())
     check_pre_process_status_button = mo.ui.run_button(
         label="Check pre-process status",
-        full_width=True,
     )
-    check_pre_process_status_button
-    return (check_pre_process_status_button,)
+    preview_log_button = mo.ui.run_button(
+        label="\U0001f648 Hide log" if get_log_preview_shown() else "\U0001f441\ufe0f Preview log",
+        tooltip="Hide log" if get_log_preview_shown() else "Show ai_processing_loop log",
+    )
+    mo.hstack(
+        [check_pre_process_status_button, preview_log_button],
+        justify="start",
+        align="center",
+        widths=["1fr", "auto"],
+    )
+    return check_pre_process_status_button, preview_log_button
+
+
+@app.cell
+def _(get_log_preview_shown, mo, preview_log_button, set_log_preview_shown):
+    mo.stop(not preview_log_button.value)
+    set_log_preview_shown(not get_log_preview_shown())
+    return
+
+
+@app.cell
+def _(mo):
+    refresh_log_button = mo.ui.run_button(
+        label="\U0001f504",
+        tooltip="Refresh \u2014 reload log file",
+    )
+    return (refresh_log_button,)
+
+
+@app.cell
+def _(Path, get_log_preview_shown, ipts_w, mo, refresh_log_button):
+    import html as _html
+    mo.stop(not get_log_preview_shown())
+    _log_file = Path(__file__).parent.parent / "logs" / f"ai_processing_loop_{ipts_w.value}.log"
+    if _log_file.exists():
+        _content = _html.escape(_log_file.read_text())
+    else:
+        _content = f"\u26a0\ufe0f  File not found: logs/ai_processing_loop_{ipts_w.value}.log"
+    mo.vstack(
+        [
+            mo.hstack(
+                [
+                    mo.md(f"<span style='color: #9d7fe8; font-size: 0.85rem; font-weight: 600;'>\U0001f441\ufe0f  ai_processing_loop_{ipts_w.value}.log</span>"),
+                    refresh_log_button,
+                ],
+                justify="space-between",
+                align="center",
+            ),
+            mo.Html(
+                f"<pre style='overflow-y: auto; max-height: 400px; margin: 0; padding: 8px; "
+                f"background: #0d1117; color: #e5e7eb; font-size: 0.78rem; "
+                f"border-radius: 4px; white-space: pre-wrap; word-break: break-all;'>{_content}</pre>"
+            ),
+        ],
+        gap=0.25,
+    ).style(
+        {
+            "background": "#0d1117",
+            "border": "1px solid #334155",
+            "border-radius": "6px",
+            "padding": "10px",
+            "margin-top": "6px",
+        }
+    )
+    return
 
 
 @app.cell
@@ -785,7 +944,7 @@ def _(check_pre_process_status_button, checklist_ready, mo):
     mo.stop(not check_pre_process_status_button.value)
 
     import yaml
-    from notetooks.code import config_file as _config_file
+    from notebooks.code import config_file as _config_file
 
     with open(_config_file, "r") as _f:
         _cfg = yaml.safe_load(_f)

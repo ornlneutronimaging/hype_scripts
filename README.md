@@ -1,3 +1,8 @@
+---
+title: Readme
+marimo-version: 0.23.5
+---
+
 ## Notebooks instructions
 
 2. Run the notebook ai_automated_loop_marimo.ipynb
@@ -8,7 +13,7 @@
     - check if the instrument is ready for hyper CT mode
     - remote key has been provided by Ray and has been inserted in the config file
     - cronjob is running
-  
+
   - define parameters
     - live (if on, hyperct will be executed)
     - new experiment or not
@@ -291,7 +296,7 @@ Once all runs in the batch are confirmed and copied:
 ### 0. In ai_automated_loop missing:
   - define paremeter: sample name, user_condition, number of init angles, acquire type (pCharge/time), sample postion files paths
   - remove experiment titile
-  - 
+  -
 
 ### 1. @Hype the hyperct related scripts are saved at /data/VENUS/shared/software/
 ```

@@ -1,3 +1,4 @@
+from logging import config
 from random import sample
 
 import yaml
@@ -12,6 +13,7 @@ from tomopy.recon.rotation import find_center_pc
 import shutil
 import subprocess
 import logging
+from datetime import datetime
 
 
 PROJECT_ROOT_FOLDER = "/SNS/VENUS/shared/software/git/hype_scripts"
@@ -23,14 +25,12 @@ logging.basicConfig(filename=LOG_FILE_NAME,
                         format="[%(levelname)s] - %(asctime)s - %(message)s",
                         level=logging.INFO)
     
-logging.info(f"*** Starting AiAutomatedLoop - version 03/06/2025")
-logging.info("*** Starting checking for new files - version 03/06/2025")
-print(f"check log file at {LOG_FILE_NAME}")
+logging.info(f"*** Starting AiAutomatedLoop - version 05_15_2026 ***")
 
 from IPython.display import display
 from IPython.core.display import HTML
 
-from . import list_of_runs_found_file, config_file, script1_path, script2_path, debug_config_file
+from . import list_of_runs_found_file, config_file, script1_path, script2_path
 from scripts.EICClient import EICClient
 from . import LAST_RUN_NUMBER_PV
 
@@ -57,16 +57,44 @@ class AiAutomatedLoop:
                  sample_alignment="",
                  ob_alignment="",
                  list_of_initial_angles=None,                 ):
+       
+        _remove_me_log = os.path.join(PROJECT_ROOT_FOLDER, "logs", "REMOVE_ME.log")
+        _called_params = {
+            "live": live,
+            "new_experiment": new_experiment,
+            "ipts": ipts,
+            "sample_name": sample_name,
+            "user_conditions": user_conditions,
+            "debug": debug,
+            "description_of_exp": description_of_exp,
+            "nbr_obs": nbr_obs,
+            "proton_charge": proton_charge,
+            "number_of_tiff_for_each_run": number_of_tiff_for_each_run,
+            "first_run": first_run,
+            "motor": motor,
+            "sample_alignment": sample_alignment,
+            "ob_alignment": ob_alignment,
+            "list_of_initial_angles": list_of_initial_angles,
+        }
+        with open(_remove_me_log, "a") as _f:
+            _f.write("\n")
+            _f.write(f"AiAutomatedLoop.__init__ called")
+            for _key, _value in _called_params.items():
+                _f.write(f"{_key}: {_value}\n")
 
-        # load config file
-        if debug:
-            self.config_file = debug_config_file
-        else:
-            self.config_file = config_file
-        
+        self.config_file = str(config_file)
+        logging.info(f"Loading config file from {self.config_file}")
+
+        with open(_remove_me_log, "a") as _f:
+            _f.write(f"config_file_used: {self.config_file}\n")
+            _f.write("-" * 80 + "\n")
         with open(self.config_file, 'r') as stream_config:
             config = yaml.safe_load(stream_config)
         self.config = config
+        
+        config['EIC_vals']['ipts'] = ipts
+        with open(self.config_file, 'w') as outfile:
+            yaml.dump(config, outfile, sort_keys=False)
 
         self.live = live
         if new_experiment:
@@ -81,8 +109,11 @@ class AiAutomatedLoop:
         self.sample_alignment = sample_alignment
         self.ob_alignment = ob_alignment
         
-        str_list_of_initial_angles = list_of_initial_angles.strip().replace(" ", "")
-        list_of_initial_angles = [float(angle) for angle in str_list_of_initial_angles.split(",")]
+        if not (list_of_initial_angles is None):
+            str_list_of_initial_angles = list_of_initial_angles.strip().replace(" ", "")
+            list_of_initial_angles = [float(angle) for angle in str_list_of_initial_angles.split(",")]
+        else:
+            list_of_initial_angles = []
         self.list_of_initial_angles = list_of_initial_angles
 
         first_run_number = self.get_first_run_number() if first_run is None else first_run
@@ -95,6 +126,7 @@ class AiAutomatedLoop:
         config['EIC_vals']['sample_name'] = sample_name
         config['EIC_vals']['user_con'] = user_conditions
         config['EIC_vals']['motor_number'] = motor
+        config['EIC_vals']['ipts'] = str(self.ipts)
 
         config['ob_alignment_file'] = ob_alignment
         config['sample_alignment_file'] = sample_alignment
@@ -112,24 +144,27 @@ class AiAutomatedLoop:
         logging.info(f"*** IPTS: {self.ipts}") 
     
     def get_first_run_number(self):
-        eic_token = self.config['EIC_vals']['eic_token']
-        ipts = self.ipts
-        beamline = "BL10"
-        timeout = 10
+        
+        return 1
+        
+        # eic_token = self.config['EIC_vals']['eic_token']
+        # ipts = self.ipts
+        # beamline = "BL10"
+        # timeout = 10
 
-        eic_client = EICClient(eic_token, ipts_number=str(ipts), beamline=beamline)
-        pv_name = LAST_RUN_NUMBER_PV
+        # eic_client = EICClient(eic_token, ipts_number=str(ipts), beamline=beamline)
+        # pv_name = LAST_RUN_NUMBER_PV
 
-        success_get, pv_value_read, response_data_get = eic_client.get_pv(pv_name, timeout)
-        if success_get:
-            prefix = f'Successfully read PV {pv_name} with value {pv_value_read}'
-            run_number = int(pv_value_read) + 1
-            logging.info(f"First run number requested: {run_number}")
-            return run_number
-        else:
-            prefix = f'Failed to read PV {pv_name}'
-            logging.info(f"Failed to read PV {pv_name}")
-            raise KeyError(prefix)
+        # success_get, pv_value_read, response_data_get = eic_client.get_pv(pv_name, timeout)
+        # if success_get:
+        #     prefix = f'Successfully read PV {pv_name} with value {pv_value_read}'
+        #     run_number = int(pv_value_read) + 1
+        #     logging.info(f"First run number requested: {run_number}")
+        #     return run_number
+        # else:
+        #     prefix = f'Failed to read PV {pv_name}'
+        #     logging.info(f"Failed to read PV {pv_name}")
+        #     raise KeyError(prefix)
 
     def launch_pre_processing_step(self):     
 
