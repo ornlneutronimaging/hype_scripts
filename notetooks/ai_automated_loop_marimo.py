@@ -470,8 +470,9 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
-    get_pre_proc_cronjob_enabled, set_pre_proc_cronjob_enabled = mo.state(False)
+def _(Path, mo):
+    _flag_file = Path(__file__).parent.parent / "cronjobs" / "pre_processing_job.enabled"
+    get_pre_proc_cronjob_enabled, set_pre_proc_cronjob_enabled = mo.state(_flag_file.exists())
     return get_pre_proc_cronjob_enabled, set_pre_proc_cronjob_enabled
 
 
@@ -549,7 +550,7 @@ def _(
 def _(mo):
     """State: whether the pre-processing step has been launched; disables input fields once True."""
     get_pre_proc_started, set_pre_proc_started = mo.state(False)
-    return (get_pre_proc_started,)
+    return get_pre_proc_started, set_pre_proc_started
 
 
 @app.cell
@@ -688,6 +689,7 @@ def _(
     new_experiment_w,
     proton_charge_w,
     sample_name_w,
+    set_pre_proc_started,
     start_pre_processing_button,
     user_conditions_w,
 ):
@@ -695,6 +697,7 @@ def _(
     launch_pre_processing_step(). Marks pre-processing as started so downstream cells can react."""
     mo.stop(not checklist_ready)
     mo.stop(not start_pre_processing_button.value)
+    set_pre_proc_started(True)
 
     # Read widget values at click time so pre-processing uses the latest UI input.
     live = bool(live_w.value)
