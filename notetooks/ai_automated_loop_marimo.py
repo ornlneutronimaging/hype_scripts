@@ -26,6 +26,7 @@ def _(
     get_admin_password,
     get_admin_unlocked,
     get_pre_proc_cronjob_enabled,
+    get_preview_shown,
     mo,
     set_pre_proc_cronjob_enabled,
 ):
@@ -45,9 +46,22 @@ def _(
     )
     _admin_body = mo.vstack([admin_password_row, _cronjob_row], gap=0.5)
 
-    mo.vstack(
+    preview_cron_logs_button = mo.ui.run_button(
+        label="\U0001f648 Hide preview" if get_preview_shown() else "\U0001f441\ufe0f Preview",
+        tooltip="Hide preview" if get_preview_shown() else "Show last 20 lines of cron_jobs.txt",
+    )
+    _header_row = mo.hstack(
         [
             mo.md("<div style='border-left: 4px solid #7c3aed; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #7c3aed;'>\U0001f510 Admin</span></div>"),
+            preview_cron_logs_button,
+        ],
+        justify="space-between",
+        align="center",
+    )
+
+    mo.vstack(
+        [
+            _header_row,
             _admin_body,
         ]
     ).style(
@@ -60,7 +74,57 @@ def _(
             "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
         }
     )
-    return admin_password_w, unlock_admin_button
+    return admin_password_w, preview_cron_logs_button, unlock_admin_button
+
+
+@app.cell
+def _(get_preview_shown, mo, preview_cron_logs_button, set_preview_shown):
+    mo.stop(not preview_cron_logs_button.value)
+    set_preview_shown(not get_preview_shown())
+    return
+
+
+@app.cell
+def _(mo):
+    refresh_preview_button = mo.ui.run_button(
+        label="\U0001f504",
+        tooltip="Refresh — reload cron_jobs.txt",
+    )
+    return (refresh_preview_button,)
+
+
+@app.cell
+def _(Path, get_preview_shown, mo, refresh_preview_button):
+    mo.stop(not get_preview_shown())
+    _log_file = Path(__file__).parent.parent / "logs" / "cron_jobs.txt"
+    if _log_file.exists():
+        _lines = _log_file.read_text().splitlines()
+        _last_20 = "\n".join(_lines[-20:]) if _lines else "(empty file)"
+    else:
+        _last_20 = "\u26a0\ufe0f  File not found: logs/cron_jobs.txt"
+    mo.vstack(
+        [
+            mo.hstack(
+                [
+                    mo.md("<span style='color: #9d7fe8; font-size: 0.85rem; font-weight: 600;'>\U0001f441\ufe0f  cron_jobs.txt \u2014 last 20 lines</span>"),
+                    refresh_preview_button,
+                ],
+                justify="space-between",
+                align="center",
+            ),
+            mo.md(f"```\n{_last_20}\n```"),
+        ],
+        gap=0.25,
+    ).style(
+        {
+            "background": "#0d1117",
+            "border": "1px solid #334155",
+            "border-radius": "6px",
+            "padding": "10px",
+            "margin-top": "6px",
+        }
+    )
+    return
 
 
 @app.cell
@@ -409,6 +473,12 @@ def _(mo):
 def _(mo):
     get_pre_proc_cronjob_enabled, set_pre_proc_cronjob_enabled = mo.state(False)
     return get_pre_proc_cronjob_enabled, set_pre_proc_cronjob_enabled
+
+
+@app.cell
+def _(mo):
+    get_preview_shown, set_preview_shown = mo.state(False)
+    return get_preview_shown, set_preview_shown
 
 
 @app.cell

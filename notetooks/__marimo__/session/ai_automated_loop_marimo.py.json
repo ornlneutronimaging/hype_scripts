@@ -1,122 +1,385 @@
 {
   "version": "1",
   "metadata": {
-    "marimo_version": "0.23.1",
+    "marimo_version": "0.23.5",
     "script_metadata_hash": null
   },
   "cells": [
     {
       "id": "Hbol",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "8a7f48a87364eb9ef0af987ba297c9cd",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "MJUe",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "f77c193ac316a479957ad1553bf73865",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='border:1px solid #334155;border-radius:8px;padding:12px;background:linear-gradient(180deg, #111827 0%, #0b1220 100%);color:#e5e7eb;box-shadow:0 10px 24px rgba(0, 0, 0, 0.35)'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='display: flex;flex: 1;flex-direction: row;justify-content: space-between;align-items: center;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><div style='border-left: 4px solid #7c3aed; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #7c3aed;'>\ud83d\udd10 Admin</span></div></span><marimo-ui-element object-id='MJUe-3' random-id='abfe43bb-f6ea-bb95-a27f-5cfb551005d6'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;\ud83d\ude48 Hide preview&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-tooltip='&quot;Hide preview&quot;' data-full-width='false'></marimo-button></marimo-ui-element></div><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: flex-end;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='MJUe-0' random-id='c72208af-0e03-ccba-1bd5-39694255baff'><marimo-text data-initial-value='&quot;&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Admin password&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element><marimo-ui-element object-id='MJUe-1' random-id='b800bbc8-1283-edac-1218-8cecc7dbada0'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Lock admin&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element></div><marimo-ui-element object-id='MJUe-2' random-id='6b8e811e-75bc-74c7-6dad-9de861df189e'><marimo-checkbox data-initial-value='false' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Run pre-processing cronjob&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element></div></div></div>"
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "vblA",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "0bcd635bf4112d37ea664ff81f61f6f7",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "bkHC",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "66b9fd1d3a41dc8786ea871f23dc0c5a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "lEQa",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "18af8a157b2e54b83717a85841e3a38e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='background:#0d1117;border:1px solid #334155;border-radius:6px;padding:10px;margin-top:6px'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.25rem'><div style='display: flex;flex: 1;flex-direction: row;justify-content: space-between;align-items: center;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><span style='color: #9d7fe8; font-size: 0.85rem; font-weight: 600;'>\ud83d\udc41\ufe0f  cron_jobs.txt \u2014 last 20 lines</span></span></span><marimo-ui-element object-id='bkHC-0' random-id='0cceef0c-c055-f355-5cd4-4abc76041221'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;\ud83d\udd04&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-tooltip='&quot;Refresh \u2014 reload cron_jobs.txt&quot;' data-full-width='false'></marimo-button></marimo-ui-element></div><span class=\"markdown prose dark:prose-invert contents\"><div class=\"language-scdoc codehilite\"><pre><span></span><code>Last time running cron_job_script_pre_processing.sh: \nThu May 14 11:28:01 AM EDT 2026\nLast time running cron_job_script_pre_processing.sh: \nThu May 14 11:29:01 AM EDT 2026\nLast time running cron_job_script_pre_processing.sh: \nThu May 14 11:30:01 AM EDT 2026\nLast time running cron_job_script_pre_processing.sh: \nThu May 14 11:31:01 AM EDT 2026\nLast time running cron_job_script_pre_processing.sh: \nThu May 14 11:32:01 AM EDT 2026\nLast time running cron_job_script_pre_processing.sh: \nThu May 14 11:33:02 AM EDT 2026\nLast time running cron_job_script_pre_processing.sh: \nFri May 15 11:32:01 AM EDT 2026\nLast time running cron_job_script_pre_processing.sh: \nFri May 15 11:40:02 AM EDT 2026\nLast time running cron_job_script_pre_processing.sh: \nFri May 15 11:41:01 AM EDT 2026\nLast time running cron_job_script_pre_processing.sh: \nFri May 15 11:42:01 AM EDT 2026\n</code></pre></div></span></div></div>"
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "PKri",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "572de49812f9ce193497b4b14d747931",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "Xref",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "048d52a2cd2f7010e8d63de36d05aa5d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='border:1px solid #334155;border-radius:8px;padding:12px;background:linear-gradient(180deg, #111827 0%, #0b1220 100%);color:#e5e7eb;box-shadow:0 10px 24px rgba(0, 0, 0, 0.35)'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>\ud83d\udccb  Starting checklist</span> <span style='font-size: 0.85rem; font-weight: 400; color: #888; text-transform: none;'></span></div></span><marimo-ui-element object-id='Xref-0' random-id='f57d56fe-d706-3d4f-fdbe-aae979f2eb90'><marimo-checkbox data-initial-value='true' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;The instrument has been configure for HyperCT mode (in the DAS console)&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element><marimo-ui-element object-id='Xref-1' random-id='6e62628c-c62e-8037-b923-3999a851cb7e'><marimo-checkbox data-initial-value='true' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Remote key has been configured by the imaging team (added to config file)&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element><marimo-ui-element object-id='Xref-2' random-id='1dbcb605-4d02-8ca1-1008-36560371f316'><marimo-checkbox data-initial-value='false' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;pre-processing cronjob running cronjob&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='true'></marimo-checkbox></marimo-ui-element></div></div>"
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "SFPL",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "2c5c20e9d1e08a4e7eec76d543e75682",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "BYtC",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "a29fe1cb38b50ed60676d3bd80a45e73",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "RGSE",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "0b7f1b374ed5dc8d866540370e45fc3b",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
       "console": []
     },
     {
       "id": "Kclp",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "c9bc61a5053087173f723530f6a5815b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "emfo",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "d1444b8d1d06c436632e4d1e2fe2443c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "Hstk",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "8d754498d96568a31164c4d43dd1d9f5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "nWHF",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "e0495495003ccf0b689a68b45f8d6477",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "iLit",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "bd70bf5e15cc03331ce4df519a80b6ee",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "ZHCJ",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "e972f6eb3d48ef5f277fa2eb5fcaac1e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "ROlb",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "2e65d3d7c838bc87c1c7ad998752ed08",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "qnkX",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "21311cd562c373225ba6d0c361398e4e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "TqIu",
-      "code_hash": null,
-      "outputs": [],
+      "code_hash": "7632db3a31c5882615a4964cc71efec2",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "bf11e01289689bd79ce2ba8884f30680",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "DnEU",
+      "code_hash": "3cc3d313464f7a102f0c39783398c119",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ulZA",
+      "code_hash": "741ede02cfd611c7c5e4b83b0ddff924",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ecfG",
+      "code_hash": "3108ea872ef68706255808feecbb112a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Pvdt",
+      "code_hash": "f3fb931e7c31373f1831f4c032de571e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZBYS",
+      "code_hash": "f9f59eaf6f4029e69db2d83db9cc54b2",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "aLJB",
+      "code_hash": "f9554e7c738d6fb2a06afcef6246851f",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nHfw",
+      "code_hash": "db1fc5916afe328005350783ecc5fe07",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "xXTn",
+      "code_hash": "2abc6a3ffe4322a459f02ac550b8c1b1",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "AjVT",
+      "code_hash": "cc26571e15ac3e9506a192e3e6606af5",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
       "console": []
     }
   ]
