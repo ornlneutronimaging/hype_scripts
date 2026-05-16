@@ -31,6 +31,7 @@ def _(
     get_active_config_file_option,
     get_admin_password,
     get_admin_unlocked,
+    get_config_preview_shown,
     get_pre_proc_cronjob_enabled,
     get_preview_shown,
     mo,
@@ -66,13 +67,19 @@ def _(
     _admin_body = mo.vstack([admin_password_row, _cronjob_row, _config_file_row], gap=0.5)
 
     preview_cron_logs_button = mo.ui.run_button(
-        label="\U0001f648 Hide preview" if get_preview_shown() else "\U0001f441\ufe0f Preview",
+        label="\U0001f648 Hide preview" if get_preview_shown() else "\U0001f441\ufe0f Preview Cronjob",
         tooltip="Hide preview" if get_preview_shown() else "Show last 20 lines of cron_jobs.txt",
+        disabled=not get_admin_unlocked(),
+    )
+    preview_config_button = mo.ui.run_button(
+        label="\U0001f648 Hide config" if get_config_preview_shown() else "\U0001f441\ufe0f Preview Config",
+        tooltip="Hide config" if get_config_preview_shown() else f"Show {get_active_config_file_option()}.yaml",
+        disabled=not get_admin_unlocked(),
     )
     _header_row = mo.hstack(
         [
             mo.md("<div style='border-left: 4px solid #7c3aed; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #7c3aed;'>\U0001f510 Admin</span></div>"),
-            preview_cron_logs_button,
+            mo.hstack([preview_cron_logs_button, preview_config_button], justify="end", align="center", gap=0.5),
         ],
         justify="space-between",
         align="center",
@@ -93,7 +100,12 @@ def _(
             "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
         }
     )
-    return admin_password_w, preview_cron_logs_button, unlock_admin_button
+    return (
+        admin_password_w,
+        preview_config_button,
+        preview_cron_logs_button,
+        unlock_admin_button,
+    )
 
 
 @app.cell
@@ -197,6 +209,72 @@ def _(Path, get_preview_shown, mo, refresh_preview_button):
                 align="center",
             ),
             mo.md(f"```\n{_last_20}\n```"),
+        ],
+        gap=0.25,
+    ).style(
+        {
+            "background": "#0d1117",
+            "border": "1px solid #334155",
+            "border-radius": "6px",
+            "padding": "10px",
+            "margin-top": "6px",
+        }
+    )
+    return
+
+
+@app.cell
+def _(
+    get_config_preview_shown,
+    mo,
+    preview_config_button,
+    set_config_preview_shown,
+):
+    mo.stop(not preview_config_button.value)
+    set_config_preview_shown(not get_config_preview_shown())
+    return
+
+
+@app.cell
+def _(mo):
+    refresh_config_button = mo.ui.run_button(
+        label="\U0001f504",
+        tooltip="Refresh \u2014 reload config file",
+    )
+    return (refresh_config_button,)
+
+
+@app.cell
+def _(
+    Path,
+    get_active_config_file_option,
+    get_config_preview_shown,
+    mo,
+    refresh_config_button,
+):
+    import html as _html_cfg
+    mo.stop(not get_config_preview_shown())
+    _cfg_name = get_active_config_file_option()
+    _cfg_file_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    if _cfg_file_path.exists():
+        _cfg_content = _html_cfg.escape(_cfg_file_path.read_text())
+    else:
+        _cfg_content = f"\u26a0\ufe0f  File not found: configs/{_cfg_name}.yaml"
+    mo.vstack(
+        [
+            mo.hstack(
+                [
+                    mo.md(f"<span style='color: #9d7fe8; font-size: 0.85rem; font-weight: 600;'>\U0001f441\ufe0f  {_cfg_name}.yaml</span>"),
+                    refresh_config_button,
+                ],
+                justify="space-between",
+                align="center",
+            ),
+            mo.Html(
+                f"<pre style='overflow-y: auto; max-height: 400px; margin: 0; padding: 8px; "
+                f"background: #0d1117; color: #e5e7eb; font-size: 0.78rem; "
+                f"border-radius: 4px; white-space: pre-wrap; word-break: break-all;'>{_cfg_content}</pre>"
+            ),
         ],
         gap=0.25,
     ).style(
@@ -566,6 +644,12 @@ def _(Path, mo):
 def _(mo):
     get_preview_shown, set_preview_shown = mo.state(False)
     return get_preview_shown, set_preview_shown
+
+
+@app.cell
+def _(mo):
+    get_config_preview_shown, set_config_preview_shown = mo.state(False)
+    return get_config_preview_shown, set_config_preview_shown
 
 
 @app.cell
