@@ -1006,15 +1006,37 @@ def _(checklist_ready, first_run_w, get_pre_proc_started, mo, nbr_obs_w):
 
     _ACQUIRING = "📡 acquiring"
     _QUEUED = "⏳ queued"
+    _MISSING = "❌"
 
     _rows = []
     _run_num = _first_run
     for _i in range(_nbr_obs):
-        _rows.append({"run number": _run_num, "type": "OB", "state": _ACQUIRING if _i == 0 else _QUEUED})
+        _rows.append({
+            "run number": _run_num,
+            "type": "OB",
+            "raw": _MISSING,
+            "corrected": _MISSING,
+            "final": _MISSING,
+            "state": _ACQUIRING if _i == 0 else _QUEUED,
+        })
         _run_num += 1
-    _rows.append({"run number": _run_num, "type": "0°", "state": _QUEUED})
+    _rows.append({
+        "run number": _run_num,
+        "type": "0°",
+        "raw": _MISSING,
+        "corrected": _MISSING,
+        "final": _MISSING,
+        "state": _QUEUED,
+    })
     _run_num += 1
-    _rows.append({"run number": _run_num, "type": "180°", "state": _QUEUED})
+    _rows.append({
+        "run number": _run_num,
+        "type": "180°",
+        "raw": _MISSING,
+        "corrected": _MISSING,
+        "final": _MISSING,
+        "state": _QUEUED,
+    })
 
     mo.ui.table(_rows, selection=None)
     return
