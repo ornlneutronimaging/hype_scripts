@@ -354,7 +354,9 @@ def _(cronjob_checked, hyperct_mode_checked, remote_key_checked):
 
 @app.cell
 def _(
+    Path,
     checklist_ready,
+    get_active_config_file_option,
     get_debug_mode_unlocked,
     get_live_enabled,
     get_pre_proc_started,
@@ -362,11 +364,23 @@ def _(
     mo,
     set_live_enabled,
 ):
+    import yaml as _yaml
     mo.stop(not checklist_ready)
 
     _started = get_pre_proc_started()
     _debug_locked = get_debug_mode_unlocked()
     _is_reset = get_reset_counter() > 0
+
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        with open(_cfg_path, "r") as _f:
+            _cfg_data = _yaml.safe_load(_f) or {}
+    except OSError:
+        _cfg_data = {}
+    _eic = _cfg_data.get("EIC_vals", {})
+    _angles_list = _cfg_data.get("list_of_initial_angles", []) or []
+    _angles_str = ", ".join(str(_a) for _a in _angles_list) if _angles_list else ""
 
     live_w = mo.ui.checkbox(
         value=get_live_enabled(),
@@ -383,11 +397,11 @@ def _(
         label="New experiment",
         tooltip="Reset form fields for a new experiment",
     )
-    ipts_w = mo.ui.text(value="" if _is_reset else "36914", label="IPTS-", disabled=_started)
+    ipts_w = mo.ui.text(value="" if _is_reset else str(_eic.get("ipts", "36914")), label="IPTS-", disabled=_started)
     required_marker = mo.md("<span style='color: red; font-size: 1.25rem;'>*</span>")
     ipts_row = mo.hstack([ipts_w, required_marker], justify="start", align="end", gap=0.25)
-    sample_name_w = mo.ui.text(value="" if _is_reset else "test_sample", label="sample name (10 chars max)", disabled=_started)
-    user_conditions_w = mo.ui.text(value="" if _is_reset else "T10K", label="sample conditions (10 chars max)", disabled=_started)
+    sample_name_w = mo.ui.text(value="" if _is_reset else str(_eic.get("sample_name", "test_sample")), label="sample name (10 chars max)", disabled=_started)
+    user_conditions_w = mo.ui.text(value="" if _is_reset else str(_eic.get("user_con", _eic.get("user_conditions", "T10K"))), label="sample conditions (10 chars max)", disabled=_started)
     sample_name_row = mo.hstack(
         [sample_name_w, required_marker],
         justify="start",
@@ -400,10 +414,10 @@ def _(
         align="end",
         gap=0.25,
     )
-    motor_w = mo.ui.number(start=1, stop=6, step=1, value=1, label="motor")
+    motor_w = mo.ui.number(start=1, stop=6, step=1, value=int(_eic.get("motor_number", 1)), label="motor")
     motor_row = mo.hstack([motor_w], justify="start", widths=[5])
     description_w = mo.ui.text(
-        value="" if _is_reset else "testing EIC in May with Shimin and Jean",
+        value="" if _is_reset else str(_eic.get("scan_description", "testing EIC in May with Shimin and Jean")),
         label="description of experiment",
         full_width=True,
         disabled=_started,
@@ -416,18 +430,18 @@ def _(
         gap=0.5,
         widths=["1fr", "auto"],
     ).style({"width": "100%"})    
-    nbr_obs_w = mo.ui.number(start=1, step=1, value=3, label="nbr of open beams")
+    nbr_obs_w = mo.ui.number(start=1, step=1, value=int(_eic.get("number_of_obs", 3)), label="nbr of open beams")
     nbr_obs_row = mo.hstack([nbr_obs_w], justify="start", widths=[10])
-    proton_charge_w = mo.ui.number(start=0.0, step=0.01, value=0.1, label="proton charge (C)")
+    proton_charge_w = mo.ui.number(start=0.0, step=0.01, value=float(_eic.get("proton_charge", 0.1)), label="proton charge (C)")
     proton_charge_row = mo.hstack([proton_charge_w], justify="start", widths=[10])
     n_tiff_w = mo.ui.number(
         start=1,
         step=1,
-        value=2628,
+        value=int(_cfg_data.get("number_of_tiff_for_each_run", 2628)),
         label="number of tiff images for each run",
     )
     n_tiff_row = mo.hstack([n_tiff_w], justify="start", widths=[20])
-    first_run_w = mo.ui.text(value="8769", label="first run", disabled=_started)
+    first_run_w = mo.ui.text(value=str(_cfg_data.get("starting_run_number", "8769")), label="first run", disabled=_started)
     first_run_row = mo.hstack(
         [first_run_w, required_marker],
         justify="start",
@@ -435,7 +449,7 @@ def _(
         gap=0.25,
     )
     initial_angles_w = mo.ui.text(
-        value="",
+        value="" if _is_reset else _angles_str,
         label="list of initial angles (e.g., 0.0, 90.0, 180.0)",
         disabled=_started,
         full_width=True,
@@ -630,16 +644,46 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def _(Path, get_active_config_file_option, mo):
     """State: persisted sample alignment file path (as a list) so selection survives cell reruns."""
-    get_sample_alignment_selection, set_sample_alignment_selection = mo.state([])
+    import yaml as _yaml
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        with open(_cfg_path, "r") as _f:
+            _init_cfg = _yaml.safe_load(_f) or {}
+        _raw = _init_cfg.get("sample_alignment_file", [])
+        if isinstance(_raw, list):
+            _initial_sample = [str(_p) for _p in _raw if _p]
+        elif isinstance(_raw, str) and _raw and _raw != "XXXXX.csv":
+            _initial_sample = [_raw]
+        else:
+            _initial_sample = []
+    except OSError:
+        _initial_sample = []
+    get_sample_alignment_selection, set_sample_alignment_selection = mo.state(_initial_sample)
     return get_sample_alignment_selection, set_sample_alignment_selection
 
 
 @app.cell
-def _(mo):
+def _(Path, get_active_config_file_option, mo):
     """State: persisted open-beam alignment file path (as a list) so selection survives cell reruns."""
-    get_ob_alignment_selection, set_ob_alignment_selection = mo.state([])
+    import yaml as _yaml
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        with open(_cfg_path, "r") as _f:
+            _init_cfg = _yaml.safe_load(_f) or {}
+        _raw = _init_cfg.get("ob_alignment_file", [])
+        if isinstance(_raw, list):
+            _initial_ob = [str(_p) for _p in _raw if _p]
+        elif isinstance(_raw, str) and _raw and _raw != "XXXXX.csv":
+            _initial_ob = [_raw]
+        else:
+            _initial_ob = []
+    except OSError:
+        _initial_ob = []
+    get_ob_alignment_selection, set_ob_alignment_selection = mo.state(_initial_ob)
     return get_ob_alignment_selection, set_ob_alignment_selection
 
 
