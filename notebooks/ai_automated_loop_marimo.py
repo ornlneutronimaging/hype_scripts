@@ -358,6 +358,7 @@ def _(
     get_debug_mode_unlocked,
     get_live_enabled,
     get_pre_proc_started,
+    get_reset_counter,
     mo,
     set_live_enabled,
 ):
@@ -365,6 +366,7 @@ def _(
 
     _started = get_pre_proc_started()
     _debug_locked = get_debug_mode_unlocked()
+    _is_reset = get_reset_counter() > 0
 
     live_w = mo.ui.checkbox(
         value=get_live_enabled(),
@@ -377,12 +379,15 @@ def _(
             "opacity": "0.45",
         }
     ) if _debug_locked else live_w
-    new_experiment_w = mo.ui.checkbox(value=True, label="new experiment")
-    ipts_w = mo.ui.text(value="36914", label="IPTS-", disabled=_started)
+    new_experiment_button = mo.ui.run_button(
+        label="New experiment",
+        tooltip="Reset form fields for a new experiment",
+    )
+    ipts_w = mo.ui.text(value="" if _is_reset else "36914", label="IPTS-", disabled=_started)
     required_marker = mo.md("<span style='color: red; font-size: 1.25rem;'>*</span>")
     ipts_row = mo.hstack([ipts_w, required_marker], justify="start", align="end", gap=0.25)
-    sample_name_w = mo.ui.text(value="test_sample", label="sample name (10 chars max)", disabled=_started)
-    user_conditions_w = mo.ui.text(value="T10K", label="sample conditions (10 chars max)", disabled=_started)
+    sample_name_w = mo.ui.text(value="" if _is_reset else "test_sample", label="sample name (10 chars max)", disabled=_started)
+    user_conditions_w = mo.ui.text(value="" if _is_reset else "T10K", label="sample conditions (10 chars max)", disabled=_started)
     sample_name_row = mo.hstack(
         [sample_name_w, required_marker],
         justify="start",
@@ -398,7 +403,7 @@ def _(
     motor_w = mo.ui.number(start=1, stop=6, step=1, value=1, label="motor")
     motor_row = mo.hstack([motor_w], justify="start", widths=[5])
     description_w = mo.ui.text(
-        value="testing EIC in May with Shimin and Jean",
+        value="" if _is_reset else "testing EIC in May with Shimin and Jean",
         label="description of experiment",
         full_width=True,
         disabled=_started,
@@ -446,8 +451,9 @@ def _(
     controls = mo.vstack(
         [
             mo.md("<div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>⚙️ Runtime parameters</span> <span style='font-size: 0.85rem; font-weight: 400; color: #888; text-transform: none;'>(fields marked with <span style='color: red;'>✱</span> are mandatory)</span></div>"),
+            new_experiment_button,
+            mo.md("<hr style='border: none; border-top: 1px solid #334155; margin: 4px 0;'>"),
             live_row,
-            new_experiment_w,
             ipts_row,
             sample_name_row,
             user_conditions_row,
@@ -470,7 +476,7 @@ def _(
         motor_w,
         n_tiff_w,
         nbr_obs_w,
-        new_experiment_w,
+        new_experiment_button,
         proton_charge_w,
         sample_name_w,
         user_conditions_w,
@@ -567,6 +573,22 @@ def _(
 
 
 @app.cell
+def _(
+    get_reset_counter,
+    mo,
+    new_experiment_button,
+    set_ob_alignment_selection,
+    set_reset_counter,
+    set_sample_alignment_selection,
+):
+    mo.stop(not new_experiment_button.value)
+    set_reset_counter(get_reset_counter() + 1)
+    set_sample_alignment_selection([])
+    set_ob_alignment_selection([])
+    return
+
+
+@app.cell
 def _(checklist_ready, get_debug_mode_password, get_debug_mode_unlocked, mo):
     """Debug mode access panel: password field and lock/unlock toggle button."""
     mo.stop(not checklist_ready)
@@ -650,6 +672,12 @@ def _(mo):
 def _(mo):
     get_config_preview_shown, set_config_preview_shown = mo.state(False)
     return get_config_preview_shown, set_config_preview_shown
+
+
+@app.cell
+def _(mo):
+    get_reset_counter, set_reset_counter = mo.state(0)
+    return get_reset_counter, set_reset_counter
 
 
 @app.cell
@@ -866,7 +894,6 @@ def _(
     motor_w,
     n_tiff_w,
     nbr_obs_w,
-    new_experiment_w,
     proton_charge_w,
     sample_name_w,
     set_pre_proc_started,
@@ -881,7 +908,7 @@ def _(
 
     # Read widget values at click time so pre-processing uses the latest UI input.
     live = bool(live_w.value)
-    new_experiment = bool(new_experiment_w.value)
+    new_experiment = True
     IPTS = int(ipts_w.value)
     sample_name = str(sample_name_w.value)
     user_conditions = str(user_conditions_w.value)
