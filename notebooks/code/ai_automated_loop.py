@@ -58,36 +58,37 @@ class AiAutomatedLoop:
                  ob_alignment="",
                  list_of_initial_angles=None,                 ):
        
-        _remove_me_log = os.path.join(PROJECT_ROOT_FOLDER, "logs", "REMOVE_ME.log")
-        _called_params = {
-            "live": live,
-            "new_experiment": new_experiment,
-            "ipts": ipts,
-            "sample_name": sample_name,
-            "user_conditions": user_conditions,
-            "debug": debug,
-            "description_of_exp": description_of_exp,
-            "nbr_obs": nbr_obs,
-            "proton_charge": proton_charge,
-            "number_of_tiff_for_each_run": number_of_tiff_for_each_run,
-            "first_run": first_run,
-            "motor": motor,
-            "sample_alignment": sample_alignment,
-            "ob_alignment": ob_alignment,
-            "list_of_initial_angles": list_of_initial_angles,
-        }
-        with open(_remove_me_log, "a") as _f:
-            _f.write("\n")
-            _f.write(f"AiAutomatedLoop.__init__ called")
-            for _key, _value in _called_params.items():
-                _f.write(f"{_key}: {_value}\n")
+        # _remove_me_log = os.path.join(PROJECT_ROOT_FOLDER, "logs", "REMOVE_ME.log")
+        # _called_params = {
+        #     "live": live,
+        #     "new_experiment": new_experiment,
+        #     "ipts": ipts,
+        #     "sample_name": sample_name,
+        #     "user_conditions": user_conditions,
+        #     "debug": debug,
+        #     "description_of_exp": description_of_exp,
+        #     "nbr_obs": nbr_obs,
+        #     "proton_charge": proton_charge,
+        #     "number_of_tiff_for_each_run": number_of_tiff_for_each_run,
+        #     "first_run": first_run,
+        #     "motor": motor,
+        #     "sample_alignment": sample_alignment,
+        #     "ob_alignment": ob_alignment,
+        #     "list_of_initial_angles": list_of_initial_angles,
+        # }
+        # with open(_remove_me_log, "a") as _f:
+        #     _f.write("\n")
+        #     _f.write(f"AiAutomatedLoop.__init__ called")
+        #     for _key, _value in _called_params.items():
+        #         _f.write(f"{_key}: {_value}\n")
 
         self.config_file = str(config_file)
         logging.info(f"Loading config file from {self.config_file}")
 
-        with open(_remove_me_log, "a") as _f:
-            _f.write(f"config_file_used: {self.config_file}\n")
-            _f.write("-" * 80 + "\n")
+        # with open(_remove_me_log, "a") as _f:
+        #     _f.write(f"config_file_used: {self.config_file}\n")
+        #     _f.write("-" * 80 + "\n")
+
         with open(self.config_file, 'r') as stream_config:
             config = yaml.safe_load(stream_config)
         self.config = config

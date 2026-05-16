@@ -903,30 +903,6 @@ def _(
     else:
         list_of_initial_angles = None
 
-    # _remove_me_log = os.path.join("/SNS/VENUS/shared/software/git/hype_scripts", "logs", "REMOVE_ME.log")
-    # _called_params = {
-    #     "live": live,
-    #     "new_experiment": new_experiment,
-    #     "ipts": IPTS,
-    #     "sample_name": sample_name,
-    #     "user_conditions": user_conditions,
-    #     "description_of_exp": description_of_exp,
-    #     "nbr_obs": nbr_obs,
-    #     "proton_charge": proton_charge,
-    #     "number_of_tiff_for_each_run": number_of_tiff_for_each_run,
-    #     "first_run": first_run,
-    #     "motor": motor,
-    #     "sample_alignment": sample_alignment,
-    #     "ob_alignment": ob_alignment,
-    #     "list_of_initial_angles": list_of_initial_angles,
-    # }
-    # import datetime
-    # with open(_remove_me_log, "a") as _f:
-    #     _f.write("\n")
-    #     _f.write(f"AiAutomatedLoop.__init__ called from marimo")
-    #     for _key, _value in _called_params.items():
-    #         _f.write(f"{_key}: {_value}\n")
-
     o_ai = AiAutomatedLoop(
         sample_name=sample_name,
         user_conditions=user_conditions,
@@ -956,7 +932,7 @@ def _(checklist_ready, get_log_preview_shown, get_pre_proc_started, mo):
         label="Check pre-process status",
     )
     preview_log_button = mo.ui.run_button(
-        label="\U0001f648 Hide log" if get_log_preview_shown() else "\U0001f441\ufe0f Preview log",
+        label="\U0001f648 Hide log" if get_log_preview_shown() else "\U0001f441\ufe0f Preview pre-processing log",
         tooltip="Hide log" if get_log_preview_shown() else "Show ai_processing_loop log",
     )
     mo.hstack(
