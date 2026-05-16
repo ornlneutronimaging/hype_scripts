@@ -100,10 +100,6 @@ def  all_the_files_are_there(full_path_of_run_number_expected):
     return True
 
 
-
-
-
-
 def processing():
     
      # load config file

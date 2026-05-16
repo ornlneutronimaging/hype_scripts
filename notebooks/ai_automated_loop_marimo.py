@@ -867,7 +867,7 @@ def _(
 ):
     """Validation + start button: checks all mandatory fields (IPTS, sample name, conditions,
     first run, both alignment files) and shows a warning list if any are missing.
-    Enables the 'Start open beams, 0 and 180° projections' button only when all are filled."""
+    Enables the 'Start open beams, 0° and 180° projections' button only when all are filled."""
     mo.stop(not checklist_ready)
 
     _started = get_pre_proc_started()
@@ -911,7 +911,7 @@ def _(
     )
 
     start_pre_processing_button = mo.ui.run_button(
-        label="Start open beams, 0 and 180° projections",
+        label="Start open beams, 0° and 180° projections",
         full_width=True,
         disabled=_started or not _mandatory_fields_filled,
     )
@@ -996,11 +996,36 @@ def _(
 
 
 @app.cell
+def _(checklist_ready, first_run_w, get_pre_proc_started, mo, nbr_obs_w):
+    """Show a table of planned runs as soon as pre-processing is started."""
+    mo.stop(not checklist_ready)
+    mo.stop(not get_pre_proc_started())
+
+    _first_run = int(str(first_run_w.value).strip() or "0")
+    _nbr_obs = int(nbr_obs_w.value)
+
+    _ACQUIRING = "📡 acquiring"
+    _QUEUED = "⏳ queued"
+
+    _rows = []
+    _run_num = _first_run
+    for _i in range(_nbr_obs):
+        _rows.append({"run number": _run_num, "type": "OB", "state": _ACQUIRING if _i == 0 else _QUEUED})
+        _run_num += 1
+    _rows.append({"run number": _run_num, "type": "0°", "state": _QUEUED})
+    _run_num += 1
+    _rows.append({"run number": _run_num, "type": "180°", "state": _QUEUED})
+
+    mo.ui.table(_rows, selection=None)
+    return
+
+
+@app.cell
 def _(checklist_ready, get_log_preview_shown, get_pre_proc_started, mo):
     mo.stop(not checklist_ready)
     mo.stop(not get_pre_proc_started())
     check_pre_process_status_button = mo.ui.run_button(
-        label="Check pre-process status",
+        label="Refresh table",
     )
     preview_log_button = mo.ui.run_button(
         label="\U0001f648 Hide log" if get_log_preview_shown() else "\U0001f441\ufe0f Preview pre-processing log",
@@ -1008,9 +1033,8 @@ def _(checklist_ready, get_log_preview_shown, get_pre_proc_started, mo):
     )
     mo.hstack(
         [check_pre_process_status_button, preview_log_button],
-        justify="start",
+        justify="space-between",
         align="center",
-        widths=["1fr", "auto"],
     )
     return check_pre_process_status_button, preview_log_button
 
