@@ -1157,5 +1157,32 @@ def _(checklist_ready, mo, o_ai, pre_process_is_done):
     return
 
 
+@app.cell
+def _(checklist_ready, get_debug_mode_unlocked, mo):
+    """Testing-only button: manually trigger center of rotation, crop and TOF range calculation."""
+    # mo.stop(not checklist_ready)
+    # mo.stop(not get_debug_mode_unlocked())
+
+    debug_calc_button = mo.ui.run_button(
+        label="calculate center of rotation, crop and define TOF range",
+        full_width=True,
+    )
+    debug_calc_button
+    return (debug_calc_button,)
+
+
+@app.cell
+def _(checklist_ready, debug_calc_button, get_debug_mode_unlocked, mo, o_ai):
+    """Handle debug_calc_button click: runs center-of-rotation, crop and TOF range steps."""
+    # mo.stop(not checklist_ready)
+    # mo.stop(not get_debug_mode_unlocked())
+    mo.stop(not debug_calc_button.value)
+
+    o_ai.calculate_center_of_rotation()
+    o_ai.crop_images()
+    o_ai.define_tof_ranges()
+    return
+
+
 if __name__ == "__main__":
     app.run()

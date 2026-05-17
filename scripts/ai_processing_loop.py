@@ -9,6 +9,7 @@ import numpy as np
 import stat
 from pathlib import Path
 import sys
+import h5py
 
 PROJECT_ROOT_FOLDER = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT_FOLDER) not in sys.path:
@@ -200,7 +201,7 @@ def pre_processing():
     # clean up log file
     if not os.path.exists(LOG_FILE_NAME):
         with open(LOG_FILE_NAME, 'w') as log_file:
-            log_file.write("")
+            log_file.write("Starting log file for AI processing loop pre-processing ...\n")
 
     with open(LOG_FILE_NAME, 'r') as log_file:
         log_file_content = log_file.readlines()
@@ -218,9 +219,9 @@ def pre_processing():
 
     # if flag is False, stop here
     if config['ai_pre_process_running'] is False:
-         logging.info(f"AI pre-process (ob, 0 and 180degrees) is not running yet!")
-         logging.info(f"... exiting the run_autoreduction_and_move_folders.py!")
+         logging.info(f"AI pre-process (ob, 0 and 180degrees) is not running yet! We are done here")
          return
+
     else:
         logging.info(f"AI pre-process (ob, 0 and 180 degrees) is now checking for new files!")
         # title = config['experiment_title']
@@ -235,10 +236,10 @@ def pre_processing():
         logging.info(f"run_number_expected: {run_number_expected}")
         list_of_runs_expected = np.arange(starting_run_number, starting_run_number + 2 + number_of_obs)
         logging.info(f"{list_of_runs_expected = }")
-        list_of_obs_expected = list_of_runs_expected[:-2]
+        list_of_obs_expected = list_of_runs_expected[:-2] # OBs then 0 and 180 degrees, so we take all the runs except the last 2 to be OBs
         logging.info(f"{list_of_obs_expected = }")
         logging.info(f"list of obs expected: {list_of_obs_expected}")
-        list_of_0_and_180_expected = list_of_runs_expected[-2:]
+        list_of_0_and_180_expected = list_of_runs_expected[-2:] # the last 2 runs are the 0 and 180 degrees
         logging.info(f"{list_of_0_and_180_expected = }")
 
     # create the output path on hype
@@ -252,20 +253,60 @@ def pre_processing():
         logging.info(f"making sure the permission to the shared folder are right!")
         change_permissions_recursive(output_path)
 
-    # check if run number expected showed up in the folder
-    logging.info(f"looking at {MCP_FOLDER}/Run_{run_number_expected:04d}")
-    full_path_of_run_number_expected = os.path.join(MCP_FOLDER, f"Run_{run_number_expected:04d}")
-    logging.info(f"{full_path_of_run_number_expected = }")
+    # check that NeXus is there
+    NEXUS_FOLDER = config['nexus_folder']
+    expected_nexus_file = os.path.join(NEXUS_FOLDER, f"VENUS_{run_number_expected}.nxs.h5")
+    logging.info(f"checking that NeXus {expected_nexus_file} is there (acquisition of that run is done) ...")
+    if not os.path.exists(expected_nexus_file):
+        logging.info(f"NeXus file {expected_nexus_file} not found!")
+        logging.info(f"... exiting move_folders.py!")
+        return
 
-    if not os.path.exists(full_path_of_run_number_expected):
-        logging.info(f"Run_{run_number_expected:04d} not found!")
+    # if nexus is there, we can retrieve the location of the corrected MCP folder
+    logging.info(f"NeXus file {expected_nexus_file} found! Let's retrieve the location of the corrected MCP folder from the NeXus file ...  ")
+    # retrieve the location of the corrected MCP folder from the NeXus file 
+    with h5py.File(expected_nexus_file, 'r') as f:
+        try:
+            mcp_corrected_folder = f['entry']['DASlogs']['BL10:Exp:IM:ImageFilePath']['value'][1][0].decode('utf-8')
+        except KeyError:
+            mcp_corrected_folder = f['entry']['DASlogs']['BL10:Exp:IM:ConfigTpxFilePath']['value'][0][0].decode('utf-8')
+        mcp_corrected_folder = mcp_corrected_folder.strip()
+
+    full_path_of_corrected_run_number_expected = os.path.join(MCP_FOLDER, mcp_corrected_folder[-2:])  
+    logging.info(f"looking at {full_path_of_corrected_run_number_expected} to find the corrected MCP folder name ...")
+    logging.info(f"{full_path_of_corrected_run_number_expected = }")
+
+    if not os.path.exists(full_path_of_corrected_run_number_expected):
+        logging.info(f"Corrected MCP folder of run {run_number_expected} not found in {full_path_of_corrected_run_number_expected}!")
         logging.info(f"... exiting move_folders.py!")
         return
     
-    logging.info(f"Run_{run_number_expected:04d} found!")
+    logging.info(f"run number {run_number_expected:04d} found!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # checking if the system is done writing all the files into the raw input folder
-    if not all_the_files_are_there(full_path_of_run_number_expected):
+    if not all_the_files_are_there(full_path_of_corrected_run_number_expected):
         logging.info(f"not all the files are there yet!")
         logging.info(f"... exiting move_folders.py!")
         return
@@ -273,12 +314,12 @@ def pre_processing():
     logging.info(f"The source folder has all the files we need!")
 
     logging.info(f"looking at the short name of the run number expected ...")
-    new_name_of_run_number_expected = get_new_short_name_of_run_number_expected(full_path_of_run_number_expected)
+    new_name_of_run_number_expected = get_new_short_name_of_run_number_expected(full_path_of_corrected_run_number_expected)
     logging.info(f"File will be renamed {new_name_of_run_number_expected}")
 
     # check if folder has been renamed and copied already
     if do_we_need_to_copy_that_folder(new_name_of_run_number_expected):
-        copy_and_rename_that_folder(full_path_of_run_number_expected, new_name_of_run_number_expected)
+        copy_and_rename_that_folder(full_path_of_corrected_run_number_expected, new_name_of_run_number_expected)
 
         if run_number_expected in list_of_obs_expected:
             list_of_obs = config['ob_local_path']

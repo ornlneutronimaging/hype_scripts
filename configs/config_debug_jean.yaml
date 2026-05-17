@@ -4,6 +4,7 @@ ai_process_running: true
 ai_process_paused: false
 debugging: false
 DataPath: /data/VENUS/IPTS-36914/images/tpx1/raw/ct/*_test_sample_T10K_*
+nexus_folder: /SNS/VENUS/IPTS-36914/nexus
 OutPath: /data/VENUS/IPTS-20121/shared
 ob_local_path: []
 ob_alignment_file:

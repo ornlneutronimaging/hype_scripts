@@ -136,6 +136,8 @@ class AiAutomatedLoop:
         autoreduce_folder = f"/SNS/VENUS/IPTS-{self.ipts}/shared/autoreduce/images/mcp/tpx1/raw/ct"
         config['autoreduce_mcp_folder'] = autoreduce_folder
         config['DataPath'] = f"/data/VENUS/IPTS-{self.ipts}/images/tpx1/raw/ct/*_{sample_name}_{user_conditions}_*"
+        config['nexus_folder'] = f"/SNS/VENUS/IPTS-{self.ipts}/nexus"
+        
         with open(self.config_file, 'w') as outfile:
             yaml.dump(config, outfile, sort_keys=False)
 
