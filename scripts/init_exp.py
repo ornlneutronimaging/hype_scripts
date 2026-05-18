@@ -8,7 +8,7 @@ args = parser.parse_args()
 # %%
 # config file
 cfg_file = args.cfg_file
-#cfg_file = '/SNS/VENUS/IPTS-35790/shared/hype/configs/config.yaml'
+#cfg_file = '/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml'
 cfg = yaml.safe_load(open(cfg_file, 'r', encoding = 'utf-8'))
 
 #%%
@@ -18,12 +18,12 @@ eic_token = cfg['EIC_vals']['eic_token']
 
 # user define
 p_charge = cfg['EIC_vals']['proton_charge']
-exp_name = cfg['EIC_vals']['sample_name']
-user_con = cfg['EIC_vals']['user_con']
+smp_name = cfg['EIC_vals']['sample_name']
+user_con = cfg['EIC_vals']['user_conditions']
 ob_num = cfg['EIC_vals']['number_of_obs']
 usr_desc = cfg['EIC_vals']['scan_description']
-#ang_lst = cfg['provided_ang_list']
 ini_ang_num = cfg['num_ini_ang']
+pv_motor_selector = 'BL10:Mot:RotUI:Menu'
 motor_number = cfg['EIC_vals']['motor_number']
 
 # %%
@@ -35,7 +35,7 @@ pv_user_con = 'BL10:Exp:IM:UserConditions'
 pv_num_dataset = 'BL10:Exp:NumDataSets'
 pv_scan_type = 'BL10:Exp:IM:ScanType'
 pv_aq_type = 'BL10:Exp:IM:AcquireType'
-pv_set_p_charge = 'BL10:Exp:AcquirePCharge'
+pv_set_p_charge = 'BL10:Exp:IM:AcquirePCharge'
 pv_set_time = 'BL10:Exp:IM:AcquireTime'
 pv_scan_trig = 'BL10:Exp:IM:ScanNewNq'
 
@@ -43,8 +43,10 @@ pv_ct_rot_type = 'BL10:Mot:RotUI:Menu'
 pv_rot_option = 'BL10:Exp:Rot:Options'
 pv_ang_fillNum = 'BL10:Exp:Rot:T:AutofillNum'
 pv_ang_prefix = 'BL10:Exp:Rot:T:Pos'
+
 print_results= True
-simulate_only = False# to test the command
+simulate_only = False # to test the command
+print(f'{ipts=} {eic_token}')
 
 angles = cfg['provided_ang_list']
 # get the scan angle list
@@ -55,18 +57,24 @@ else:
 # %%
 rows = []
 desc = f'MCP TPX {len(ang_lst)} Radiographs: {ang_lst}deg'  
-header = [pv_motor, pv_file_name, pv_sub_dir, pv_num_dataset, pv_set_p_charge, pv_scan_trig]
 
-p_charge_1, p_charge_2 = str(p_charge).split('.')
-cnt = 1
-for ang in ang_lst:
-    _ang_1, _ang_2 = f'{ang}'.split('.')
-    _name = f'{exp_name}_{p_charge_1:0>2}_{p_charge_2:0<2}C_Angle_{_ang_1:0>3}_{_ang_2:0<3}deg'
-    rows.append([ang, _name, _name, 1, p_charge, 0])
-    cnt +=1
-    # send out init scans
+_angle_number = len(ang_lst)
+rows = []
+ang_pv = [f'{pv_ang_prefix}{i+1}' for i in range(_angle_number)]
+desc = f'MCP TPX1 {len(angles)} Radiographs: {angles}' 
+
+header_ = [pv_smp_name, pv_user_con, pv_scan_type, pv_motor_selector, pv_rot_option, pv_ang_fillNum]
+_header = [pv_aq_type,  pv_set_p_charge, pv_num_dataset, pv_scan_trig]
+
+header = header_ + ang_pv + _header
+
+row_ = [smp_name, user_con, '3D CT', motor_number, 3, _angle_number] 
+_row = [1, p_charge, 1, 0]
+
+rows.append(row_ + ang_lst + _row)
+
 eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results)
-
+#%%
 # update flag in config
 cfg['ai_process_running'] = True
 yaml.dump(cfg, open(cfg_file, "w", encoding = 'utf-8'), sort_keys=False)
