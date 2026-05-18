@@ -32,10 +32,12 @@ def _(
     get_admin_password,
     get_admin_unlocked,
     get_config_preview_shown,
+    get_full_loop_cronjob_enabled,
     get_pre_proc_cronjob_enabled,
     get_preview_shown,
     mo,
     set_active_config_file_option,
+    set_full_loop_cronjob_enabled,
     set_pre_proc_cronjob_enabled,
 ):
     admin_password_w = mo.ui.text(value=get_admin_password(), label="Admin password")
@@ -49,6 +51,11 @@ def _(
         label="Run pre-processing cronjob",
         on_change=set_pre_proc_cronjob_enabled,
     )
+    _full_loop_cronjob_w = mo.ui.checkbox(
+        value=get_full_loop_cronjob_enabled(),
+        label="Run full loop cronjob",
+        on_change=set_full_loop_cronjob_enabled,
+    )
     _config_file_w = mo.ui.dropdown(
         options={
             "config": "config",
@@ -58,7 +65,8 @@ def _(
         label="config file",
         on_change=set_active_config_file_option,
     )
-    _cronjob_row = _pre_proc_cronjob_w if get_admin_unlocked() else mo.vstack([_pre_proc_cronjob_w]).style(
+    _cronjob_toggles = mo.hstack([_pre_proc_cronjob_w, _full_loop_cronjob_w], justify="start", align="center", gap=1)
+    _cronjob_row = _cronjob_toggles if get_admin_unlocked() else mo.vstack([_cronjob_toggles]).style(
         {"pointer-events": "none", "opacity": "0.45"}
     )
     _config_file_row = _config_file_w if get_admin_unlocked() else mo.vstack([_config_file_w]).style(
@@ -290,16 +298,25 @@ def _(
 
 
 @app.cell
-def _(Path, get_pre_proc_cronjob_enabled):
+def _(Path, get_full_loop_cronjob_enabled, get_pre_proc_cronjob_enabled):
 
     _cronjobs_dir = Path(__file__).parent.parent / "cronjobs"
-    _flag_file = _cronjobs_dir / "pre_processing_job.enabled"
+    _pre_proc_flag_file = _cronjobs_dir / "pre_processing_job.enabled"
+    _full_loop_flag_file = _cronjobs_dir / "full_loop_job.enabled"
+
     if get_pre_proc_cronjob_enabled():
-        _flag_file.parent.mkdir(parents=True, exist_ok=True)
-        _flag_file.touch()
+        _pre_proc_flag_file.parent.mkdir(parents=True, exist_ok=True)
+        _pre_proc_flag_file.touch()
     else:
-        if _flag_file.exists():
-            _flag_file.unlink()
+        if _pre_proc_flag_file.exists():
+            _pre_proc_flag_file.unlink()
+
+    if get_full_loop_cronjob_enabled():
+        _full_loop_flag_file.parent.mkdir(parents=True, exist_ok=True)
+        _full_loop_flag_file.touch()
+    else:
+        if _full_loop_flag_file.exists():
+            _full_loop_flag_file.unlink()
     return
 
 
@@ -707,6 +724,13 @@ def _(Path, mo):
 
 
 @app.cell
+def _(Path, mo):
+    _flag_file = Path(__file__).parent.parent / "cronjobs" / "full_loop_job.enabled"
+    get_full_loop_cronjob_enabled, set_full_loop_cronjob_enabled = mo.state(_flag_file.exists())
+    return get_full_loop_cronjob_enabled, set_full_loop_cronjob_enabled
+
+
+@app.cell
 def _(mo):
     get_preview_shown, set_preview_shown = mo.state(False)
     return get_preview_shown, set_preview_shown
@@ -992,7 +1016,7 @@ def _(
     )
     # o_ai.launch_pre_processing_step()
     set_pre_proc_started(True)
-    return (o_ai,)
+    return
 
 
 @app.cell
@@ -1138,49 +1162,6 @@ def _(check_pre_process_status_button, checklist_ready, mo):
             kind="success",
         )
         pre_process_is_done = True
-    return (pre_process_is_done,)
-
-
-@app.cell
-def _(checklist_ready, mo, o_ai, pre_process_is_done):
-    mo.stop(not checklist_ready)
-    mo.stop(not pre_process_is_done)
-
-    # we need to calculate the center of rotation
-    o_ai.calculate_center_of_rotation()
-
-    # we need to crop
-    o_ai.crop_images()
-
-    # we need to define up to 5 TOF ranges
-    o_ai.define_tof_ranges()
-    return
-
-
-@app.cell
-def _(mo):
-    """Testing-only button: manually trigger center of rotation, crop and TOF range calculation."""
-    # mo.stop(not checklist_ready)
-    # mo.stop(not get_debug_mode_unlocked())
-
-    debug_calc_button = mo.ui.run_button(
-        label="calculate center of rotation, crop and define TOF range",
-        full_width=True,
-    )
-    debug_calc_button
-    return (debug_calc_button,)
-
-
-@app.cell
-def _(debug_calc_button, mo, o_ai):
-    """Handle debug_calc_button click: runs center-of-rotation, crop and TOF range steps."""
-    # mo.stop(not checklist_ready)
-    # mo.stop(not get_debug_mode_unlocked())
-    mo.stop(not debug_calc_button.value)
-
-    o_ai.calculate_center_of_rotation()
-    o_ai.crop_images()
-    o_ai.define_tof_ranges()
     return
 
 
