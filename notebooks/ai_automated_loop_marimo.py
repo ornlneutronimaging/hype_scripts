@@ -411,14 +411,15 @@ def _(get_pre_proc_cronjob_enabled, mo):
     )
 
     checklist_ui
-    return cronjob_checked, hyperct_mode_checked, remote_key_checked
+    return hyperct_mode_checked, remote_key_checked
 
 
 @app.cell
-def _(cronjob_checked, hyperct_mode_checked, remote_key_checked):
-    """Derive checklist_ready: True only when all three checklist boxes are ticked."""
+def _(hyperct_mode_checked, remote_key_checked):
+    """Derive checklist_ready: True only when the two manual checklist boxes are ticked.
+    The cronjob checkbox is a read-only status indicator and no longer gates the UI."""
     checklist_ready = bool(
-        hyperct_mode_checked.value and remote_key_checked.value and cronjob_checked.value
+        hyperct_mode_checked.value and remote_key_checked.value
     )
     return (checklist_ready,)
 
@@ -958,6 +959,7 @@ def _(checklist_ready, get_debug_mode_unlocked, get_pre_proc_started, mo):
 def _(
     checklist_ready,
     get_ob_alignment_selection,
+    get_pre_proc_cronjob_enabled,
     get_pre_proc_started,
     get_sample_alignment_selection,
     ipts_w,
@@ -968,11 +970,12 @@ def _(
     user_conditions_w,
 ):
     """Validation + start button: checks all mandatory fields (IPTS, sample name, conditions,
-    first run, both alignment files) and shows a warning list if any are missing.
-    Enables the 'Start open beams, 0° and 180° projections' button only when all are filled."""
+    both alignment files) and shows a warning list if any are missing.
+    The start button is also disabled when the pre-processing cronjob is not enabled."""
     mo.stop(not checklist_ready)
 
     _started = get_pre_proc_started()
+    _cronjob_enabled = get_pre_proc_cronjob_enabled()
     _missing_parameters = []
     if not str(ipts_w.value).strip():
         _missing_parameters.append("IPTS")
@@ -1013,7 +1016,7 @@ def _(
     start_pre_processing_button = mo.ui.run_button(
         label="Start open beams, 0° and 180° projections",
         full_width=True,
-        disabled=_started or not _mandatory_fields_filled,
+        disabled=_started or not _mandatory_fields_filled or not _cronjob_enabled,
     )
 
     if _started:
