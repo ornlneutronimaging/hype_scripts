@@ -17,10 +17,12 @@ ipts = str(cfg['EIC_vals']['ipts'])
 eic_token = cfg['EIC_vals']['eic_token']
 
 # user define
-p_charge = cfg['EIC_vals']['proton_charge']
+acq_type = cfg['EIC_vals']['acquire_type']
+acq_p_charge = cfg['EIC_vals']['proton_charge']
+acq_time = cfg['EIC_vals']['time_s']
 smp_name = cfg['EIC_vals']['sample_name']
 user_con = cfg['EIC_vals']['user_conditions']
-ob_num = cfg['EIC_vals']['number_of_obs']
+proj_num_each_angle = cfg['EIC_vals']['number_of_projections_at_each_angle']
 usr_desc = cfg['EIC_vals']['scan_description']
 ini_ang_num = cfg['num_ini_ang']
 pv_motor_selector = 'BL10:Mot:RotUI:Menu'
@@ -33,6 +35,7 @@ pv_move_trig = 'ScanALFileRunNq'
 pv_smp_name = 'BL10:Exp:IM:UserSampleName'
 pv_user_con = 'BL10:Exp:IM:UserConditions'
 pv_num_dataset = 'BL10:Exp:NumDataSets'
+pv_num_img = 'BL10:Exp:IM:NumImages'
 pv_scan_type = 'BL10:Exp:IM:ScanType'
 pv_aq_type = 'BL10:Exp:IM:AcquireType'
 pv_set_p_charge = 'BL10:Exp:IM:AcquirePCharge'
@@ -54,6 +57,15 @@ if angles == []:
     ang_lst = [generate_gs_angle(i) for i in range(1, ini_ang_num+1)] # regular case: range(1, ini_ang_num+1) range(2*ini_ang_num, 3*ini_ang_num)
 else:
     ang_lst = angles[:ini_ang_num] 
+
+if acq_type == 'time':
+    acq_type_val = 0
+    time_pcharge_val = acq_time
+    pv_time_pcharge_set = pv_set_time
+else: 
+    acq_type_val = 1
+    time_pcharge_val = acq_p_charge
+    pv_time_pcharge_set = pv_set_p_charge
 # %%
 rows = []
 desc = f'MCP TPX {len(ang_lst)} Radiographs: {ang_lst}deg'  
@@ -64,12 +76,12 @@ ang_pv = [f'{pv_ang_prefix}{i+1}' for i in range(_angle_number)]
 desc = f'MCP TPX1 {len(angles)} Radiographs: {angles}' 
 
 header_ = [pv_smp_name, pv_user_con, pv_scan_type, pv_motor_selector, pv_rot_option, pv_ang_fillNum]
-_header = [pv_aq_type,  pv_set_p_charge, pv_num_dataset, pv_scan_trig]
+_header = [pv_aq_type,  pv_time_pcharge_set, pv_num_dataset, pv_num_img, pv_scan_trig]
 
 header = header_ + ang_pv + _header
 
 row_ = [smp_name, user_con, '3D CT', motor_number, 3, _angle_number] 
-_row = [1, p_charge, 1, 0]
+_row = [acq_type_val, time_pcharge_val, 1, proj_num_each_angle, 0]
 
 rows.append(row_ + ang_lst + _row)
 

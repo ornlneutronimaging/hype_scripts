@@ -84,10 +84,15 @@ def _(
         tooltip="Hide config" if get_config_preview_shown() else f"Show {get_active_config_file_option()}.yaml",
         disabled=not get_admin_unlocked(),
     )
+    clear_log_button = mo.ui.run_button(
+        label="\U0001f5d1\ufe0f Clear log",
+        tooltip="Clear the pre-processing log file",
+        disabled=not get_admin_unlocked(),
+    )
     _header_row = mo.hstack(
         [
             mo.md("<div style='border-left: 4px solid #7c3aed; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #7c3aed;'>\U0001f510 Admin</span></div>"),
-            mo.hstack([preview_cron_logs_button, preview_config_button], justify="end", align="center", gap=0.5),
+            mo.hstack([preview_cron_logs_button, preview_config_button, clear_log_button ], justify="end", align="center", gap=0.5),
         ],
         justify="space-between",
         align="center",
@@ -110,6 +115,7 @@ def _(
     )
     return (
         admin_password_w,
+        clear_log_button,
         preview_config_button,
         preview_cron_logs_button,
         unlock_admin_button,
@@ -117,7 +123,16 @@ def _(
 
 
 @app.cell
-def _(Path):
+def _(Path, clear_log_button, ipts_w, mo):
+    mo.stop(not clear_log_button.value)
+    _log_file = Path(__file__).parent.parent / "logs" / f"ai_processing_loop_{ipts_w.value}.log"
+    if _log_file.exists():
+        _log_file.write_text("")
+    return
+
+
+@app.cell
+def _(Path, mo):
     _code_init_file = Path(__file__).parent / "code" / "__init__.py"
     _config_line = 'config_file = _top_path / "configs" / "config.yaml"'
     _debug_line = 'config_file = _top_path / "configs" / "config_debug_jean.yaml"'
@@ -128,7 +143,7 @@ def _(Path):
             _stripped = _stripped[1:].lstrip()
         return _stripped.strip()
 
-    def get_active_config_file_option() -> str:
+    def _read_active_config_file_option() -> str:
         try:
             _lines = _code_init_file.read_text().splitlines()
         except OSError:
@@ -143,6 +158,9 @@ def _(Path):
                     return "config"
 
         return "config_debug_jean"
+    get_active_config_file_option, _set_active_config_file_option = mo.state(
+        _read_active_config_file_option()
+    )
 
     def set_active_config_file_option(option: str) -> None:
         if option not in {"config", "config_debug_jean"}:
@@ -178,7 +196,40 @@ def _(Path):
         except OSError:
             return
 
+        _set_active_config_file_option(option)
+
     return get_active_config_file_option, set_active_config_file_option
+
+
+@app.cell
+def _(Path, get_active_config_file_option):
+    import yaml as _yaml
+
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+
+    try:
+        with open(_cfg_path, "r") as _f:
+            _cfg_data = _yaml.safe_load(_f) or {}
+    except OSError:
+        _cfg_data = {}
+
+    def _normalize_alignment_value(raw_value):
+        if isinstance(raw_value, list):
+            return [str(_path) for _path in raw_value if _path]
+        if isinstance(raw_value, str) and raw_value and raw_value != "XXXXX.csv":
+            return [raw_value]
+        return []
+
+    config_widget_defaults = {
+        "sample_alignment": _normalize_alignment_value(
+            _cfg_data.get("sample_alignment_file", [])
+        ),
+        "ob_alignment": _normalize_alignment_value(
+            _cfg_data.get("ob_alignment_file", [])
+        ),
+    }
+    return
 
 
 @app.cell
@@ -208,6 +259,7 @@ def _(Path, get_preview_shown, mo, refresh_preview_button):
         _last_20 = "\u26a0\ufe0f  File not found: logs/cron_jobs.txt"
     mo.vstack(
         [
+            mo.Html("<script>window.scrollTo(0, document.body.scrollHeight);</script>"),
             mo.hstack(
                 [
                     mo.md("<span style='color: #9d7fe8; font-size: 0.85rem; font-weight: 600;'>\U0001f441\ufe0f  cron_jobs.txt \u2014 last 20 lines</span>"),
@@ -270,6 +322,7 @@ def _(
         _cfg_content = f"\u26a0\ufe0f  File not found: configs/{_cfg_name}.yaml"
     mo.vstack(
         [
+            mo.Html("<script>window.scrollTo(0, document.body.scrollHeight);</script>"),
             mo.hstack(
                 [
                     mo.md(f"<span style='color: #9d7fe8; font-size: 0.85rem; font-weight: 600;'>\U0001f441\ufe0f  {_cfg_name}.yaml</span>"),
@@ -279,9 +332,10 @@ def _(
                 align="center",
             ),
             mo.Html(
-                f"<pre style='overflow-y: auto; max-height: 400px; margin: 0; padding: 8px; "
+                f"<pre id='cfg-preview-box' style='overflow-y: auto; max-height: 400px; margin: 0; padding: 8px; "
                 f"background: #0d1117; color: #e5e7eb; font-size: 0.78rem; "
                 f"border-radius: 4px; white-space: pre-wrap; word-break: break-all;'>{_cfg_content}</pre>"
+                f"<script>(function(){{var e=document.getElementById('cfg-preview-box');if(e)e.scrollTop=e.scrollHeight;}})();</script>"
             ),
         ],
         gap=0.25,
@@ -414,7 +468,7 @@ def _(
         label="New experiment",
         tooltip="Reset form fields for a new experiment",
     )
-    ipts_w = mo.ui.text(value="" if _is_reset else str(_eic.get("ipts", "36914")), label="IPTS-", disabled=_started)
+    ipts_w = mo.ui.text(value=str(_eic.get("ipts", "")), label="IPTS-", disabled=_started)
     required_marker = mo.md("<span style='color: red; font-size: 1.25rem;'>*</span>")
     ipts_row = mo.hstack([ipts_w, required_marker], justify="start", align="end", gap=0.25)
     sample_name_w = mo.ui.text(value="" if _is_reset else str(_eic.get("sample_name", "test_sample")), label="sample name (10 chars max)", disabled=_started)
@@ -449,22 +503,10 @@ def _(
     ).style({"width": "100%"})    
     nbr_obs_w = mo.ui.number(start=1, step=1, value=int(_eic.get("number_of_obs", 3)), label="nbr of open beams")
     nbr_obs_row = mo.hstack([nbr_obs_w], justify="start", widths=[10])
+    nbr_proj_w = mo.ui.number(start=1, stop=10, step=1, value=int(_eic.get("number_of_projections_at_each_angle", 1)), label="number of projections at each angle", disabled=True)
+    nbr_proj_row = mo.hstack([nbr_proj_w], justify="start", widths=[10])
     proton_charge_w = mo.ui.number(start=0.0, step=0.01, value=float(_eic.get("proton_charge", 0.1)), label="proton charge (C)")
     proton_charge_row = mo.hstack([proton_charge_w], justify="start", widths=[10])
-    n_tiff_w = mo.ui.number(
-        start=1,
-        step=1,
-        value=int(_cfg_data.get("number_of_tiff_for_each_run", 2628)),
-        label="number of tiff images for each run",
-    )
-    n_tiff_row = mo.hstack([n_tiff_w], justify="start", widths=[20])
-    first_run_w = mo.ui.text(value=str(_cfg_data.get("starting_run_number", "8769")), label="first run", disabled=_started)
-    first_run_row = mo.hstack(
-        [first_run_w, required_marker],
-        justify="start",
-        align="end",
-        gap=0.25,
-    )
     initial_angles_w = mo.ui.text(
         value="" if _is_reset else _angles_str,
         label="list of initial angles (e.g., 0.0, 90.0, 180.0)",
@@ -491,22 +533,20 @@ def _(
             motor_row,
             description_row,
             nbr_obs_row,
+            nbr_proj_row,
             proton_charge_row,
-            n_tiff_row,
-            first_run_row,
             initial_angles_row,
         ]
     )
     controls
     return (
         description_w,
-        first_run_w,
         initial_angles_w,
         ipts_w,
         live_w,
         motor_w,
-        n_tiff_w,
         nbr_obs_w,
+        nbr_proj_w,
         new_experiment_button,
         proton_charge_w,
         sample_name_w,
@@ -547,7 +587,8 @@ def _(
             ]
         )
         _sample_files = [_name for _name in _csv_files if "_OB_" not in _name]
-        _ob_files = [_name for _name in _csv_files if "_OB_" in _name]
+        # _ob_files = [_name for _name in _csv_files if "_OB_" in _name]
+        _ob_files = [_name for _name in _csv_files if "_OB_" not in _name]
 
         _sample_options = {
             _name: os.path.join(_alignment_dir, _name)
@@ -605,7 +646,9 @@ def _(
 
 @app.cell
 def _(
+    Path,
     get_reset_counter,
+    ipts_w,
     mo,
     new_experiment_button,
     set_ob_alignment_selection,
@@ -616,6 +659,9 @@ def _(
     set_reset_counter(get_reset_counter() + 1)
     set_sample_alignment_selection([])
     set_ob_alignment_selection([])
+    _log_file = Path(__file__).parent.parent / "logs" / f"ai_processing_loop_{ipts_w.value}.log"
+    if _log_file.exists():
+        _log_file.write_text("")
     return
 
 
@@ -826,6 +872,13 @@ def _(mo):
 
 
 @app.cell
+def _(mo):
+    """State: run numbers that have passed each processing stage (populated on Refresh table)."""
+    get_marimo_table_data, set_marimo_table_data = mo.state({"raw": [], "corrected": [], "final": []})
+    return get_marimo_table_data, set_marimo_table_data
+
+
+@app.cell
 def _(checklist_ready, get_debug_mode_unlocked, get_pre_proc_started, mo):
     mo.stop(not checklist_ready)
 
@@ -876,9 +929,7 @@ def _(checklist_ready, get_debug_mode_unlocked, get_pre_proc_started, mo):
 
 @app.cell
 def _(
-    Path,
     checklist_ready,
-    first_run_w,
     get_ob_alignment_selection,
     get_pre_proc_started,
     get_sample_alignment_selection,
@@ -902,8 +953,6 @@ def _(
         _missing_parameters.append("sample name")
     if not str(user_conditions_w.value).strip():
         _missing_parameters.append("sample conditions")
-    if not str(first_run_w.value).strip():
-        _missing_parameters.append("first run")
     _sample_alignment_value = (
         sample_alignment_w.value
         if (sample_alignment_w is not None and sample_alignment_w.value)
@@ -940,10 +989,7 @@ def _(
         disabled=_started or not _mandatory_fields_filled,
     )
 
-    _log_file_path = Path(__file__).parent.parent / "logs" / "ai_automated_loop_marimo.log"
-    _log_file_display = mo.md(f"<span style='color: #888; font-size: 0.85rem;'>Log file: `{_log_file_path}`</span>")
-
-    mo.vstack([missing_parameters_box, start_pre_processing_button, _log_file_display], gap=0.5)
+    mo.vstack([missing_parameters_box, start_pre_processing_button], gap=0.5)
     return (start_pre_processing_button,)
 
 
@@ -952,7 +998,6 @@ def _(
     AiAutomatedLoop,
     checklist_ready,
     description_w,
-    first_run_w,
     get_ob_alignment_selection,
     get_sample_alignment_selection,
     initial_angles_w,
@@ -960,8 +1005,8 @@ def _(
     live_w,
     mo,
     motor_w,
-    n_tiff_w,
     nbr_obs_w,
+    nbr_proj_w,
     proton_charge_w,
     sample_name_w,
     set_pre_proc_started,
@@ -972,7 +1017,6 @@ def _(
     launch_pre_processing_step(). Marks pre-processing as started so downstream cells can react."""
     mo.stop(not checklist_ready)
     mo.stop(not start_pre_processing_button.value)
-    set_pre_proc_started(True)
 
     # Read widget values at click time so pre-processing uses the latest UI input.
     live = bool(live_w.value)
@@ -983,10 +1027,16 @@ def _(
     motor = int(motor_w.value)
     description_of_exp = str(description_w.value)
     nbr_obs = int(nbr_obs_w.value)
+    number_of_projections_at_each_angle = int(nbr_proj_w.value)
     proton_charge = float(proton_charge_w.value)
-    number_of_tiff_for_each_run = int(n_tiff_w.value)
-    raw_first_run = str(first_run_w.value).strip()
-    first_run = int(raw_first_run) if raw_first_run else None
+
+    # _cfg_name = get_active_config_file_option()
+    # _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    # try:
+    #     with open(_cfg_path, "r") as _f:
+    #         _cfg_data = _yaml.safe_load(_f) or {}
+    # except OSError:
+    #     _cfg_data = {}
 
     # Keep last selected alignments available even when debug-mode toggles rebuild widgets.
     sample_alignment = get_sample_alignment_selection()
@@ -1005,61 +1055,95 @@ def _(
         ipts=IPTS,
         description_of_exp=description_of_exp,
         nbr_obs=nbr_obs,
+        number_of_projections_at_each_angle=number_of_projections_at_each_angle,
         proton_charge=proton_charge,
-        number_of_tiff_for_each_run=number_of_tiff_for_each_run,
         live=live,
-        first_run=first_run,
         motor=motor,
         sample_alignment=sample_alignment,
         ob_alignment=ob_alignment,
         list_of_initial_angles=list_of_initial_angles,
     )
-    # o_ai.launch_pre_processing_step()
+    o_ai.launch_pre_processing_step()
     set_pre_proc_started(True)
     return
 
 
 @app.cell
-def _(checklist_ready, first_run_w, get_pre_proc_started, mo, nbr_obs_w):
+def _(
+    Path,
+    checklist_ready,
+    get_active_config_file_option,
+    get_marimo_table_data,
+    get_pre_proc_started,
+    mo,
+    nbr_obs_w,
+):
     """Show a table of planned runs as soon as pre-processing is started."""
     mo.stop(not checklist_ready)
     mo.stop(not get_pre_proc_started())
 
-    _first_run = int(str(first_run_w.value).strip() or "0")
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        import yaml as _yaml
+
+        with open(_cfg_path, "r") as _f:
+            _cfg_data = _yaml.safe_load(_f) or {}
+    except OSError:
+        _cfg_data = {}
+
+    _first_run = int(_cfg_data.get("starting_run_number", 8769))
     _nbr_obs = int(nbr_obs_w.value)
 
+    _table_data = get_marimo_table_data()
+    _raw_done = set(_table_data.get("raw", []))
+    _corrected_done = set(_table_data.get("corrected", []))
+    _final_done = set(_table_data.get("final", []))
+
+    _DONE = "✅"
     _ACQUIRING = "📡 acquiring"
-    _QUEUED = "⏳ queued"
     _MISSING = "❌"
+    _DONE_STATE = "✅ done"
+
+    def _state_for_run(run_number: int) -> str:
+        _all_complete = (
+            run_number in _raw_done
+            and run_number in _corrected_done
+            and run_number in _final_done
+        )
+        return _DONE_STATE if _all_complete else _ACQUIRING
 
     _rows = []
     _run_num = _first_run
     for _i in range(_nbr_obs):
+        _state = _state_for_run(_run_num)
         _rows.append({
             "run number": _run_num,
             "type": "OB",
-            "raw": _MISSING,
-            "corrected": _MISSING,
-            "final": _MISSING,
-            "state": _ACQUIRING if _i == 0 else _QUEUED,
+            "raw": _DONE if _run_num in _raw_done else _MISSING,
+            "corrected": _DONE if _run_num in _corrected_done else _MISSING,
+            "final": _DONE if _run_num in _final_done else _MISSING,
+            "state": _state,
         })
         _run_num += 1
+    _state_0 = _state_for_run(_run_num)
     _rows.append({
         "run number": _run_num,
         "type": "0°",
-        "raw": _MISSING,
-        "corrected": _MISSING,
-        "final": _MISSING,
-        "state": _QUEUED,
+        "raw": _DONE if _run_num in _raw_done else _MISSING,
+        "corrected": _DONE if _run_num in _corrected_done else _MISSING,
+        "final": _DONE if _run_num in _final_done else _MISSING,
+        "state": _state_0,
     })
     _run_num += 1
+    _state_180 = _state_for_run(_run_num)
     _rows.append({
         "run number": _run_num,
         "type": "180°",
-        "raw": _MISSING,
-        "corrected": _MISSING,
-        "final": _MISSING,
-        "state": _QUEUED,
+        "raw": _DONE if _run_num in _raw_done else _MISSING,
+        "corrected": _DONE if _run_num in _corrected_done else _MISSING,
+        "final": _DONE if _run_num in _final_done else _MISSING,
+        "state": _state_180,
     })
 
     mo.ui.table(_rows, selection=None)
@@ -1112,6 +1196,7 @@ def _(Path, get_log_preview_shown, ipts_w, mo, refresh_log_button):
         _content = f"\u26a0\ufe0f  File not found: logs/ai_processing_loop_{ipts_w.value}.log"
     mo.vstack(
         [
+            mo.Html("<script>window.scrollTo(0, document.body.scrollHeight);</script>"),
             mo.hstack(
                 [
                     mo.md(f"<span style='color: #9d7fe8; font-size: 0.85rem; font-weight: 600;'>\U0001f441\ufe0f  ai_processing_loop_{ipts_w.value}.log</span>"),
@@ -1121,9 +1206,10 @@ def _(Path, get_log_preview_shown, ipts_w, mo, refresh_log_button):
                 align="center",
             ),
             mo.Html(
-                f"<pre style='overflow-y: auto; max-height: 400px; margin: 0; padding: 8px; "
+                f"<pre id='log-preview-box' style='overflow-y: auto; max-height: 400px; margin: 0; padding: 8px; "
                 f"background: #0d1117; color: #e5e7eb; font-size: 0.78rem; "
                 f"border-radius: 4px; white-space: pre-wrap; word-break: break-all;'>{_content}</pre>"
+                f"<script>(function(){{var e=document.getElementById('log-preview-box');if(e)e.scrollTop=e.scrollHeight;}})();</script>"
             ),
         ],
         gap=0.25,
@@ -1140,7 +1226,12 @@ def _(Path, get_log_preview_shown, ipts_w, mo, refresh_log_button):
 
 
 @app.cell
-def _(check_pre_process_status_button, checklist_ready, mo):
+def _(
+    check_pre_process_status_button,
+    checklist_ready,
+    mo,
+    set_marimo_table_data,
+):
     mo.stop(not checklist_ready)
     mo.stop(not check_pre_process_status_button.value)
 
@@ -1149,6 +1240,14 @@ def _(check_pre_process_status_button, checklist_ready, mo):
 
     with open(_config_file, "r") as _f:
         _cfg = yaml.safe_load(_f)
+
+    # Sync run-status lists from the marimo section of the config.
+    _marimo_section = _cfg.get("marimo", {}).get("pre_processing_table", {})
+    set_marimo_table_data({
+        "raw": list(_marimo_section.get("raw", [])),
+        "corrected": list(_marimo_section.get("corrected", [])),
+        "final": list(_marimo_section.get("final", [])),
+    })
 
     if _cfg.get("ai_pre_process_running", False):
         mo.callout(

@@ -1,1 +1,2 @@
-pixi run marimo run notebooks/ai_automated_loop_marimo.py
+cd /SNS/VENUS/shared/software/git/hype_scripts
+pixi run --manifest-path /SNS/VENUS/shared/software/git/hype_scripts marimo run /SNS/VENUS/shared/software/git/hype_scripts/notebooks/ai_automated_loop_marimo.py

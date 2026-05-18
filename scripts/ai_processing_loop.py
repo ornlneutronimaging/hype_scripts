@@ -50,7 +50,7 @@ if debugging_flag:
     OUTPUT_FOLDER_ON_HYPE = config['debugging_output_folder_on_hype']
 else:
     # MCP_FOLDER = config['mcp_folder']
-    MCP_FOLDER = os.path.join(f"/SNS/VENUS/IPTS-{ipts}", "shared/autoreduce/images/tpx1/raw/ct")
+    MCP_FOLDER = os.path.join(f"/SNS/VENUS/IPTS-{ipts}", "shared/autoreduce/")
     OUTPUT_FOLDER_ON_HYPE = config['DataPath']
 
 CONFIG_LIST_OF_RUNS_FOUND_IN_FOLDER = PROJECT_ROOT_FOLDER / "logs" / "list_of_runs_found_in_folder.yaml"
@@ -93,12 +93,26 @@ def get_new_short_name_of_run_number_expected(full_path_of_run_number_expected):
     new_name = "_".join(splitted_first_file[:-1])
     return new_name
 
+def get_number_of_files_for_each_run_expected(full_path_of_run_number_expected):
+    """
+    Look at the Spectra file and the number of lines in it to determine the number of files we should expect for each run.
+     - if the Spectra file is not there, return a huge number to make sure we wait for the files to be there
+     - if the Spectra file is there, we will expect 1 + number of lines in the Spectra file (the tiff file + the txt files)
+    """
+    spectra_file = os.path.join(full_path_of_run_number_expected, "*_Spectra.txt")
+    list_spectra = glob.glob(spectra_file)
+    if not list_spectra:
+        return 100000  # Return a large number to wait for files
+    with open(list_spectra[0], 'r') as f:
+        number_of_lines = sum(1 for line in f)
+    return 4 + number_of_lines
+
 
 def  all_the_files_are_there(full_path_of_run_number_expected):
     LOGGER.info(f"checking if the system is done writing all the files ...")
-    list_of_files = glob.glob(f"{full_path_of_run_number_expected}/*.tif*")   # add/remove /tpx3 for real case
+    list_of_files = glob.glob(f"{full_path_of_run_number_expected}/*")   # add/remove /tpx3 for real case
     LOGGER.info(f"number of files found: {len(list_of_files)}")
-    number_of_files_for_each_run_expected = config['number_of_tiff_for_each_run']
+    number_of_files_for_each_run_expected = get_number_of_files_for_each_run_expected(full_path_of_run_number_expected)
     LOGGER.info(f"number of files expected: {number_of_files_for_each_run_expected}")
     if len(list_of_files) < number_of_files_for_each_run_expected:
         return False
@@ -197,11 +211,6 @@ def change_permissions_recursive(path):
         print(f"Changed permission of {os.path.join(root, dirname)} to full read write excecute access")
     os.chmod(path, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
 
-
-
-
-
-
 def pre_processing():
 
     LOGGER.info(f"pre-processing():")
@@ -270,17 +279,24 @@ def pre_processing():
         LOGGER.info(f"... exiting move_folders.py!")
         return
 
+    list_raw = config['marimo']['pre_processing_table']['raw']
+    list_raw.append(run_number_expected)
+    list_raw = set(list_raw)
+    config['marimo']['pre_processing_table']['raw'] = list(list_raw)
+    with open(CONFIG_FILE_NAME, 'w') as write_out:
+        yaml.dump(config, write_out, sort_keys=False)
+
     # if nexus is there, we can retrieve the location of the corrected MCP folder
     LOGGER.info(f"NeXus file {expected_nexus_file} found! Let's retrieve the location of the corrected MCP folder from the NeXus file ...  ")
     # retrieve the location of the corrected MCP folder from the NeXus file 
     with h5py.File(expected_nexus_file, 'r') as f:
         try:
-            mcp_corrected_folder = f['entry']['DASlogs']['BL10:Exp:IM:ImageFilePath']['value'][1][0].decode('utf-8')
+            mcp_corrected_folder = f['entry']['DASlogs']['BL10:Exp:IM:ImageFilePath']['value'][-1][0].decode('utf-8')
         except KeyError:
             mcp_corrected_folder = f['entry']['DASlogs']['BL10:Exp:IM:ConfigTpxFilePath']['value'][0][0].decode('utf-8')
         mcp_corrected_folder = mcp_corrected_folder.strip()
 
-    full_path_of_corrected_run_number_expected = os.path.join(MCP_FOLDER, mcp_corrected_folder[-2:])  
+    full_path_of_corrected_run_number_expected = os.path.join(MCP_FOLDER, mcp_corrected_folder)  
     LOGGER.info(f"looking at {full_path_of_corrected_run_number_expected} to find the corrected MCP folder name ...")
     LOGGER.info(f"{full_path_of_corrected_run_number_expected = }")
 
@@ -290,35 +306,20 @@ def pre_processing():
         return
     
     LOGGER.info(f"run number {run_number_expected:04d} found!")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     # checking if the system is done writing all the files into the raw input folder
     if not all_the_files_are_there(full_path_of_corrected_run_number_expected):
         LOGGER.info(f"not all the files are there yet!")
         LOGGER.info(f"... exiting move_folders.py!")
         return
-       
+    
+    list_corrected = config['marimo']['pre_processing_table']['corrected']
+    list_corrected.append(run_number_expected)
+    list_corrected = set(list_corrected)
+    config['marimo']['pre_processing_table']['corrected'] = list(list_corrected)
+    with open(CONFIG_FILE_NAME, 'w') as write_out:
+        yaml.dump(config, write_out, sort_keys=False)
+   
     LOGGER.info(f"The source folder has all the files we need!")
 
     LOGGER.info(f"looking at the short name of the run number expected ...")
@@ -345,6 +346,13 @@ def pre_processing():
                 yaml.dump(config, write_out, sort_keys=False)
             LOGGER.info(f"added {new_name_of_run_number_expected} to the list of 0 and 180 degrees!")
 
+        list_final = config['marimo']['pre_processing_table']['final']
+        list_final.append(run_number_expected)
+        list_final = set(list_final)
+        config['marimo']['pre_processing_table']['final'] = list(list_final)
+        with open(CONFIG_FILE_NAME, 'w') as write_out:
+            yaml.dump(config, write_out, sort_keys=False)
+
     # check if we collected all the runs we wanted (2 + # of obs)
     LOGGER.info(f"checking if we collected all the runs we wanted:")
     if run_number_expected == list_of_runs_expected[-1]:
@@ -367,6 +375,8 @@ def pre_processing():
         path_copied = shutil.copy(CONFIG_FILE_NAME, "/data/VENUS/shared")
         LOGGER.info(f"done with {path_copied}")
 
+        # we need to define the top_projections_folder_name
+     
         shutil.copy(CONFIG_FILE_NAME, "~/")
         
         # os.system("/data/VENUS/shared/software/auto_gen_run_scrs/ini_exp_hype.sh")

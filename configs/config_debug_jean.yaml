@@ -97,3 +97,8 @@ debugging_mcp_folder: /SNS/VENUS/IPTS-35945/shared/ai_test_data/images/mcp
 debugging_output_folder_on_hype: /data/VENUS/IPTS-35945/images/mcp/2025_03_07/
 mcp_folder: ''
 autoreduce_mcp_folder: /SNS/VENUS/IPTS-36914/shared/autoreduce/images/mcp/tpx1/raw/ct
+marimo: # this will help populating the pre-processing table in the marimo interface. Each time a step is done, add the run_number to the table
+  pre_processing_table:
+    raw: []
+    corrected: []
+    final: []
