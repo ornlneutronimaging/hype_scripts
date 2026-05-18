@@ -258,6 +258,12 @@ def pre_processing():
         LOGGER.info(f"list of obs expected: {list_of_obs_expected}")
         list_of_0_and_180_expected = list_of_runs_expected[-2:] # the last 2 runs are the 0 and 180 degrees
         LOGGER.info(f"{list_of_0_and_180_expected = }")
+        
+        # add list of runs expected in config file
+        config['list_of_obs_expected'] = list(list_of_obs_expected)
+        config['list_of_0_and_180_expected'] = list(list_of_0_and_180_expected)
+        with open(CONFIG_FILE_NAME, 'w') as write_out:
+            yaml.dump(config, write_out, sort_keys=False)
 
     # create the output path on hype
     data_path = config['DataPath']

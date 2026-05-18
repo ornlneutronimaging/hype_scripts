@@ -123,4 +123,6 @@ marimo:
     - 21250
     - 21246
     - 21247
-number_of_projections_at_each_angle: 3
+number_of_projections_at_each_angle: 1
+list_of_obs_expected: [21246, 21247, 21248]
+list_of_0_and_180_expected: [21249, 21250]

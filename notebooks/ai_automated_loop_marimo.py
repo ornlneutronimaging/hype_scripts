@@ -859,9 +859,22 @@ def _(
 
 
 @app.cell
-def _(mo):
-    """State: whether the pre-processing step has been launched; disables input fields once True."""
-    get_pre_proc_started, set_pre_proc_started = mo.state(False)
+def _(Path, get_active_config_file_option, mo):
+    """State: whether the pre-processing step has been launched.
+    Initialised to True on startup when the pre_processing_table in the config is non-empty."""
+    import yaml as _yaml
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        with open(_cfg_path, "r") as _f:
+            _cfg_data = _yaml.safe_load(_f) or {}
+    except OSError:
+        _cfg_data = {}
+    _table = _cfg_data.get("marimo", {}).get("pre_processing_table", {})
+    _already_started = bool(
+        _table.get("raw") or _table.get("corrected") or _table.get("final")
+    )
+    get_pre_proc_started, set_pre_proc_started = mo.state(_already_started)
     return get_pre_proc_started, set_pre_proc_started
 
 
@@ -872,9 +885,23 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
-    """State: run numbers that have passed each processing stage (populated on Refresh table)."""
-    get_marimo_table_data, set_marimo_table_data = mo.state({"raw": [], "corrected": [], "final": []})
+def _(Path, get_active_config_file_option, mo):
+    """State: run numbers that have passed each processing stage; pre-populated from config on startup."""
+    import yaml as _yaml
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        with open(_cfg_path, "r") as _f:
+            _cfg_data = _yaml.safe_load(_f) or {}
+    except OSError:
+        _cfg_data = {}
+    _table = _cfg_data.get("marimo", {}).get("pre_processing_table", {})
+    _initial = {
+        "raw": list(_table.get("raw") or []),
+        "corrected": list(_table.get("corrected") or []),
+        "final": list(_table.get("final") or []),
+    }
+    get_marimo_table_data, set_marimo_table_data = mo.state(_initial)
     return get_marimo_table_data, set_marimo_table_data
 
 
@@ -989,7 +1016,10 @@ def _(
         disabled=_started or not _mandatory_fields_filled,
     )
 
-    mo.vstack([missing_parameters_box, start_pre_processing_button], gap=0.5)
+    if _started:
+        mo.md("")
+    else:
+        mo.vstack([missing_parameters_box, start_pre_processing_button], gap=0.5)
     return (start_pre_processing_button,)
 
 
@@ -1078,7 +1108,10 @@ def _(
     mo,
     nbr_obs_w,
 ):
-    """Show a table of planned runs as soon as pre-processing is started."""
+    """Show a table of planned runs as soon as pre-processing is started.
+    Rows are built from list_of_obs_expected (OBs) and list_of_0_and_180_expected (0°/180°)
+    read directly from the config, falling back to deriving them from starting_run_number
+    + nbr_obs_w when those lists are absent."""
     mo.stop(not checklist_ready)
     mo.stop(not get_pre_proc_started())
 
@@ -1092,8 +1125,15 @@ def _(
     except OSError:
         _cfg_data = {}
 
-    _first_run = int(_cfg_data.get("starting_run_number", 8769))
-    _nbr_obs = int(nbr_obs_w.value)
+    _obs_expected = list(_cfg_data.get("list_of_obs_expected") or [])
+    _zero_180_expected = list(_cfg_data.get("list_of_0_and_180_expected") or [])
+
+    # Fall back to deriving from starting_run_number + nbr_obs when lists are absent.
+    if not _obs_expected and not _zero_180_expected:
+        _first_run = int(_cfg_data.get("starting_run_number", 8769))
+        _nbr_obs = int(nbr_obs_w.value)
+        _obs_expected = list(range(_first_run, _first_run + _nbr_obs))
+        _zero_180_expected = [_first_run + _nbr_obs, _first_run + _nbr_obs + 1]
 
     _table_data = get_marimo_table_data()
     _raw_done = set(_table_data.get("raw", []))
@@ -1114,37 +1154,26 @@ def _(
         return _DONE_STATE if _all_complete else _ACQUIRING
 
     _rows = []
-    _run_num = _first_run
-    for _i in range(_nbr_obs):
-        _state = _state_for_run(_run_num)
+    for _run_num in _obs_expected:
         _rows.append({
             "run number": _run_num,
             "type": "OB",
             "raw": _DONE if _run_num in _raw_done else _MISSING,
             "corrected": _DONE if _run_num in _corrected_done else _MISSING,
             "final": _DONE if _run_num in _final_done else _MISSING,
-            "state": _state,
+            "state": _state_for_run(_run_num),
         })
-        _run_num += 1
-    _state_0 = _state_for_run(_run_num)
-    _rows.append({
-        "run number": _run_num,
-        "type": "0°",
-        "raw": _DONE if _run_num in _raw_done else _MISSING,
-        "corrected": _DONE if _run_num in _corrected_done else _MISSING,
-        "final": _DONE if _run_num in _final_done else _MISSING,
-        "state": _state_0,
-    })
-    _run_num += 1
-    _state_180 = _state_for_run(_run_num)
-    _rows.append({
-        "run number": _run_num,
-        "type": "180°",
-        "raw": _DONE if _run_num in _raw_done else _MISSING,
-        "corrected": _DONE if _run_num in _corrected_done else _MISSING,
-        "final": _DONE if _run_num in _final_done else _MISSING,
-        "state": _state_180,
-    })
+    _angle_labels = ["0°", "180°"]
+    for _idx, _run_num in enumerate(_zero_180_expected):
+        _label = _angle_labels[_idx] if _idx < len(_angle_labels) else f"{_idx * 180}°"
+        _rows.append({
+            "run number": _run_num,
+            "type": _label,
+            "raw": _DONE if _run_num in _raw_done else _MISSING,
+            "corrected": _DONE if _run_num in _corrected_done else _MISSING,
+            "final": _DONE if _run_num in _final_done else _MISSING,
+            "state": _state_for_run(_run_num),
+        })
 
     mo.ui.table(_rows, selection=None)
     return
