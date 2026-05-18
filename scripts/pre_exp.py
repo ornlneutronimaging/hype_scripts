@@ -1,6 +1,8 @@
 
 #%%
-#from _temp_hyperct_utils import eic_submit_table_scan
+import sys
+sys.path.insert(0, "/data/VENUS/shared/software/hype_scripts/scripts")
+from _temp_hyperct_utils import eic_submit_table_scan
 import yaml, argparse
 # %%
 
@@ -23,7 +25,7 @@ ob_num = cfg['EIC_vals']['number_of_obs']
 usr_desc = cfg['EIC_vals']['scan_description']
 ini_ang_num = cfg['num_ini_ang']
 motor_number = cfg['EIC_vals']['motor_number']
-
+aq_type = cfg['EIC_vals']['acquire_type']
 # %% 
 # pvs define # needs to updated based on the new measure mode setup
 pv_pos_file_selector = 'BL10:Exp:Align:FileSelector'
@@ -39,15 +41,11 @@ pv_motor_selector = 'BL10:Mot:RotUI:Menu'
 pv_rot_option = 'BL10:Exp:Rot:Options'
 pv_ang_fillNum = 'BL10:Exp:Rot:T:AutofillNum'
 pv_ang_prefix = 'BL10:Exp:Rot:T:Pos'
-
-aq_type = 'pCharge' # cfg['EIC_vals']['acquire_type']
-print_results= True
-simulate_only = False # to test the command
-print(f'{ipts=} {eic_token}')
-
-ob_pos_file = '/SNSlocal/data/IPTS-35790/images/alignment/raw/alignment_calibration/20250313_ ai_cali_ob_pos_alignment_smallrot3_12:36:46.csv'
-sample_pos_file = '/SNSlocal/data/IPTS-35790/images/alignment/raw/alignment_calibration/20250313_ ai_cali_sampe_pos_alignment_smallrot3_12:33:51.csv'
-
+# create position file for open beam and sample
+pos_path = f'/SNSlocal/data/{ipts}/images/tpx1/alignment'
+ob_pos_file = f'{pos_path}/{cfg["EIC_vals"]["ob_position_file_name"]}'
+sample_pos_file = f'{pos_path}/{cfg["EIC_vals"]["smp_position_file_name"]}'
+# set up acquire type and unit
 if aq_type == 'pCharge':
     pv_set_aq_type = 'BL10:Exp:AcquirePCharge'
     aq_type_value = 1
@@ -58,29 +56,39 @@ else:
     aq_type_value = 0 
     aq_length = cfg['EIC_vals']['time_s']
     unit = 's'
+# set up EIC
+print_results= True
+simulate_only = True # to test the command
+print_only = True # only print the command without sending to EIC
+print(f'{ipts=} {eic_token}')
 # %%  move to open beam
 desc = f'Move to OB pos'
 header = [pv_pos_file_selector, pv_move_trig]
 rows =[[ob_pos_file, 0]]
-eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results) 
+if print_only:
+    print(header, "\n", rows)
+else:
+    eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results) 
 #%% OB command
-rows = []
 ## place holder to check either pcharge or time acquire time
 ob_header = [pv_smp_name, pv_user_con, pv_scan_type, pv_aq_type, pv_set_aq_type, pv_num_dataset, pv_scan_trig]
 desc = f'{usr_desc}: MCP TPX1 {ob_num} OB: {aq_length} {unit}'
 
-rows.append([smp_name, user_con, 'Open Beam', aq_type_value, aq_length, 1, 0])
-
-#eic_submit_table_scan(ipts, eic_token, desc, ob_header, rows, simulate_only, print_results) 
-# %%
-print(rows)
+rows =[[smp_name, user_con, 'Open Beam', aq_type_value, aq_length, ob_num, 0]]
+if print_only:
+    print(ob_header, "\n", rows)
+else:
+    eic_submit_table_scan(ipts, eic_token, desc, ob_header, rows, simulate_only, print_results)
 # %%  move up the sample
-#"""
 desc = f'Sample moving up'
 header = [pv_pos_file_selector, pv_move_trig]
 rows = [[sample_pos_file, 0]]
-eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results) 
-#"""
+
+if print_only:
+    print(header, "\n", rows)
+else:
+    eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results)
+
 # %% 0-180 command
 angles = [0.0, 180.0]
 _angle_number = len(angles)
@@ -94,12 +102,15 @@ _header = [pv_aq_type,  pv_set_aq_type, pv_num_dataset, pv_scan_trig]
 header = header_ + ang_pv + _header
 
 row_ = [smp_name, user_con, '3D CT', motor_number, 3, _angle_number] 
-_row = [1, aq_length, 1, 0]
+_row = [aq_type_value, aq_length, 1, 0]
 
 rows = row_ + angles + _row
 
 # send out 0-180 scans
-eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results)
+if print_only:
+    print(header, "\n", rows)
+else:
+    eic_submit_table_scan(ipts, eic_token, desc, header, rows, simulate_only, print_results)
     
 #%%
 # update config file
