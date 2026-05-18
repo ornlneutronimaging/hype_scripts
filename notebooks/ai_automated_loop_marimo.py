@@ -1158,7 +1158,7 @@ def _(checklist_ready, mo, o_ai, pre_process_is_done):
 
 
 @app.cell
-def _(checklist_ready, get_debug_mode_unlocked, mo):
+def _(mo):
     """Testing-only button: manually trigger center of rotation, crop and TOF range calculation."""
     # mo.stop(not checklist_ready)
     # mo.stop(not get_debug_mode_unlocked())
@@ -1172,7 +1172,7 @@ def _(checklist_ready, get_debug_mode_unlocked, mo):
 
 
 @app.cell
-def _(checklist_ready, debug_calc_button, get_debug_mode_unlocked, mo, o_ai):
+def _(debug_calc_button, mo, o_ai):
     """Handle debug_calc_button click: runs center-of-rotation, crop and TOF range steps."""
     # mo.stop(not checklist_ready)
     # mo.stop(not get_debug_mode_unlocked())

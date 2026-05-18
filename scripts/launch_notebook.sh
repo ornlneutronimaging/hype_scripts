@@ -1,1 +1,1 @@
-pixi run jupyter-lab /SNS/VENUS/shared/software/git/hype_scripts/notetooks/ai_automated_loop.ipynb
+pixi run marimo run notebooks/ai_automated_loop_marimo.py
