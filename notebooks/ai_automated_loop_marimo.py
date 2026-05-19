@@ -28,6 +28,7 @@ def _():
 
 @app.cell
 def _(
+    Path,
     get_active_config_file_option,
     get_admin_password,
     get_admin_unlocked,
@@ -40,6 +41,8 @@ def _(
     set_full_loop_cronjob_enabled,
     set_pre_proc_cronjob_enabled,
 ):
+    import yaml as _yaml
+
     admin_password_w = mo.ui.text(value=get_admin_password(), label="Admin password")
     unlock_admin_button = mo.ui.run_button(
         label="Lock admin" if get_admin_unlocked() else "Unlock admin"
@@ -72,7 +75,35 @@ def _(
     _config_file_row = _config_file_w if get_admin_unlocked() else mo.vstack([_config_file_w]).style(
         {"pointer-events": "none", "opacity": "0.45"}
     )
-    _admin_body = mo.vstack([admin_password_row, _cronjob_row, _config_file_row], gap=0.5)
+
+    # EIC token row
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        with open(_cfg_path, "r") as _f:
+            _cfg_eic = _yaml.safe_load(_f) or {}
+        _current_token = str(_cfg_eic.get("EIC_vals", {}).get("eic_token", ""))
+    except OSError:
+        _current_token = ""
+    eic_token_w = mo.ui.text(
+        value=_current_token,
+        label="EIC token",
+        full_width=True,
+        disabled=not get_admin_unlocked(),
+    )
+    save_eic_token_button = mo.ui.run_button(
+        label="\U0001f4be Save EIC token",
+        disabled=not get_admin_unlocked(),
+    )
+    _eic_token_row = mo.vstack([
+        eic_token_w,
+        mo.hstack([save_eic_token_button], justify="end"),
+    ], gap=0.25)
+    _eic_token_row_styled = _eic_token_row if get_admin_unlocked() else mo.vstack([_eic_token_row]).style(
+        {"pointer-events": "none", "opacity": "0.45"}
+    )
+
+    _admin_body = mo.vstack([admin_password_row, _cronjob_row, _config_file_row, _eic_token_row_styled], gap=0.5)
 
     preview_cron_logs_button = mo.ui.run_button(
         label="\U0001f648 Hide preview" if get_preview_shown() else "\U0001f441\ufe0f Preview Cronjob",
@@ -116,8 +147,10 @@ def _(
     return (
         admin_password_w,
         clear_log_button,
+        eic_token_w,
         preview_config_button,
         preview_cron_logs_button,
+        save_eic_token_button,
         unlock_admin_button,
     )
 
@@ -128,6 +161,33 @@ def _(Path, clear_log_button, ipts_w, mo):
     _log_file = Path(__file__).parent.parent / "logs" / f"ai_processing_loop_{ipts_w.value}.log"
     if _log_file.exists():
         _log_file.write_text("")
+    return
+
+
+@app.cell
+def _(
+    Path,
+    eic_token_w,
+    get_active_config_file_option,
+    mo,
+    save_eic_token_button,
+):
+    import re as _re
+    mo.stop(not save_eic_token_button.value)
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        _content = _cfg_path.read_text()
+        _new_token = str(eic_token_w.value).strip()
+        _content = _re.sub(
+            r"^(\s+eic_token:\s*).*$",
+            lambda m: f"{m.group(1)}{_new_token}",
+            _content,
+            flags=_re.MULTILINE,
+        )
+        _cfg_path.write_text(_content)
+    except OSError:
+        pass
     return
 
 
@@ -333,7 +393,7 @@ def _(
             ),
             mo.Html(
                 f"<pre id='cfg-preview-box' style='overflow-y: auto; max-height: 400px; margin: 0; padding: 8px; "
-                f"background: #0d1117; color: #e5e7eb; font-size: 0.78rem; "
+                f"background: #0d1117; color: #6b7280; font-size: 0.78rem; "
                 f"border-radius: 4px; white-space: pre-wrap; word-break: break-all;'>{_cfg_content}</pre>"
                 f"<script>(function(){{var e=document.getElementById('cfg-preview-box');if(e)e.scrollTop=e.scrollHeight;}})();</script>"
             ),
@@ -1183,11 +1243,18 @@ def _(
 
 
 @app.cell
-def _(checklist_ready, get_log_preview_shown, get_pre_proc_started, mo):
+def _(
+    all_pre_proc_table_complete,
+    checklist_ready,
+    get_log_preview_shown,
+    get_pre_proc_started,
+    mo,
+):
     mo.stop(not checklist_ready)
     mo.stop(not get_pre_proc_started())
     check_pre_process_status_button = mo.ui.run_button(
         label="Refresh table",
+        disabled=all_pre_proc_table_complete,
     )
     preview_log_button = mo.ui.run_button(
         label="\U0001f648 Hide log" if get_log_preview_shown() else "\U0001f441\ufe0f Preview pre-processing log",
@@ -1293,6 +1360,259 @@ def _(
             kind="success",
         )
         pre_process_is_done = True
+    return
+
+
+@app.cell
+def _(
+    Path,
+    checklist_ready,
+    get_active_config_file_option,
+    get_marimo_table_data,
+    mo,
+):
+    """Compute whether every expected pre-processing run (OBs + 0°/180°) is present in
+    the 'final' column of the marimo table, making the Center-of-rotation section visible."""
+    mo.stop(not checklist_ready)
+
+    import yaml as _yaml
+
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        with open(_cfg_path, "r") as _f:
+            _cfg_data = _yaml.safe_load(_f) or {}
+    except OSError:
+        _cfg_data = {}
+
+    _obs_expected = list(_cfg_data.get("list_of_obs_expected") or [])
+    _zero_180_expected = list(_cfg_data.get("list_of_0_and_180_expected") or [])
+    _all_expected = _obs_expected + _zero_180_expected
+
+    _final_done = set(get_marimo_table_data().get("final", []))
+    all_pre_proc_table_complete = bool(_all_expected) and all(r in _final_done for r in _all_expected)
+    return (all_pre_proc_table_complete,)
+
+
+@app.cell
+def _(
+    Path,
+    all_pre_proc_table_complete,
+    checklist_ready,
+    get_active_config_file_option,
+    ipts_w,
+    mo,
+):
+    """Load 0° and 180° images, sum them, and compute the center of rotation. Runs once."""
+    import glob as _glob
+    import os as _os
+
+    import h5py as _h5py
+    import numpy as _np
+    import tifffile as _tifffile
+    import yaml as _yaml
+
+    mo.stop(not checklist_ready)
+    mo.stop(not all_pre_proc_table_complete)
+
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        with open(_cfg_path, "r") as _f:
+            _cfg_data = _yaml.safe_load(_f) or {}
+    except OSError:
+        _cfg_data = {}
+
+    _ipts = str(ipts_w.value).strip()
+    _nexus_folder = _cfg_data.get("nexus_folder", f"/SNS/VENUS/IPTS-{_ipts}/nexus")
+    _mcp_folder = _os.path.join(f"/SNS/VENUS/IPTS-{_ipts}", "shared/autoreduce/")
+    _zero_180_expected = list(_cfg_data.get("list_of_0_and_180_expected") or [])
+
+    def _resolve_image_folder(run_number):
+        _nexus_file = _os.path.join(_nexus_folder, f"VENUS_{run_number}.nxs.h5")
+        if not _os.path.exists(_nexus_file):
+            return None, f"NeXus not found: {_nexus_file}"
+        try:
+            with _h5py.File(_nexus_file, "r") as _f:
+                try:
+                    _sub = _f["entry"]["DASlogs"]["BL10:Exp:IM:ImageFilePath"]["value"][-1][0].decode("utf-8")
+                except KeyError:
+                    _sub = _f["entry"]["DASlogs"]["BL10:Exp:IM:ConfigTpxFilePath"]["value"][0][0].decode("utf-8")
+            return _os.path.join(_mcp_folder, _sub.strip()), None
+        except Exception as _e:
+            return None, f"Run {run_number}: {_e}"
+
+    _angle_labels = ["0\u00b0", "180\u00b0"]
+    cor_section_rows = []
+    _image_folders = []
+    for _idx, _run_num in enumerate(_zero_180_expected):
+        _label = _angle_labels[_idx] if _idx < len(_angle_labels) else f"{_idx * 180}\u00b0"
+        _folder, _err = _resolve_image_folder(_run_num)
+        if _err:
+            cor_section_rows.append(mo.callout(mo.md(f"**{_label}**: {_err}"), kind="danger"))
+        else:
+            _tiffs = sorted(_glob.glob(f"{_folder}/*.tif*"))
+            _image_folders.append((_run_num, _label, _folder, _tiffs))
+
+    _tiffs_by_label = {lbl: tiffs for _, lbl, _, tiffs in _image_folders}
+    _tiffs_0 = _tiffs_by_label.get("0\u00b0", [])
+    _tiffs_180 = _tiffs_by_label.get("180\u00b0", [])
+
+    if not _tiffs_0 or not _tiffs_180:
+        cor_sum_0 = None
+        cor_sum_180 = None
+        cor_ny = 0
+        cor_nx = 0
+        cor_center_of_rotation = 0.0
+        cor_section_rows.append(mo.callout(mo.md("No images found for 0\u00b0 or 180\u00b0."), kind="warn"))
+    else:
+        def _load_and_sum(tiff_list):
+            return _np.sum(
+                [_tifffile.imread(_p).astype(_np.float32) for _p in tiff_list], axis=0
+            )
+
+        _n_total = len(_tiffs_0) + len(_tiffs_180)
+        with mo.status.spinner(title=f"Loading {_n_total} images\u2026"):
+            cor_sum_0 = _load_and_sum(_tiffs_0)
+            cor_sum_180 = _load_and_sum(_tiffs_180)
+
+        cor_ny, cor_nx = cor_sum_0.shape
+        from tomopy.recon.rotation import find_center_pc
+        cor_center_of_rotation = float(find_center_pc(cor_sum_0, cor_sum_180))
+    return (
+        cor_center_of_rotation,
+        cor_nx,
+        cor_ny,
+        cor_section_rows,
+        cor_sum_0,
+        cor_sum_180,
+    )
+
+
+@app.cell
+def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
+    """Crop and COR sliders — separate cell so they stay reactive without re-loading images."""
+    _nx = max(1, cor_nx)
+    _ny = max(1, cor_ny)
+    _cor = cor_center_of_rotation if cor_center_of_rotation > 0 else _nx / 2.0
+
+    cor_crop_lr_w = mo.ui.range_slider(
+        start=0,
+        stop=_nx,
+        step=1,
+        value=[0, _nx],
+        label="Crop left / right (px)",
+        show_value=True,
+        full_width=True,
+    )
+    cor_crop_tb_w = mo.ui.range_slider(
+        start=0,
+        stop=_ny,
+        step=1,
+        value=[0, _ny],
+        label="Crop top / bottom (px)",
+        show_value=True,
+        orientation="vertical",
+    ).style({"height": "480px"})
+    cor_adjust_w = mo.ui.slider(
+        start=max(0.0, _cor - 100.0),
+        stop=min(float(_nx), _cor + 100.0),
+        step=0.5,
+        value=_cor,
+        label=f"Center of rotation \u2014 auto: {_cor:.1f} px",
+        show_value=True,
+        full_width=True,
+    )
+    return cor_adjust_w, cor_crop_lr_w, cor_crop_tb_w
+
+
+@app.cell
+def _(
+    cor_adjust_w,
+    cor_crop_lr_w,
+    cor_crop_tb_w,
+    cor_nx,
+    cor_section_rows,
+    cor_sum_0,
+    cor_sum_180,
+    mo,
+):
+    """Render the Crop & Center of rotation section. Re-runs on every slider change."""
+    import numpy as _np
+    import plotly.graph_objects as _go
+
+    if cor_sum_0 is None or cor_sum_180 is None or cor_nx == 0:
+        _plot_element = mo.md("")
+    else:
+        _combined = cor_sum_0 + cor_sum_180
+        _x0, _x1 = int(cor_crop_lr_w.value[0]), int(cor_crop_lr_w.value[1])
+        _y0, _y1 = int(cor_crop_tb_w.value[0]), int(cor_crop_tb_w.value[1])
+        _cropped = _combined[_y0:_y1, _x0:_x1]
+
+        if _cropped.size == 0:
+            _plot_element = mo.callout(mo.md("Crop region is empty — adjust the sliders."), kind="warn")
+        else:
+            _cropped_ny, _cropped_nx = _cropped.shape
+            _adjusted_cor = float(cor_adjust_w.value) - _x0
+            _z_lo, _z_hi = _np.percentile(_cropped, [2, 98])
+
+            _fig = _go.Figure(data=_go.Heatmap(
+                z=_cropped,
+                colorscale="Viridis",
+                showscale=True,
+                zmin=_z_lo,
+                zmax=_z_hi,
+            ))
+            _fig.add_trace(_go.Scatter(
+                x=[_adjusted_cor, _adjusted_cor],
+                y=[0, _cropped_ny - 1],
+                mode="lines",
+                line=dict(color="#3b82f6", width=2, dash="dash"),
+                name=f"Center of rotation: {float(cor_adjust_w.value):.1f} px",
+            ))
+            _fig.update_layout(
+                height=500,
+                showlegend=True,
+                legend=dict(
+                    x=0.01, y=0.99,
+                    xanchor="left", yanchor="top",
+                    bgcolor="rgba(17,24,39,0.8)",
+                    bordercolor="#334155",
+                    borderwidth=1,
+                    font=dict(color="#e5e7eb"),
+                ),
+                xaxis=dict(title="x (pixels)", color="#9ca3af", constrain="domain"),
+                yaxis=dict(title="y (pixels)", color="#9ca3af", autorange="reversed", scaleanchor="x", scaleratio=1, constraintoward="top"),
+                paper_bgcolor="#111827",
+                plot_bgcolor="#111827",
+                font=dict(color="#e5e7eb"),
+                margin=dict(l=60, r=20, t=30, b=60),
+            )
+            _plot_element = mo.ui.plotly(_fig)
+
+    mo.vstack(
+        [
+            mo.md(
+                "<div style='border-left: 4px solid #16a34a; padding: 4px 12px; margin-bottom: 4px;'>"
+                "<span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; "
+                "text-transform: uppercase; color: #16a34a;'>\U0001f3af Crop & Center of rotation</span></div>"
+            ),
+            *cor_section_rows,
+            cor_crop_lr_w,
+            mo.hstack([_plot_element, cor_crop_tb_w], align="start", gap=0.5),
+            cor_adjust_w,
+        ],
+        gap=0.5,
+    ).style(
+        {
+            "border": "1px solid #334155",
+            "border-radius": "8px",
+            "padding": "12px",
+            "background": "linear-gradient(180deg, #111827 0%, #0b1220 100%)",
+            "color": "#e5e7eb",
+            "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
+        }
+    )
     return
 
 
