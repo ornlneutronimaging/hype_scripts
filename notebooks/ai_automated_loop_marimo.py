@@ -1519,11 +1519,12 @@ def _(
 
 @app.cell
 def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
-    """Crop and COR sliders — separate cell so they stay reactive without re-loading images."""
+    """Crop and COR controls — separate cell so they stay reactive without re-loading images."""
     _nx = max(1, cor_nx)
     _ny = max(1, cor_ny)
     _cor = cor_center_of_rotation if cor_center_of_rotation > 0 else _nx / 2.0
     crop_panel_height_px = 640
+    _slice_cap = min(100, _ny)
 
     cor_crop_lr_w = mo.ui.range_slider(
         start=0,
@@ -1534,21 +1535,81 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
         show_value=True,
         full_width=True,
     )
-    cor_crop_tb_w = mo.ui.range_slider(
+
+    cor_crop_region_enabled_1 = mo.ui.checkbox(value=True, label="Use")
+    cor_crop_region_w_1 = mo.ui.range_slider(
         start=0,
         stop=_ny,
         step=1,
-        value=[0, _ny],
-        label="Crop top / bottom (px)",
+        value=[0, _slice_cap],
+        label="Region 1",
         show_value=True,
         orientation="vertical",
     )
-    cor_crop_tb_view = cor_crop_tb_w.style(
-        {
-            "height": f"{crop_panel_height_px}px",
-            "min-height": f"{crop_panel_height_px}px",
-        }
+
+    _region_2_start = min(_slice_cap, max(0, _ny - 1))
+    _region_2_stop = min(_region_2_start + _slice_cap, _ny)
+    cor_crop_region_enabled_2 = mo.ui.checkbox(value=False, label="Use")
+    cor_crop_region_w_2 = mo.ui.range_slider(
+        start=0,
+        stop=_ny,
+        step=1,
+        value=[_region_2_start, _region_2_stop],
+        label="Region 2",
+        show_value=True,
+        orientation="vertical",
     )
+
+    _region_3_start = min(_region_2_stop, max(0, _ny - 1))
+    _region_3_stop = min(_region_3_start + _slice_cap, _ny)
+    cor_crop_region_enabled_3 = mo.ui.checkbox(value=False, label="Use")
+    cor_crop_region_w_3 = mo.ui.range_slider(
+        start=0,
+        stop=_ny,
+        step=1,
+        value=[_region_3_start, _region_3_stop],
+        label="Region 3",
+        show_value=True,
+        orientation="vertical",
+    )
+
+    def _region_control(_label, _checkbox, _slider, _accent):
+        return mo.vstack(
+            [
+                mo.hstack(
+                    [
+                        _checkbox,
+                        mo.md(f"<span style='font-weight: 600; color: {_accent};'>{_label}</span>"),
+                    ],
+                    align="center",
+                    gap=0.35,
+                ),
+                _slider.style(
+                    {
+                        "height": f"{crop_panel_height_px}px",
+                        "min-height": f"{crop_panel_height_px}px",
+                    }
+                ),
+            ],
+            gap=0.4,
+        )
+
+    cor_crop_regions_view = mo.vstack(
+        [
+            mo.md("<span style='font-size: 0.9rem; font-weight: 600; color: #cbd5e1;'>Slice regions (max 100 each)</span>"),
+            mo.hstack(
+                [
+                    _region_control("Region 1", cor_crop_region_enabled_1, cor_crop_region_w_1, "#22c55e"),
+                    _region_control("Region 2", cor_crop_region_enabled_2, cor_crop_region_w_2, "#f59e0b"),
+                    _region_control("Region 3", cor_crop_region_enabled_3, cor_crop_region_w_3, "#ef4444"),
+                ],
+                align="start",
+                gap=0.75,
+            ),
+        ],
+        gap=0.5,
+    )
+
     cor_adjust_w = mo.ui.slider(
         start=max(0.0, _cor - 100.0),
         stop=min(float(_nx), _cor + 100.0),
@@ -1561,8 +1622,13 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
     return (
         cor_adjust_w,
         cor_crop_lr_w,
-        cor_crop_tb_view,
-        cor_crop_tb_w,
+        cor_crop_region_enabled_1,
+        cor_crop_region_enabled_2,
+        cor_crop_region_enabled_3,
+        cor_crop_region_w_1,
+        cor_crop_region_w_2,
+        cor_crop_region_w_3,
+        cor_crop_regions_view,
         crop_panel_height_px,
     )
 
@@ -1571,9 +1637,15 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
 def _(
     cor_adjust_w,
     cor_crop_lr_w,
-    cor_crop_tb_view,
-    cor_crop_tb_w,
+    cor_crop_region_enabled_1,
+    cor_crop_region_enabled_2,
+    cor_crop_region_enabled_3,
+    cor_crop_region_w_1,
+    cor_crop_region_w_2,
+    cor_crop_region_w_3,
+    cor_crop_regions_view,
     cor_nx,
+    cor_ny,
     cor_section_rows,
     cor_sum_0,
     cor_sum_180,
@@ -1586,11 +1658,42 @@ def _(
 
     if cor_sum_0 is None or cor_sum_180 is None or cor_nx == 0:
         _plot_element = mo.md("")
+        _selection_note = None
     else:
         _combined = cor_sum_0 + cor_sum_180
         _x0, _x1 = int(cor_crop_lr_w.value[0]), int(cor_crop_lr_w.value[1])
-        _y0, _y1 = int(cor_crop_tb_w.value[0]), int(cor_crop_tb_w.value[1])
-        _cropped = _combined[_y0:_y1, _x0:_x1]
+        _slice_cap = min(100, cor_ny)
+
+        def _normalize_region(_slider_value):
+            _raw_start, _raw_stop = sorted((int(_slider_value[0]), int(_slider_value[1])))
+            _start = max(0, min(cor_ny - _raw_stop, cor_ny))
+            _stop = max(0, min(cor_ny - _raw_start, cor_ny))
+            if _stop <= _start:
+                _stop = min(cor_ny, _start + 1)
+            if _stop - _start > _slice_cap:
+                _stop = min(cor_ny, _start + _slice_cap)
+            return _start, _stop
+
+        _region_widgets = [
+            ("#22c55e", "Region 1", cor_crop_region_enabled_1, cor_crop_region_w_1),
+            ("#f59e0b", "Region 2", cor_crop_region_enabled_2, cor_crop_region_w_2),
+            ("#ef4444", "Region 3", cor_crop_region_enabled_3, cor_crop_region_w_3),
+        ]
+        _active_regions = [
+            (_color, _label, *_normalize_region(_slider.value))
+            for _color, _label, _enabled, _slider in _region_widgets
+            if _enabled.value
+        ]
+        _selection_note = None
+        if not _active_regions:
+            _start, _stop = _normalize_region(cor_crop_region_w_1.value)
+            _active_regions = [("#22c55e", "Region 1", _start, _stop)]
+            _selection_note = mo.callout(
+                mo.md("At least one slice region must be selected. Showing Region 1."),
+                kind="warn",
+            )
+
+        _cropped = _combined[:, _x0:_x1]
 
         if _cropped.size == 0:
             _plot_element = mo.callout(mo.md("Crop region is empty — adjust the sliders."), kind="warn")
@@ -1613,6 +1716,25 @@ def _(
                 line=dict(color="#3b82f6", width=2, dash="dash"),
                 name=f"Center of rotation: {float(cor_adjust_w.value):.1f} px",
             ))
+            for _color, _label, _y0, _y1 in _active_regions:
+                _y_stop = max(_y0, _y1 - 1)
+                _fig.add_hrect(
+                    y0=_y0,
+                    y1=_y_stop,
+                    fillcolor=_color,
+                    opacity=0.2,
+                    line_width=0,
+                    annotation_text=f"{_label}: {_y0}-{_y1}",
+                    annotation_position="top left",
+                )
+                _fig.add_trace(_go.Scatter(
+                    x=[0, _cropped_nx - 1, _cropped_nx - 1, 0, 0],
+                    y=[_y0, _y0, _y_stop, _y_stop, _y0],
+                    mode="lines",
+                    line=dict(color=_color, width=1),
+                    name=f"{_label}: {_y0}-{_y1}",
+                    showlegend=True,
+                ))
             _fig.update_layout(
                 height=crop_panel_height_px,
                 showlegend=True,
@@ -1641,8 +1763,9 @@ def _(
                 "text-transform: uppercase; color: #16a34a;'>\U0001f3af Crop & Center of rotation</span></div>"
             ),
             *cor_section_rows,
+            *([_selection_note] if _selection_note is not None else []),
             cor_crop_lr_w,
-            mo.hstack([_plot_element, cor_crop_tb_view], align="start", gap=0.5),
+            mo.hstack([_plot_element, cor_crop_regions_view], align="start", gap=0.75),
             cor_adjust_w,
         ],
         gap=0.5,
