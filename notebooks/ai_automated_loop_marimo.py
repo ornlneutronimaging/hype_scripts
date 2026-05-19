@@ -1513,7 +1513,8 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
         label="Crop top / bottom (px)",
         show_value=True,
         orientation="vertical",
-    ).style({"height": "480px"})
+    )
+    cor_crop_tb_view = cor_crop_tb_w.style({"height": "640px", "min-height": "640px"})
     cor_adjust_w = mo.ui.slider(
         start=max(0.0, _cor - 100.0),
         stop=min(float(_nx), _cor + 100.0),
@@ -1523,13 +1524,14 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
         show_value=True,
         full_width=True,
     )
-    return cor_adjust_w, cor_crop_lr_w, cor_crop_tb_w
+    return cor_adjust_w, cor_crop_lr_w, cor_crop_tb_view, cor_crop_tb_w
 
 
 @app.cell
 def _(
     cor_adjust_w,
     cor_crop_lr_w,
+    cor_crop_tb_view,
     cor_crop_tb_w,
     cor_nx,
     cor_section_rows,
@@ -1599,7 +1601,7 @@ def _(
             ),
             *cor_section_rows,
             cor_crop_lr_w,
-            mo.hstack([_plot_element, cor_crop_tb_w], align="start", gap=0.5),
+            mo.hstack([_plot_element, cor_crop_tb_view], align="start", gap=0.5),
             cor_adjust_w,
         ],
         gap=0.5,
