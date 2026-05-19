@@ -10,11 +10,13 @@ def _():
     import marimo as mo
     from pathlib import Path
     import sys
+    import numpy as np
 
     # Find project root by looking for pixi.toml.
     cwd = Path.cwd().resolve()
     candidates = [cwd, *cwd.parents]
     repo_root = next((p for p in candidates if (p / "pixi.toml").exists()), cwd)
+    venus_source_detector_distance_m = 25.0  # hardcoded for now; will eventually be read from config file
 
     if str(repo_root) not in sys.path:
         sys.path.insert(0, str(repo_root))
@@ -23,7 +25,7 @@ def _():
     # `notebooks.code`, not `code` (which shadows the stdlib `code` module).
     from notebooks.code.ai_automated_loop import AiAutomatedLoop
 
-    return AiAutomatedLoop, Path, mo
+    return AiAutomatedLoop, Path, mo, np, venus_source_detector_distance_m
 
 
 @app.cell
@@ -1402,13 +1404,13 @@ def _(
     get_active_config_file_option,
     ipts_w,
     mo,
+    np,
 ):
     """Load 0° and 180° images, sum them, and compute the center of rotation. Runs once."""
     import glob as _glob
     import os as _os
 
     import h5py as _h5py
-    import numpy as _np
     import tifffile as _tifffile
     import yaml as _yaml
 
@@ -1445,12 +1447,16 @@ def _(
     _angle_labels = ["0\u00b0", "180\u00b0"]
     cor_section_rows = []
     _image_folders = []
+    spectra_ascii_file = None
+    config_file = None
     for _idx, _run_num in enumerate(_zero_180_expected):
         _label = _angle_labels[_idx] if _idx < len(_angle_labels) else f"{_idx * 180}\u00b0"
         _folder, _err = _resolve_image_folder(_run_num)
         if _err:
             cor_section_rows.append(mo.callout(mo.md(f"**{_label}**: {_err}"), kind="danger"))
         else:
+            spectra_ascii_file = _glob.glob(f"{_folder}/*Spectra*.txt")
+            config_file = _glob.glob(f"{_folder}/summary.json") if config_file is None else config_file
             _tiffs = sorted(_glob.glob(f"{_folder}/*.tif*"))
             _image_folders.append((_run_num, _label, _folder, _tiffs))
 
@@ -1461,20 +1467,39 @@ def _(
     if not _tiffs_0 or not _tiffs_180:
         cor_sum_0 = None
         cor_sum_180 = None
+        profile_0 = None
+        spectra_array = None
+        detector_offset_us = 0.0
         cor_ny = 0
         cor_nx = 0
         cor_center_of_rotation = 0.0
         cor_section_rows.append(mo.callout(mo.md("No images found for 0\u00b0 or 180\u00b0."), kind="warn"))
     else:
-        def _load_and_sum(tiff_list):
-            return _np.sum(
-                [_tifffile.imread(_p).astype(_np.float32) for _p in tiff_list], axis=0
-            )
+        def _load(tiff_list):
+            return np.array([_tifffile.imread(_p).astype(np.float32) for _p in tiff_list])
+        def _load_spectra_ascii(spectra_file):
+            # retrieve the first column of this tab-delimited file, skipping the header row
+            return np.loadtxt(spectra_file, delimiter=",", skiprows=1, usecols=0)
+        def _retrieve_detector_offset_us(json_cfg_file):
+            # retrieve the detector offset from the JSON under the key detector_offset, value (in micros)
+            import json as _json
+            try:
+                with open(json_cfg_file, "r") as _f:
+                    _cfg = _json.load(_f)
+                return float(_cfg["detector_offset"]["value"])
+            except Exception:
+                return 0.0
 
         _n_total = len(_tiffs_0) + len(_tiffs_180)
         with mo.status.spinner(title=f"Loading {_n_total} images\u2026"):
-            cor_sum_0 = _load_and_sum(_tiffs_0)
-            cor_sum_180 = _load_and_sum(_tiffs_180)
+            _cor_sum_0_array = _load(_tiffs_0)
+            cor_sum_0 = np.sum(_cor_sum_0_array, axis=0)
+            profile_0 = np.sum(_cor_sum_0_array, axis=(1,2))
+            _cor_sum_180_array = _load(_tiffs_180)
+            cor_sum_180 = np.sum(_cor_sum_180_array, axis=0)
+
+        spectra_array = _load_spectra_ascii(spectra_ascii_file[0]) if spectra_ascii_file else None
+        detector_offset_us = _retrieve_detector_offset_us(config_file[0]) if config_file else 0.0
 
         cor_ny, cor_nx = cor_sum_0.shape
         from tomopy.recon.rotation import find_center_pc
@@ -1486,6 +1511,9 @@ def _(
         cor_section_rows,
         cor_sum_0,
         cor_sum_180,
+        detector_offset_us,
+        profile_0,
+        spectra_array,
     )
 
 
@@ -1551,9 +1579,9 @@ def _(
     cor_sum_180,
     crop_panel_height_px,
     mo,
+    np,
 ):
     """Render the Crop & Center of rotation section. Re-runs on every slider change."""
-    import numpy as _np
     import plotly.graph_objects as _go
 
     if cor_sum_0 is None or cor_sum_180 is None or cor_nx == 0:
@@ -1569,7 +1597,7 @@ def _(
         else:
             _cropped_ny, _cropped_nx = _cropped.shape
             _adjusted_cor = float(cor_adjust_w.value) - _x0
-            _z_lo, _z_hi = _np.percentile(_cropped, [2, 98])
+            _z_lo, _z_hi = np.percentile(_cropped, [2, 98])
 
             _fig = _go.Figure(data=_go.Heatmap(
                 z=_cropped,
@@ -1616,6 +1644,242 @@ def _(
             cor_crop_lr_w,
             mo.hstack([_plot_element, cor_crop_tb_view], align="start", gap=0.5),
             cor_adjust_w,
+        ],
+        gap=0.5,
+    ).style(
+        {
+            "border": "1px solid #334155",
+            "border-radius": "8px",
+            "padding": "12px",
+            "background": "linear-gradient(180deg, #111827 0%, #0b1220 100%)",
+            "color": "#e5e7eb",
+            "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
+        }
+    )
+    return
+
+
+@app.cell
+def _(mo, profile_0):
+    """TOF selection controls for up to five highlighted profile ranges."""
+    _profile_len = int(len(profile_0)) if profile_0 is not None else 1
+    _slider_stop = max(1, _profile_len - 1)
+    _default_ranges = [
+        [0, _slider_stop],
+        [0, _slider_stop],
+        [0, _slider_stop],
+        [0, _slider_stop],
+        [0, _slider_stop],
+    ]
+
+    tof_range_enabled_1 = mo.ui.checkbox(value=False, label="")
+    tof_range_slider_1 = mo.ui.range_slider(
+        start=0,
+        stop=_slider_stop,
+        step=1,
+        value=_default_ranges[0],
+        label="Range 1",
+        show_value=True,
+        full_width=True,
+    )
+    tof_range_enabled_2 = mo.ui.checkbox(value=False, label="")
+    tof_range_slider_2 = mo.ui.range_slider(
+        start=0,
+        stop=_slider_stop,
+        step=1,
+        value=_default_ranges[1],
+        label="Range 2",
+        show_value=True,
+        full_width=True,
+    )
+    tof_range_enabled_3 = mo.ui.checkbox(value=False, label="")
+    tof_range_slider_3 = mo.ui.range_slider(
+        start=0,
+        stop=_slider_stop,
+        step=1,
+        value=_default_ranges[2],
+        label="Range 3",
+        show_value=True,
+        full_width=True,
+    )
+    tof_range_enabled_4 = mo.ui.checkbox(value=False, label="")
+    tof_range_slider_4 = mo.ui.range_slider(
+        start=0,
+        stop=_slider_stop,
+        step=1,
+        value=_default_ranges[3],
+        label="Range 4",
+        show_value=True,
+        full_width=True,
+    )
+    tof_range_enabled_5 = mo.ui.checkbox(value=False, label="")
+    tof_range_slider_5 = mo.ui.range_slider(
+        start=0,
+        stop=_slider_stop,
+        step=1,
+        value=_default_ranges[4],
+        label="Range 5",
+        show_value=True,
+        full_width=True,
+    )
+    return (
+        tof_range_enabled_1,
+        tof_range_enabled_2,
+        tof_range_enabled_3,
+        tof_range_enabled_4,
+        tof_range_enabled_5,
+        tof_range_slider_1,
+        tof_range_slider_2,
+        tof_range_slider_3,
+        tof_range_slider_4,
+        tof_range_slider_5,
+    )
+
+
+@app.cell
+def _(
+    detector_offset_us,
+    mo,
+    np,
+    profile_0,
+    spectra_array,
+    tof_range_enabled_1,
+    tof_range_enabled_2,
+    tof_range_enabled_3,
+    tof_range_enabled_4,
+    tof_range_enabled_5,
+    tof_range_slider_1,
+    tof_range_slider_2,
+    tof_range_slider_3,
+    tof_range_slider_4,
+    tof_range_slider_5,
+    venus_source_detector_distance_m,
+):
+    """Render the TOF selection section with vertical profile overlays."""
+    import plotly.graph_objects as _go
+
+    _rows = [
+        ("#3b82f6", tof_range_enabled_1, tof_range_slider_1),
+        ("#22c55e", tof_range_enabled_2, tof_range_slider_2),
+        ("#f59e0b", tof_range_enabled_3, tof_range_slider_3),
+        ("#ef4444", tof_range_enabled_4, tof_range_slider_4),
+        ("#a855f7", tof_range_enabled_5, tof_range_slider_5),
+    ]
+
+    _x2 = None
+    if profile_0 is None or len(profile_0) == 0:
+        _plot = mo.callout(mo.md("No TOF profile available yet."), kind="warn")
+    else:
+        # *1e6 to convert from seconds to microseconds for better x-axis labeling. Only applies if spectra_array is available, otherwise we just use index values.
+        _x = spectra_array*1e6 if spectra_array is not None else np.arange(len(profile_0))
+        if spectra_array is not None:
+            # convert tof axis to lambda using the formula: lambda = (h / m_n) * (tof / L), where h is Planck's constant, m_n is neutron mass, tof is time-of-flight in seconds, and L is source-to-detector distance in meters. We also apply a correction for the detector offset.
+            h = 6.62607015e-34  # Planck's constant in J*s
+            m_n = 1.67492749804e-27  # neutron mass in kg
+            L = venus_source_detector_distance_m  # source-to-detector distance in meters
+            tof_seconds = _x*1e-6 + detector_offset_us*1e-6  # convert microseconds back to seconds and apply detector offset correction
+            lambda_values = (h / m_n) * (tof_seconds / L)  # calculate lambda in meters
+            # convert to lambda in Angstroms for better readability
+            _x2 = lambda_values*1e10
+
+        _fig = _go.Figure()
+        _fig.add_trace(
+            _go.Scatter(
+                x=_x,
+                y=profile_0,
+                mode="lines",
+                line=dict(color="#e5e7eb", width=2),
+                name="profile_0",
+            )
+        )
+        if _x2 is not None:
+            _fig.add_trace(
+                _go.Scatter(
+                    x=_x2,
+                    y=profile_0,
+                    mode="lines",
+                    xaxis="x2",
+                    yaxis="y",
+                    line=dict(color="rgba(0,0,0,0)", width=0),
+                    hoverinfo="skip",
+                    showlegend=False,
+                )
+            )
+        for _idx, (_color, _enabled, _slider) in enumerate(_rows, start=1):
+            if not _enabled.value:
+                continue
+            _start, _stop = sorted((int(_slider.value[0]), int(_slider.value[1])))
+            _x_start = float(_x[_start])
+            _x_stop = float(_x[_stop])
+            _fig.add_vrect(
+                x0=_x_start,
+                x1=_x_stop,
+                fillcolor=_color,
+                opacity=0.2,
+                line_width=0,
+                annotation_text=f"Range {_idx}",
+                annotation_position="top left",
+            )
+            _fig.add_trace(
+                _go.Scatter(
+                    x=[_x_start, _x_start, _x_stop, _x_stop],
+                    y=[float(min(profile_0)), float(max(profile_0)), float(max(profile_0)), float(min(profile_0))],
+                    mode="lines",
+                    line=dict(color=_color, width=1),
+                    name=f"Range {_idx}: {_start}-{_stop}",
+                    showlegend=True,
+                )
+            )
+
+        _layout = dict(
+            height=420,
+            showlegend=True,
+            legend=dict(
+                x=0.01,
+                y=0.99,
+                xanchor="left",
+                yanchor="top",
+                bgcolor="rgba(17,24,39,0.8)",
+                bordercolor="#334155",
+                borderwidth=1,
+                font=dict(color="#e5e7eb"),
+            ),
+            xaxis=dict(title="TOF (μs)", color="#9ca3af"),
+            yaxis=dict(title="Total counts of full 0° projection", color="#9ca3af"),
+            paper_bgcolor="#111827",
+            plot_bgcolor="#111827",
+            font=dict(color="#e5e7eb"),
+            margin=dict(l=60, r=20, t=60, b=60),
+        )
+
+        if _x2 is not None:
+            _layout["xaxis2"] = dict(
+                title="Wavelength (Å)",
+                color="#9ca3af",
+                overlaying="x",
+                side="top",
+                range=[float(np.min(_x2)), float(np.max(_x2))],
+                showgrid=False,
+                zeroline=False,
+            )
+
+        _fig.update_layout(**_layout)
+        _plot = mo.ui.plotly(_fig)
+
+    _controls = [
+        mo.hstack([_enabled, _slider], align="center", gap=0.75)
+        for _, _enabled, _slider in _rows
+    ]
+
+    mo.vstack(
+        [
+            mo.md(
+                "<div style='border-left: 4px solid #0ea5e9; padding: 4px 12px; margin-bottom: 4px;'>"
+                "<span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; "
+                "text-transform: uppercase; color: #0ea5e9;'>⏱ TOF selection</span></div>"
+            ),
+            _plot,
+            *_controls,
         ],
         gap=0.5,
     ).style(
