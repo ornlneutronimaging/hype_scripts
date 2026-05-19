@@ -710,16 +710,20 @@ def _(
 @app.cell
 def _(
     Path,
+    get_pre_proc_started,
     get_reset_counter,
     ipts_w,
     mo,
     new_experiment_button,
     set_ob_alignment_selection,
+    set_pre_proc_started,
     set_reset_counter,
     set_sample_alignment_selection,
 ):
     mo.stop(not new_experiment_button.value)
     set_reset_counter(get_reset_counter() + 1)
+    if get_pre_proc_started():
+        set_pre_proc_started(False)
     set_sample_alignment_selection([])
     set_ob_alignment_selection([])
     _log_file = Path(__file__).parent.parent / "logs" / f"ai_processing_loop_{ipts_w.value}.log"
@@ -1082,9 +1086,10 @@ def _(
     )
 
     if _started:
-        mo.md("")
+        validation_panel = mo.md("")
     else:
-        mo.vstack([missing_parameters_box, start_pre_processing_button], gap=0.5)
+        validation_panel = mo.vstack([missing_parameters_box, start_pre_processing_button], gap=0.5)
+    validation_panel
     return (start_pre_processing_button,)
 
 
@@ -1402,6 +1407,7 @@ def _(
     all_pre_proc_table_complete,
     checklist_ready,
     get_active_config_file_option,
+    get_pre_proc_started,
     ipts_w,
     mo,
     np,
@@ -1415,6 +1421,7 @@ def _(
     import yaml as _yaml
 
     mo.stop(not checklist_ready)
+    mo.stop(not get_pre_proc_started())
     mo.stop(not all_pre_proc_table_complete)
 
     _cfg_name = get_active_config_file_option()
@@ -1518,8 +1525,9 @@ def _(
 
 
 @app.cell
-def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
+def _(cor_center_of_rotation, cor_nx, cor_ny, get_pre_proc_started, mo):
     """Crop and COR controls — separate cell so they stay reactive without re-loading images."""
+    mo.stop(not get_pre_proc_started())
     _nx = max(1, cor_nx)
     _ny = max(1, cor_ny)
     _cor = cor_center_of_rotation if cor_center_of_rotation > 0 else _nx / 2.0
@@ -1703,10 +1711,12 @@ def _(
     cor_sum_0,
     cor_sum_180,
     crop_panel_height_px,
+    get_pre_proc_started,
     mo,
     np,
 ):
     """Render the Crop & Center of rotation section. Re-runs on every slider change."""
+    mo.stop(not get_pre_proc_started())
     import plotly.graph_objects as _go
 
     if cor_sum_0 is None or cor_sum_180 is None or cor_nx == 0:
@@ -1836,8 +1846,9 @@ def _(
 
 
 @app.cell
-def _(mo, profile_0):
+def _(get_pre_proc_started, mo, profile_0):
     """TOF selection controls for up to five highlighted profile ranges."""
+    mo.stop(not get_pre_proc_started())
     _profile_len = int(len(profile_0)) if profile_0 is not None else 1
     _slider_stop = max(1, _profile_len - 1)
     _default_ranges = [
@@ -1915,6 +1926,7 @@ def _(mo, profile_0):
 @app.cell
 def _(
     detector_offset_us,
+    get_pre_proc_started,
     mo,
     np,
     profile_0,
@@ -1932,6 +1944,7 @@ def _(
     venus_source_detector_distance_m,
 ):
     """Render the TOF selection section with vertical profile overlays."""
+    mo.stop(not get_pre_proc_started())
     import plotly.graph_objects as _go
 
     _rows = [

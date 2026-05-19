@@ -260,8 +260,8 @@ def pre_processing():
         LOGGER.info(f"{list_of_0_and_180_expected = }")
         
         # add list of runs expected in config file
-        config['list_of_obs_expected'] = list(list_of_obs_expected)
-        config['list_of_0_and_180_expected'] = list(list_of_0_and_180_expected)
+        config['list_of_obs_expected'] = list_of_obs_expected.tolist()
+        config['list_of_0_and_180_expected'] = list_of_0_and_180_expected.tolist()
         with open(CONFIG_FILE_NAME, 'w') as write_out:
             yaml.dump(config, write_out, sort_keys=False)
 
