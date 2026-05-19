@@ -1536,44 +1536,72 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
         full_width=True,
     )
 
+    def _position_value_for_top(_top_index):
+        return max(0, min(_ny - 1, _ny - 1 - _top_index))
+
     cor_crop_region_enabled_1 = mo.ui.checkbox(value=True, label="Use")
-    cor_crop_region_w_1 = mo.ui.range_slider(
+    cor_crop_region_position_w_1 = mo.ui.slider(
         start=0,
-        stop=_ny,
+        stop=max(0, _ny - 1),
         step=1,
-        value=[0, _slice_cap],
-        label="Region 1",
+        value=_position_value_for_top(0),
+        label="Position",
+        show_value=True,
+        orientation="vertical",
+    )
+    cor_crop_region_size_w_1 = mo.ui.slider(
+        start=1,
+        stop=_slice_cap,
+        step=1,
+        value=_slice_cap,
+        label="Nbr of slices",
         show_value=True,
         orientation="vertical",
     )
 
     _region_2_start = min(_slice_cap, max(0, _ny - 1))
-    _region_2_stop = min(_region_2_start + _slice_cap, _ny)
     cor_crop_region_enabled_2 = mo.ui.checkbox(value=False, label="Use")
-    cor_crop_region_w_2 = mo.ui.range_slider(
+    cor_crop_region_position_w_2 = mo.ui.slider(
         start=0,
-        stop=_ny,
+        stop=max(0, _ny - 1),
         step=1,
-        value=[_region_2_start, _region_2_stop],
-        label="Region 2",
+        value=_position_value_for_top(_region_2_start),
+        label="Position",
+        show_value=True,
+        orientation="vertical",
+    )
+    cor_crop_region_size_w_2 = mo.ui.slider(
+        start=1,
+        stop=_slice_cap,
+        step=1,
+        value=_slice_cap,
+        label="Nbr of slices",
         show_value=True,
         orientation="vertical",
     )
 
-    _region_3_start = min(_region_2_stop, max(0, _ny - 1))
-    _region_3_stop = min(_region_3_start + _slice_cap, _ny)
+    _region_3_start = min(_slice_cap * 2, max(0, _ny - 1))
     cor_crop_region_enabled_3 = mo.ui.checkbox(value=False, label="Use")
-    cor_crop_region_w_3 = mo.ui.range_slider(
+    cor_crop_region_position_w_3 = mo.ui.slider(
         start=0,
-        stop=_ny,
+        stop=max(0, _ny - 1),
         step=1,
-        value=[_region_3_start, _region_3_stop],
-        label="Region 3",
+        value=_position_value_for_top(_region_3_start),
+        label="Position",
+        show_value=True,
+        orientation="vertical",
+    )
+    cor_crop_region_size_w_3 = mo.ui.slider(
+        start=1,
+        stop=_slice_cap,
+        step=1,
+        value=_slice_cap,
+        label="Nbr of slices",
         show_value=True,
         orientation="vertical",
     )
 
-    def _region_control(_label, _checkbox, _slider, _accent):
+    def _region_control(_label, _checkbox, _position_slider, _size_slider, _accent):
         return mo.vstack(
             [
                 mo.hstack(
@@ -1582,16 +1610,35 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
                         mo.md(f"<span style='font-weight: 600; color: {_accent};'>{_label}</span>"),
                     ],
                     align="center",
-                    gap=0.35,
+                    gap=0.2,
                 ),
-                _slider.style(
-                    {
-                        "height": f"{crop_panel_height_px}px",
-                        "min-height": f"{crop_panel_height_px}px",
-                    }
+                mo.hstack(
+                    [
+                        _position_slider.style(
+                            {
+                                "height": "240px",
+                                "min-height": "240px",
+                                "width": "88px",
+                            }
+                        ),
+                        _size_slider.style(
+                            {
+                                "height": "240px",
+                                "min-height": "240px",
+                                "width": "88px",
+                            }
+                        ),
+                    ],
+                    align="start",
+                    gap=0.1,
                 ),
             ],
-            gap=0.4,
+            gap=0.25,
+        ).style(
+            {
+                "width": "fit-content",
+                "display": "inline-flex",
+            }
         )
 
     cor_crop_regions_view = mo.vstack(
@@ -1599,12 +1646,12 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
             mo.md("<span style='font-size: 0.9rem; font-weight: 600; color: #cbd5e1;'>Slice regions (max 100 each)</span>"),
             mo.hstack(
                 [
-                    _region_control("Region 1", cor_crop_region_enabled_1, cor_crop_region_w_1, "#22c55e"),
-                    _region_control("Region 2", cor_crop_region_enabled_2, cor_crop_region_w_2, "#f59e0b"),
-                    _region_control("Region 3", cor_crop_region_enabled_3, cor_crop_region_w_3, "#ef4444"),
+                    _region_control("Region 1", cor_crop_region_enabled_1, cor_crop_region_position_w_1, cor_crop_region_size_w_1, "#22c55e"),
+                    _region_control("Region 2", cor_crop_region_enabled_2, cor_crop_region_position_w_2, cor_crop_region_size_w_2, "#f59e0b"),
+                    _region_control("Region 3", cor_crop_region_enabled_3, cor_crop_region_position_w_3, cor_crop_region_size_w_3, "#ef4444"),
                 ],
                 align="start",
-                gap=0.75,
+                gap=0.45,
             ),
         ],
         gap=0.5,
@@ -1625,9 +1672,12 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
         cor_crop_region_enabled_1,
         cor_crop_region_enabled_2,
         cor_crop_region_enabled_3,
-        cor_crop_region_w_1,
-        cor_crop_region_w_2,
-        cor_crop_region_w_3,
+        cor_crop_region_position_w_1,
+        cor_crop_region_position_w_2,
+        cor_crop_region_position_w_3,
+        cor_crop_region_size_w_1,
+        cor_crop_region_size_w_2,
+        cor_crop_region_size_w_3,
         cor_crop_regions_view,
         crop_panel_height_px,
     )
@@ -1640,9 +1690,12 @@ def _(
     cor_crop_region_enabled_1,
     cor_crop_region_enabled_2,
     cor_crop_region_enabled_3,
-    cor_crop_region_w_1,
-    cor_crop_region_w_2,
-    cor_crop_region_w_3,
+    cor_crop_region_position_w_1,
+    cor_crop_region_position_w_2,
+    cor_crop_region_position_w_3,
+    cor_crop_region_size_w_1,
+    cor_crop_region_size_w_2,
+    cor_crop_region_size_w_3,
     cor_crop_regions_view,
     cor_nx,
     cor_ny,
@@ -1664,29 +1717,28 @@ def _(
         _x0, _x1 = int(cor_crop_lr_w.value[0]), int(cor_crop_lr_w.value[1])
         _slice_cap = min(100, cor_ny)
 
-        def _normalize_region(_slider_value):
-            _raw_start, _raw_stop = sorted((int(_slider_value[0]), int(_slider_value[1])))
-            _start = max(0, min(cor_ny - _raw_stop, cor_ny))
-            _stop = max(0, min(cor_ny - _raw_start, cor_ny))
+        def _normalize_region(_position_value, _size_value):
+            _size = max(1, min(int(_size_value), _slice_cap))
+            _top = max(0, min(cor_ny - 1, cor_ny - 1 - int(_position_value)))
+            _start = max(0, min(_top, max(0, cor_ny - _size)))
+            _stop = min(cor_ny, _start + _size)
             if _stop <= _start:
                 _stop = min(cor_ny, _start + 1)
-            if _stop - _start > _slice_cap:
-                _stop = min(cor_ny, _start + _slice_cap)
             return _start, _stop
 
         _region_widgets = [
-            ("#22c55e", "Region 1", cor_crop_region_enabled_1, cor_crop_region_w_1),
-            ("#f59e0b", "Region 2", cor_crop_region_enabled_2, cor_crop_region_w_2),
-            ("#ef4444", "Region 3", cor_crop_region_enabled_3, cor_crop_region_w_3),
+            ("#22c55e", "Region 1", cor_crop_region_enabled_1, cor_crop_region_position_w_1, cor_crop_region_size_w_1),
+            ("#f59e0b", "Region 2", cor_crop_region_enabled_2, cor_crop_region_position_w_2, cor_crop_region_size_w_2),
+            ("#ef4444", "Region 3", cor_crop_region_enabled_3, cor_crop_region_position_w_3, cor_crop_region_size_w_3),
         ]
         _active_regions = [
-            (_color, _label, *_normalize_region(_slider.value))
-            for _color, _label, _enabled, _slider in _region_widgets
+            (_color, _label, *_normalize_region(_position_slider.value, _size_slider.value))
+            for _color, _label, _enabled, _position_slider, _size_slider in _region_widgets
             if _enabled.value
         ]
         _selection_note = None
         if not _active_regions:
-            _start, _stop = _normalize_region(cor_crop_region_w_1.value)
+            _start, _stop = _normalize_region(cor_crop_region_position_w_1.value, cor_crop_region_size_w_1.value)
             _active_regions = [("#22c55e", "Region 1", _start, _stop)]
             _selection_note = mo.callout(
                 mo.md("At least one slice region must be selected. Showing Region 1."),
@@ -1765,7 +1817,8 @@ def _(
             *cor_section_rows,
             *([_selection_note] if _selection_note is not None else []),
             cor_crop_lr_w,
-            mo.hstack([_plot_element, cor_crop_regions_view], align="start", gap=0.75),
+            _plot_element,
+            cor_crop_regions_view,
             cor_adjust_w,
         ],
         gap=0.5,
