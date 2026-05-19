@@ -1495,6 +1495,7 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
     _nx = max(1, cor_nx)
     _ny = max(1, cor_ny)
     _cor = cor_center_of_rotation if cor_center_of_rotation > 0 else _nx / 2.0
+    crop_panel_height_px = 640
 
     cor_crop_lr_w = mo.ui.range_slider(
         start=0,
@@ -1514,7 +1515,12 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
         show_value=True,
         orientation="vertical",
     )
-    cor_crop_tb_view = cor_crop_tb_w.style({"height": "640px", "min-height": "640px"})
+    cor_crop_tb_view = cor_crop_tb_w.style(
+        {
+            "height": f"{crop_panel_height_px}px",
+            "min-height": f"{crop_panel_height_px}px",
+        }
+    )
     cor_adjust_w = mo.ui.slider(
         start=max(0.0, _cor - 100.0),
         stop=min(float(_nx), _cor + 100.0),
@@ -1524,7 +1530,13 @@ def _(cor_center_of_rotation, cor_nx, cor_ny, mo):
         show_value=True,
         full_width=True,
     )
-    return cor_adjust_w, cor_crop_lr_w, cor_crop_tb_view, cor_crop_tb_w
+    return (
+        cor_adjust_w,
+        cor_crop_lr_w,
+        cor_crop_tb_view,
+        cor_crop_tb_w,
+        crop_panel_height_px,
+    )
 
 
 @app.cell
@@ -1537,6 +1549,7 @@ def _(
     cor_section_rows,
     cor_sum_0,
     cor_sum_180,
+    crop_panel_height_px,
     mo,
 ):
     """Render the Crop & Center of rotation section. Re-runs on every slider change."""
@@ -1573,7 +1586,7 @@ def _(
                 name=f"Center of rotation: {float(cor_adjust_w.value):.1f} px",
             ))
             _fig.update_layout(
-                height=500,
+                height=crop_panel_height_px,
                 showlegend=True,
                 legend=dict(
                     x=0.01, y=0.99,
