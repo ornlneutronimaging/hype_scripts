@@ -1383,11 +1383,13 @@ def _(
 def _(
     all_pre_proc_table_complete,
     checklist_ready,
+    get_experiment_mode,
     get_log_preview_shown,
     get_pre_proc_started,
     mo,
 ):
     mo.stop(not checklist_ready)
+    mo.stop(get_experiment_mode() is None)
     mo.stop(not get_pre_proc_started())
     check_pre_process_status_button = mo.ui.run_button(
         label="Refresh table",
@@ -1485,18 +1487,18 @@ def _(
         "final": list(_marimo_section.get("final", [])),
     })
 
-    if _cfg.get("ai_pre_process_running", False):
-        mo.callout(
-            mo.md("Pre-processing is **still running** - check back in a few minutes."),
-            kind="warn",
-        )
-        pre_process_is_done = False
-    else:
-        mo.callout(
-            mo.md("Pre-processing is **DONE!** Feel free to move to the next step."),
-            kind="success",
-        )
-        pre_process_is_done = True
+    # if _cfg.get("ai_pre_process_running", False):
+    #     mo.callout(
+    #         mo.md("Pre-processing is **still running** - check back in a few minutes."),
+    #         kind="warn",
+    #     )
+    #     pre_process_is_done = False
+    # else:
+    #     mo.callout(
+    #         mo.md("Pre-processing is **DONE!** Feel free to move to the next step."),
+    #         kind="success",
+    #     )
+    #     pre_process_is_done = True
     return
 
 
