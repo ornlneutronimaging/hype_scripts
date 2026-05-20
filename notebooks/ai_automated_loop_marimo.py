@@ -1054,7 +1054,9 @@ def _(
 @app.cell
 def _(Path, get_active_config_file_option, mo):
     """State: whether the pre-processing step has been launched.
-    Initialised to True on startup when the pre_processing_table in the config is non-empty."""
+    Initialised to True on startup when the pre_processing_table in the config is non-empty,
+    OR when list_of_obs_expected and list_of_0_and_180_expected are both non-empty
+    (meaning pre-processing was already launched in a previous session)."""
     import yaml as _yaml
     _cfg_name = get_active_config_file_option()
     _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
@@ -1064,8 +1066,11 @@ def _(Path, get_active_config_file_option, mo):
     except OSError:
         _cfg_data = {}
     _table = _cfg_data.get("marimo", {}).get("pre_processing_table", {})
+    _obs_expected = list(_cfg_data.get("list_of_obs_expected") or [])
+    _zero_180_expected = list(_cfg_data.get("list_of_0_and_180_expected") or [])
     _already_started = bool(
         _table.get("raw") or _table.get("corrected") or _table.get("final")
+        or (_obs_expected and _zero_180_expected)
     )
     get_pre_proc_started, set_pre_proc_started = mo.state(_already_started)
     return get_pre_proc_started, set_pre_proc_started

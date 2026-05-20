@@ -3,8 +3,8 @@ ai_pre_process_running: true
 ai_process_running: true
 ai_process_paused: false
 debugging: false
-DataPath: /data/VENUS/IPTS-36914/images/tpx1/raw/ct/*_test_sample_T10K_*
-nexus_folder: /SNS/VENUS/IPTS-36914/nexus
+DataPath: /data/VENUS/IPTS-37493/images/tpx1/raw/ct/*_test_sample_T10K_*
+nexus_folder: /SNS/VENUS/IPTS-37493/nexus
 OutPath: /data/VENUS/IPTS-20121/shared
 ob_local_path: []
 ob_alignment_file:
@@ -96,12 +96,12 @@ number_of_tiff_for_each_run: 2628
 debugging_mcp_folder: /SNS/VENUS/IPTS-35945/shared/ai_test_data/images/mcp
 debugging_output_folder_on_hype: /data/VENUS/IPTS-35945/images/mcp/2025_03_07/
 mcp_folder: ''
-autoreduce_mcp_folder: /SNS/VENUS/IPTS-36914/shared/autoreduce/images/mcp/tpx1/raw/ct
+autoreduce_mcp_folder: /SNS/VENUS/IPTS-37493/shared/autoreduce/images/mcp/tpx1/raw/ct
 marimo:
   pre_processing_table:
-    raw: []
-    corrected: []
-    final: []
+    raw: [21234, 21235, 21236, 21237]
+    corrected: [21234, 21235, 21236, 21237]
+    final: [21234, 21235, 21236, 21237]
 number_of_projections_at_each_angle: 1
 list_of_obs_expected:
 - 21234
