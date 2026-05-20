@@ -29,7 +29,7 @@ def _():
 
 
 @app.cell
-def _(get_experiment_mode, mo):
+def _(get_debug_pending, get_experiment_mode, mo):
     new_exp_mode_button = mo.ui.run_button(
         label="\U0001f195 New experiment",
         tooltip="Start fresh \u2014 form fields will be cleared",
@@ -38,24 +38,55 @@ def _(get_experiment_mode, mo):
         label="\u25b6\ufe0f Continue experiment",
         tooltip="Reload settings from the selected config file",
     )
-    _panel = mo.vstack(
-        [
-            mo.md("<div style='border-left: 4px solid #16a34a; padding: 4px 12px; margin-bottom: 8px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #16a34a;'>\U0001f9ea What would you like to do?</span></div>"),
-            mo.hstack([new_exp_mode_button, continue_exp_mode_button], justify="start", align="center", gap=1),
-        ],
-        gap=0.5,
-    ).style(
-        {
-            "border": "1px solid #334155",
-            "border-radius": "8px",
-            "padding": "12px",
-            "background": "linear-gradient(180deg, #111827 0%, #0b1220 100%)",
-            "color": "#e5e7eb",
-            "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
-        }
-    ) if get_experiment_mode() is None else mo.md("")
+    debug_exp_mode_button = mo.ui.run_button(
+        label="\U0001f41b Debugging experiment",
+        tooltip="Enter debug mode using config_debug_jean.yaml",
+    )
+    debug_exp_password_w = mo.ui.text(
+        value="",
+        label="Debug password",
+    )
+    confirm_debug_button = mo.ui.run_button(label="\u2705 Confirm")
+    cancel_debug_button = mo.ui.run_button(label="\u274c Cancel")
+    if get_experiment_mode() is None:
+        if get_debug_pending():
+            _panel = mo.vstack(
+                [
+                    mo.md("<div style='border-left: 4px solid #b45309; padding: 4px 12px; margin-bottom: 8px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #b45309;'>\U0001f41b Debugging experiment \u2014 enter password</span></div>"),
+                    mo.hstack([debug_exp_password_w, confirm_debug_button, cancel_debug_button], justify="start", align="end", gap=0.5),
+                ],
+                gap=0.5,
+            ).style(
+                {
+                    "border": "1px solid #334155",
+                    "border-radius": "8px",
+                    "padding": "12px",
+                    "background": "linear-gradient(180deg, #111827 0%, #0b1220 100%)",
+                    "color": "#e5e7eb",
+                    "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
+                }
+            )
+        else:
+            _panel = mo.vstack(
+                [
+                    mo.md("<div style='border-left: 4px solid #16a34a; padding: 4px 12px; margin-bottom: 8px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #16a34a;'>\U0001f9ea What would you like to do?</span></div>"),
+                    mo.hstack([new_exp_mode_button, continue_exp_mode_button, debug_exp_mode_button], justify="start", align="center", gap=1),
+                ],
+                gap=0.5,
+            ).style(
+                {
+                    "border": "1px solid #334155",
+                    "border-radius": "8px",
+                    "padding": "12px",
+                    "background": "linear-gradient(180deg, #111827 0%, #0b1220 100%)",
+                    "color": "#e5e7eb",
+                    "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
+                }
+            )
+    else:
+        _panel = mo.md("")
     _panel
-    return continue_exp_mode_button, new_exp_mode_button
+    return cancel_debug_button, confirm_debug_button, continue_exp_mode_button, debug_exp_mode_button, debug_exp_password_w, new_exp_mode_button
 
 
 @app.cell
@@ -63,6 +94,7 @@ def _(
     get_reset_counter,
     mo,
     new_exp_mode_button,
+    set_active_config_file_option,
     set_experiment_mode,
     set_ob_alignment_selection,
     set_reset_counter,
@@ -70,6 +102,7 @@ def _(
 ):
     mo.stop(not new_exp_mode_button.value)
     set_experiment_mode("new")
+    set_active_config_file_option("config")
     set_reset_counter(get_reset_counter() + 1)
     set_sample_alignment_selection([])
     set_ob_alignment_selection([])
@@ -77,9 +110,107 @@ def _(
 
 
 @app.cell
-def _(continue_exp_mode_button, mo, set_experiment_mode):
+def _(
+    Path,
+    continue_exp_mode_button,
+    mo,
+    set_active_config_file_option,
+    set_experiment_mode,
+    set_ob_alignment_selection,
+    set_pre_proc_started,
+    set_reset_counter,
+    set_sample_alignment_selection,
+):
+    import yaml as _yaml
+    def _load_alignment_for_continue(cfg_name):
+        _cfg_path = Path(__file__).parent.parent / "configs" / f"{cfg_name}.yaml"
+        try:
+            with open(_cfg_path, "r") as _f:
+                _d = _yaml.safe_load(_f) or {}
+        except OSError:
+            return [], [], [], []
+        def _parse_alignment(raw):
+            if isinstance(raw, list):
+                return [str(p) for p in raw if p]
+            if isinstance(raw, str) and raw and raw != "XXXXX.csv":
+                return [raw]
+            return []
+        _obs = list(_d.get("list_of_obs_expected") or [])
+        _zero_180 = list(_d.get("list_of_0_and_180_expected") or [])
+        return (
+            _parse_alignment(_d.get("sample_alignment_file")),
+            _parse_alignment(_d.get("ob_alignment_file")),
+            _obs,
+            _zero_180,
+        )
     mo.stop(not continue_exp_mode_button.value)
     set_experiment_mode("continue")
+    set_active_config_file_option("config")
+    set_reset_counter(0)
+    _sample_sel, _ob_sel, _obs_expected, _zero_180_expected = _load_alignment_for_continue("config")
+    set_sample_alignment_selection(_sample_sel)
+    set_ob_alignment_selection(_ob_sel)
+    if _obs_expected and _zero_180_expected:
+        set_pre_proc_started(True)
+    return
+
+
+@app.cell
+def _(debug_exp_mode_button, mo, set_debug_pending):
+    mo.stop(not debug_exp_mode_button.value)
+    set_debug_pending(True)
+    return
+
+
+@app.cell
+def _(
+    Path,
+    confirm_debug_button,
+    debug_exp_password_w,
+    mo,
+    set_active_config_file_option,
+    set_debug_pending,
+    set_experiment_mode,
+    set_live_enabled,
+    set_ob_alignment_selection,
+    set_reset_counter,
+    set_sample_alignment_selection,
+):
+    import yaml as _yaml
+
+    def _load_alignment_from_cfg(cfg_name):
+        _cfg_path = Path(__file__).parent.parent / "configs" / f"{cfg_name}.yaml"
+        try:
+            with open(_cfg_path, "r") as _f:
+                _d = _yaml.safe_load(_f) or {}
+        except OSError:
+            return [], []
+        def _parse(raw):
+            if isinstance(raw, list):
+                return [str(p) for p in raw if p]
+            if isinstance(raw, str) and raw and raw != "XXXXX.csv":
+                return [raw]
+            return []
+        return _parse(_d.get("sample_alignment_file")), _parse(_d.get("ob_alignment_file"))
+
+    mo.stop(not confirm_debug_button.value)
+    _is_correct = str(debug_exp_password_w.value).strip() == "venus"
+    set_debug_pending(False)
+    if _is_correct:
+        set_experiment_mode("debug")
+        set_live_enabled(False)
+        set_active_config_file_option("config_debug_jean")
+        set_reset_counter(0)
+        _sample_sel, _ob_sel = _load_alignment_from_cfg("config_debug_jean")
+        set_sample_alignment_selection(_sample_sel)
+        set_ob_alignment_selection(_ob_sel)
+    return
+
+
+@app.cell
+def _(cancel_debug_button, mo, set_debug_pending):
+    mo.stop(not cancel_debug_button.value)
+    set_debug_pending(False)
     return
 
 
@@ -546,7 +677,6 @@ def _(
     Path,
     checklist_ready,
     get_active_config_file_option,
-    get_debug_mode_unlocked,
     get_experiment_mode,
     get_live_enabled,
     get_pre_proc_started,
@@ -559,7 +689,7 @@ def _(
     mo.stop(get_experiment_mode() is None)
 
     _started = get_pre_proc_started()
-    _debug_locked = get_debug_mode_unlocked()
+    _debug_locked = get_experiment_mode() != "debug"
     _is_reset = get_reset_counter() > 0
 
     _cfg_name = get_active_config_file_option()
@@ -707,8 +837,7 @@ def _(
             ]
         )
         _sample_files = [_name for _name in _csv_files if "_OB_" not in _name]
-        # _ob_files = [_name for _name in _csv_files if "_OB_" in _name]
-        _ob_files = [_name for _name in _csv_files if "_OB_" not in _name]
+        _ob_files = [_name for _name in _csv_files if "_OB_" not in _name]             # REMOVE ME ONCE OB FILES ARE IN PLACE
 
         _sample_options = {
             _name: os.path.join(_alignment_dir, _name)
@@ -772,6 +901,7 @@ def _(
     ipts_w,
     mo,
     new_experiment_button,
+    set_active_config_file_option,
     set_experiment_mode,
     set_ob_alignment_selection,
     set_pre_proc_started,
@@ -780,6 +910,7 @@ def _(
 ):
     mo.stop(not new_experiment_button.value)
     set_experiment_mode("new")
+    set_active_config_file_option("config")
     set_reset_counter(get_reset_counter() + 1)
     if get_pre_proc_started():
         set_pre_proc_started(False)
@@ -792,37 +923,10 @@ def _(
 
 
 @app.cell
-def _(checklist_ready, get_debug_mode_password, get_debug_mode_unlocked, mo):
-    """Debug mode access panel: password field and lock/unlock toggle button."""
-    mo.stop(not checklist_ready)
-
-    debug_password_w = mo.ui.text(value=get_debug_mode_password(), label="Debug mode password")
-    unlock_debug_mode_button = mo.ui.run_button(
-        label="Lock debug mode" if get_debug_mode_unlocked() else "Unlock debug mode"
-    )
-    password_row = mo.hstack([debug_password_w, unlock_debug_mode_button], justify="start", align="end", gap=0.5)
-
-    mo.vstack(
-        [
-            mo.md("<div style='border-left: 4px solid #888; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #555;'>🔒 Debug mode access</span></div>"),
-            password_row,
-        ]
-    )
-    return debug_password_w, unlock_debug_mode_button
-
-
-@app.cell
 def _(mo):
-    """State: whether debug mode is currently unlocked (bool)."""
-    get_debug_mode_unlocked, set_debug_mode_unlocked = mo.state(False)
-    return get_debug_mode_unlocked, set_debug_mode_unlocked
-
-
-@app.cell
-def _(mo):
-    """State: transient password string, cleared immediately after each unlock attempt."""
-    get_debug_mode_password, set_debug_mode_password = mo.state("")
-    return get_debug_mode_password, set_debug_mode_password
+    """State: whether the mode selection panel is waiting for a debug password."""
+    get_debug_pending, set_debug_pending = mo.state(False)
+    return get_debug_pending, set_debug_pending
 
 
 @app.cell
@@ -833,11 +937,11 @@ def _(mo):
 
 
 @app.cell
-def _(Path, get_active_config_file_option, mo):
+def _(mo):
     """State: persisted sample alignment file path (as a list) so selection survives cell reruns."""
     import yaml as _yaml
-    _cfg_name = get_active_config_file_option()
-    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    from pathlib import Path as _Path
+    _cfg_path = _Path(__file__).parent.parent / "configs" / "config.yaml"
     try:
         with open(_cfg_path, "r") as _f:
             _init_cfg = _yaml.safe_load(_f) or {}
@@ -855,11 +959,11 @@ def _(Path, get_active_config_file_option, mo):
 
 
 @app.cell
-def _(Path, get_active_config_file_option, mo):
+def _(mo):
     """State: persisted open-beam alignment file path (as a list) so selection survives cell reruns."""
     import yaml as _yaml
-    _cfg_name = get_active_config_file_option()
-    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    from pathlib import Path as _Path
+    _cfg_path = _Path(__file__).parent.parent / "configs" / "config.yaml"
     try:
         with open(_cfg_path, "r") as _f:
             _init_cfg = _yaml.safe_load(_f) or {}
@@ -948,49 +1052,6 @@ def _(
 
 
 @app.cell
-def _(
-    checklist_ready,
-    debug_password_w,
-    get_debug_mode_unlocked,
-    mo,
-    set_debug_mode_password,
-    set_debug_mode_unlocked,
-    set_live_enabled,
-    unlock_debug_mode_button,
-):
-    mo.stop(not checklist_ready)
-    mo.stop(not unlock_debug_mode_button.value)
-
-    if get_debug_mode_unlocked():
-        set_debug_mode_unlocked(False)
-        set_debug_mode_password("")
-        debug = False
-        status = mo.callout(
-            mo.md("Debug mode locked."),
-            kind="warn",
-        )
-    else:
-        is_correct_password = str(debug_password_w.value).strip() == "imaging"
-        set_debug_mode_unlocked(is_correct_password)
-        set_debug_mode_password("")
-        if is_correct_password:
-            set_live_enabled(False)
-        debug = is_correct_password
-
-        if is_correct_password:
-            status = mo.callout(
-                mo.md("Debug mode unlocked."),
-                kind="success",
-            )
-        else:
-            status = mo.callout(
-                mo.md("Incorrect password. Debug mode remains locked."),
-                kind="warn",
-            )
-    return
-
-
-@app.cell
 def _(Path, get_active_config_file_option, mo):
     """State: whether the pre-processing step has been launched.
     Initialised to True on startup when the pre_processing_table in the config is non-empty."""
@@ -1038,12 +1099,11 @@ def _(Path, get_active_config_file_option, mo):
 
 
 @app.cell
-def _(checklist_ready, get_debug_mode_unlocked, get_pre_proc_started, mo):
+def _(checklist_ready, get_experiment_mode, get_pre_proc_started, mo):
     mo.stop(not checklist_ready)
 
     _started = get_pre_proc_started()
-    _is_unlocked = get_debug_mode_unlocked()
-    _debug_locked = not _is_unlocked
+    _debug_locked = get_experiment_mode() != "debug"
 
     create_0deg_projection_button = mo.ui.run_button(
         label="Create 0degree projection",
@@ -1080,7 +1140,7 @@ def _(checklist_ready, get_debug_mode_unlocked, get_pre_proc_started, mo):
             projection_buttons_row,
             ob_buttons_row,
         ]
-    ) if _is_unlocked else mo.md("")
+    ) if not _debug_locked else mo.md("")
 
     imaging_controls
     return
