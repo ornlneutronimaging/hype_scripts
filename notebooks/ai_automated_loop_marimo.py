@@ -64,11 +64,15 @@ def _(
     mo,
     new_exp_mode_button,
     set_experiment_mode,
+    set_ob_alignment_selection,
     set_reset_counter,
+    set_sample_alignment_selection,
 ):
     mo.stop(not new_exp_mode_button.value)
     set_experiment_mode("new")
     set_reset_counter(get_reset_counter() + 1)
+    set_sample_alignment_selection([])
+    set_ob_alignment_selection([])
     return
 
 
@@ -768,12 +772,14 @@ def _(
     ipts_w,
     mo,
     new_experiment_button,
+    set_experiment_mode,
     set_ob_alignment_selection,
     set_pre_proc_started,
     set_reset_counter,
     set_sample_alignment_selection,
 ):
     mo.stop(not new_experiment_button.value)
+    set_experiment_mode("new")
     set_reset_counter(get_reset_counter() + 1)
     if get_pre_proc_started():
         set_pre_proc_started(False)
