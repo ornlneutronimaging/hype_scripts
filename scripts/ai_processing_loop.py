@@ -247,15 +247,19 @@ def pre_processing():
         # LOGGER.info(f"proton charge: {proton_charge}")
         number_of_obs = config['EIC_vals']['number_of_obs']
         LOGGER.info(f"number of obs: {number_of_obs}")
+      
         starting_run_number = config['starting_run_number']
         LOGGER.info(f"starting run number: {starting_run_number}")
+        
         run_number_expected = config['run_number_expected']
         LOGGER.info(f"run_number_expected: {run_number_expected}")
+      
         list_of_runs_expected = np.arange(starting_run_number, starting_run_number + 2 + number_of_obs)
         LOGGER.info(f"{list_of_runs_expected = }")
+      
         list_of_obs_expected = list_of_runs_expected[:-2] # OBs then 0 and 180 degrees, so we take all the runs except the last 2 to be OBs
-        LOGGER.info(f"{list_of_obs_expected = }")
         LOGGER.info(f"list of obs expected: {list_of_obs_expected}")
+        
         list_of_0_and_180_expected = list_of_runs_expected[-2:] # the last 2 runs are the 0 and 180 degrees
         LOGGER.info(f"{list_of_0_and_180_expected = }")
         
@@ -264,6 +268,9 @@ def pre_processing():
         config['list_of_0_and_180_expected'] = list_of_0_and_180_expected.tolist()
         with open(CONFIG_FILE_NAME, 'w') as write_out:
             yaml.dump(config, write_out, sort_keys=False)
+
+        debugging_flag = config['debugging']
+        LOGGER.info(f"debugging mode: {debugging_flag}")
 
     # create the output path on hype
     data_path = config['DataPath']

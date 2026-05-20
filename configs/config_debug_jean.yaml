@@ -2,7 +2,13 @@ version: april_20_2026
 ai_pre_process_running: false
 ai_process_running: true
 ai_process_paused: false
-debugging: false
+debugging: 
+  flag: true
+  root_folder: /SNS/VENUS/IPTS-37493/shared/jean/
+  root_staging_folder: /SNS/VENUS/IPTS-37493/shared/jean/staging/
+  output_folder_on_hype: /data/VENUS/IPTS-37493/images/mcp/test
+
+# debugging_mcp_folder: /SNS/VENUS/IPTS-35945/shared/ai_test_data/images/mcp
 DataPath: /data/VENUS/IPTS-37493/images/tpx1/raw/ct/*_test_sample_T10K_*
 nexus_folder: /SNS/VENUS/IPTS-37493/nexus
 OutPath: /data/VENUS/IPTS-20121/shared
@@ -70,7 +76,7 @@ EIC_vals:
   acquire_type: pcharge
   proton_charge: 0.1
   time_s: 0
-  number_of_obs: 3
+  number_of_obs: 2
   motor_number: 1
   sample_name: test_sample
   user_conditions: T10K
@@ -93,8 +99,6 @@ starting_run_number: 21234
 number_of_runs_reduced_and_moved: 6
 list_of_runs_reduced: []
 number_of_tiff_for_each_run: 2628
-debugging_mcp_folder: /SNS/VENUS/IPTS-35945/shared/ai_test_data/images/mcp
-debugging_output_folder_on_hype: /data/VENUS/IPTS-35945/images/mcp/2025_03_07/
 mcp_folder: ''
 autoreduce_mcp_folder: /SNS/VENUS/IPTS-37493/shared/autoreduce/images/mcp/tpx1/raw/ct
 marimo:

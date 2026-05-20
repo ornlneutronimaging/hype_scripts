@@ -91,6 +91,7 @@ def _(get_debug_pending, get_experiment_mode, mo):
 
 @app.cell
 def _(
+    Path,
     get_reset_counter,
     mo,
     new_exp_mode_button,
@@ -100,12 +101,29 @@ def _(
     set_reset_counter,
     set_sample_alignment_selection,
 ):
+    import re as _re
+
+    def _set_debugging_flag_new(cfg_name, value: bool) -> None:
+        _cfg_path = Path(__file__).parent.parent / "configs" / f"{cfg_name}.yaml"
+        try:
+            _content = _cfg_path.read_text()
+            _content = _re.sub(
+                r"^(\s+flag:\s*)(?:true|false)$",
+                lambda m: f"{m.group(1)}{str(value).lower()}",
+                _content,
+                flags=_re.MULTILINE,
+            )
+            _cfg_path.write_text(_content)
+        except OSError:
+            pass
+
     mo.stop(not new_exp_mode_button.value)
     set_experiment_mode("new")
     set_active_config_file_option("config")
     set_reset_counter(get_reset_counter() + 1)
     set_sample_alignment_selection([])
     set_ob_alignment_selection([])
+    _set_debugging_flag_new("config", False)
     return
 
 
@@ -193,6 +211,21 @@ def _(
             return []
         return _parse(_d.get("sample_alignment_file")), _parse(_d.get("ob_alignment_file"))
 
+    def _set_debugging_flag(cfg_name, value: bool) -> None:
+        _cfg_path = Path(__file__).parent.parent / "configs" / f"{cfg_name}.yaml"
+        try:
+            import re as _re
+            _content = _cfg_path.read_text()
+            _content = _re.sub(
+                r"^(\s+flag:\s*)(?:true|false)$",
+                lambda m: f"{m.group(1)}{str(value).lower()}",
+                _content,
+                flags=_re.MULTILINE,
+            )
+            _cfg_path.write_text(_content)
+        except OSError:
+            pass
+
     mo.stop(not confirm_debug_button.value)
     _is_correct = str(debug_exp_password_w.value).strip() == "venus"
     set_debug_pending(False)
@@ -201,6 +234,7 @@ def _(
         set_live_enabled(False)
         set_active_config_file_option("config_debug_jean")
         set_reset_counter(0)
+        _set_debugging_flag("config_debug_jean", True)
         _sample_sel, _ob_sel = _load_alignment_from_cfg("config_debug_jean")
         set_sample_alignment_selection(_sample_sel)
         set_ob_alignment_selection(_ob_sel)
@@ -713,7 +747,7 @@ def _(
             "pointer-events": "none",
             "opacity": "0.45",
         }
-    ) if _debug_locked else live_w
+    ) if not _debug_locked else live_w
     new_experiment_button = mo.ui.run_button(
         label="New experiment",
         tooltip="Reset form fields for a new experiment",
@@ -1104,50 +1138,56 @@ def _(Path, get_active_config_file_option, mo):
 
 
 @app.cell
-def _(checklist_ready, get_experiment_mode, get_pre_proc_started, mo):
+def _(Path, checklist_ready, get_active_config_file_option, get_experiment_mode, mo):
+    import yaml as _yaml
+
     mo.stop(not checklist_ready)
 
-    _started = get_pre_proc_started()
     _debug_locked = get_experiment_mode() != "debug"
 
-    create_0deg_projection_button = mo.ui.run_button(
-        label="Create 0degree projection",
-        disabled=_started or _debug_locked,
-    )
-    create_180deg_projection_button = mo.ui.run_button(
-        label="Create 180° projection",
-        disabled=_started or _debug_locked,
-    )
-    projection_buttons_row = mo.hstack(
-        [create_0deg_projection_button, create_180deg_projection_button],
-        justify="start",
-    )
-    create_ob_1_button = mo.ui.run_button(
-        label="Create OB #1",
-        disabled=_started or _debug_locked,
-    )
-    create_ob_2_button = mo.ui.run_button(
-        label="Create OB #2",
-        disabled=_started or _debug_locked,
-    )
-    create_ob_3_button = mo.ui.run_button(
-        label="Create OB #3",
-        disabled=_started or _debug_locked,
-    )
-    ob_buttons_row = mo.hstack(
-        [create_ob_1_button, create_ob_2_button, create_ob_3_button],
-        justify="start",
-    )
+    _cfg_name = get_active_config_file_option()
+    _cfg_path = Path(__file__).parent.parent / "configs" / f"{_cfg_name}.yaml"
+    try:
+        with open(_cfg_path, "r") as _f:
+            _cfg_data = _yaml.safe_load(_f) or {}
+    except OSError:
+        _cfg_data = {}
 
-    imaging_controls = mo.vstack(
+    _obs_runs = list(_cfg_data.get("list_of_obs_expected") or [])
+    _sample_runs = list(_cfg_data.get("list_of_0_and_180_expected") or [])
+
+    def _run_row(label, run_number):
+        _raw_btn = mo.ui.run_button(label="create raw")
+        _corrected_btn = mo.ui.run_button(label="create corrected")
+        return mo.hstack(
+            [
+                mo.md(f"**{label}**").style({"min-width": "160px"}),
+                _raw_btn,
+                _corrected_btn,
+            ],
+            justify="start",
+            align="center",
+            gap=0.5,
+        )
+
+    _ob_labels = [f"ob #{i+1}" for i in range(len(_obs_runs))]
+    _sample_labels = ["projection 0degree", "projection 180degree"]
+
+    _rows = []
+    for _label, _run in zip(_ob_labels, _obs_runs):
+        _rows.append(_run_row(_label, _run))
+    for _label, _run in zip(_sample_labels, _sample_runs):
+        _rows.append(_run_row(_label, _run))
+
+    faking_controls = mo.vstack(
         [
-            mo.md("<div style='border-left: 4px solid #e67e22; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #e67e22;'>🛠 Imaging team controls</span></div>"),
-            projection_buttons_row,
-            ob_buttons_row,
-        ]
+            mo.md("<div style='border-left: 4px solid #e67e22; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #e67e22;'>🛠 Faking file movement interface</span></div>"),
+            *_rows,
+        ],
+        gap=0.5,
     ) if not _debug_locked else mo.md("")
 
-    imaging_controls
+    faking_controls
     return
 
 

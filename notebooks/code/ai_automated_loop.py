@@ -16,6 +16,8 @@ import logging
 from datetime import datetime
 import datetime
 
+from scripts.ai_processing_loop import LOGGER
+
 
 PROJECT_ROOT_FOLDER = "/SNS/VENUS/shared/software/git/hype_scripts"
 file_name, ext = os.path.splitext(os.path.basename(__file__))
@@ -144,8 +146,14 @@ class AiAutomatedLoop:
         config['sample_alignment_file'] = sample_alignment
         config['list_of_initial_angles'] = list_of_initial_angles
 
-        autoreduce_folder = f"/SNS/VENUS/IPTS-{self.ipts}/shared/autoreduce/images/mcp/tpx1/raw/ct"
-        config['autoreduce_mcp_folder'] = autoreduce_folder
+        if debug:
+            self.autoreduce_folder = config['debugging']['autoreduce_mcp_folder']
+            nexus_folder = config['debugging']['nexus_folder']
+        else:
+            self.autoreduce_folder = f"/SNS/VENUS/IPTS-{self.ipts}/shared/autoreduce/images/mcp/tpx1/raw/ct"
+            nexus_folder = f"/SNS/VENUS/IPTS-{self.ipts}/nexus"
+        config['autoreduce_mcp_folder'] = self.autoreduce_folder
+        config['nexus_folder'] = nexus_folder
         
         datenow = datetime.date.today().strftime("%Y%m%d")
         proton_charge = f"{proton_charge:.2f}"
@@ -153,17 +161,19 @@ class AiAutomatedLoop:
         str_proton_charge = f"{int(list_proton_charge[0]):02d}_{int(list_proton_charge[1]):02d}C"
         
         config['DataPath'] = f"/data/VENUS/IPTS-{self.ipts}/images/tpx1/raw/ct/{datenow}_{sample_name}_{user_conditions}_{str_proton_charge}"
-        config['nexus_folder'] = f"/SNS/VENUS/IPTS-{self.ipts}/nexus"
-                
+        
+        # update config file
         with open(self.config_file, 'w') as outfile:
             yaml.dump(config, outfile, sort_keys=False)
 
         self.input_folder = config['debugging_mcp_folder'] if debug else config['mcp_folder']
-        self.autoreduce_folder = config['autoreduce_mcp_folder']    
-
+  
         LOGGER2.info(f"*** IPTS: {self.ipts}") 
     
     def get_first_run_number(self):
+        
+        if self.debug:
+            return self.config['debugging']['first_run_number']
         
         eic_token = self.config['EIC_vals']['eic_token']
         ipts = self.ipts
@@ -214,7 +224,9 @@ class AiAutomatedLoop:
         with open(list_of_runs_found_file, 'w') as outfile:
             yaml.dump(config_file, outfile, sort_keys=False)
 
+        LOGGER2.info(f"{self.live =}")
         if self.live:
+            LOGGER2.info(f"Launching shimin's code ..")
             self.launching_shimin_cmd1()
 
     def launching_shimin_cmd1(self):

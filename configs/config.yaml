@@ -2,7 +2,11 @@ version: april_20_2026
 ai_pre_process_running: true
 ai_process_running: true
 ai_process_paused: false
-debugging: false
+debugging: 
+  flag: true
+  root_folder: /SNS/VENUS/IPTS-37493/shared/jean/
+  root_staging_folder: /SNS/VENUS/IPTS-37493/shared/jean/staging/
+  output_folder_on_hype: /data/VENUS/IPTS-37493/images/mcp/test
 DataPath: /data/VENUS/IPTS-37493/images/tpx1/raw/ct/*_test_sample_T10K_*
 nexus_folder: /SNS/VENUS/IPTS-37493/nexus
 OutPath: /data/VENUS/IPTS-20121/shared
