@@ -1,5 +1,5 @@
 version: april_20_2026
-ai_pre_process_running: true
+ai_pre_process_running: false
 ai_process_running: true
 ai_process_paused: false
 debugging: false
