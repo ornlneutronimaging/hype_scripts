@@ -29,6 +29,57 @@ def _():
 
 
 @app.cell
+def _(get_experiment_mode, mo):
+    new_exp_mode_button = mo.ui.run_button(
+        label="\U0001f195 New experiment",
+        tooltip="Start fresh \u2014 form fields will be cleared",
+    )
+    continue_exp_mode_button = mo.ui.run_button(
+        label="\u25b6\ufe0f Continue experiment",
+        tooltip="Reload settings from the selected config file",
+    )
+    _panel = mo.vstack(
+        [
+            mo.md("<div style='border-left: 4px solid #16a34a; padding: 4px 12px; margin-bottom: 8px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #16a34a;'>\U0001f9ea What would you like to do?</span></div>"),
+            mo.hstack([new_exp_mode_button, continue_exp_mode_button], justify="start", align="center", gap=1),
+        ],
+        gap=0.5,
+    ).style(
+        {
+            "border": "1px solid #334155",
+            "border-radius": "8px",
+            "padding": "12px",
+            "background": "linear-gradient(180deg, #111827 0%, #0b1220 100%)",
+            "color": "#e5e7eb",
+            "box-shadow": "0 10px 24px rgba(0, 0, 0, 0.35)",
+        }
+    ) if get_experiment_mode() is None else mo.md("")
+    _panel
+    return continue_exp_mode_button, new_exp_mode_button
+
+
+@app.cell
+def _(
+    get_reset_counter,
+    mo,
+    new_exp_mode_button,
+    set_experiment_mode,
+    set_reset_counter,
+):
+    mo.stop(not new_exp_mode_button.value)
+    set_experiment_mode("new")
+    set_reset_counter(get_reset_counter() + 1)
+    return
+
+
+@app.cell
+def _(continue_exp_mode_button, mo, set_experiment_mode):
+    mo.stop(not continue_exp_mode_button.value)
+    set_experiment_mode("continue")
+    return
+
+
+@app.cell
 def _(
     Path,
     get_active_config_file_option,
@@ -492,6 +543,7 @@ def _(
     checklist_ready,
     get_active_config_file_option,
     get_debug_mode_unlocked,
+    get_experiment_mode,
     get_live_enabled,
     get_pre_proc_started,
     get_reset_counter,
@@ -500,6 +552,7 @@ def _(
 ):
     import yaml as _yaml
     mo.stop(not checklist_ready)
+    mo.stop(get_experiment_mode() is None)
 
     _started = get_pre_proc_started()
     _debug_locked = get_debug_mode_unlocked()
@@ -859,6 +912,12 @@ def _(mo):
 def _(mo):
     get_reset_counter, set_reset_counter = mo.state(0)
     return get_reset_counter, set_reset_counter
+
+
+@app.cell
+def _(mo):
+    get_experiment_mode, set_experiment_mode = mo.state(None)
+    return get_experiment_mode, set_experiment_mode
 
 
 @app.cell

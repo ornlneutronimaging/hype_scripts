@@ -1,0 +1,105 @@
+version: may_20_2026
+ai_pre_process_running: false
+ai_process_running: false
+ai_process_paused: false
+debugging: false
+DataPath: None
+nexus_folder: None
+OutPath: None
+ob_local_path: []
+ob_alignment_file:
+sample_alignment_file:
+0_and_180_local_path: []
+top_projections_folder_name: None
+use_clean_data: false
+num_workers: 16
+use_neunorm: false
+swap_axes: false
+angle_propose_flag: true
+provided_ang_list: []
+list_of_initial_angles: []
+step: 3
+QIthresh: 6
+num_ini_ang: 6
+working_with_first_processing_angles: true
+Max_ang_num: 100
+wav_idx_start:
+- 100
+- 815
+wav_idx_end:
+- 290
+- 1005
+Z_START:
+- 100
+- 200
+- 300
+Z_NUM:
+- 50
+- 50
+- 50
+crop_cols:
+- 5
+- 499
+align_paras:
+  neighbor_pix_num: 3
+  x_off: 0
+  y_off: 0
+  cent_x: 256
+  cent_y: 256
+center_offset: 30.5
+num_threads: 32
+recon_method: mbirjax
+sharpness: 0.0
+snr_db: 30.0
+roi_info:
+  roi_x: 30
+  roi_y: 50
+  roi_height: 420
+  roi_width: 420
+eva_paras:
+  batch_size: 5
+  device: gpu
+  alpha: 0.6
+  beta: 0.4
+trained_model_path: /data/gxt/cnn_model_save/New_Epoch-100-Test_loss-0.9707233309745789.pth
+EIC_vals:
+  ipts: ''
+  eic_token: 
+  acquire_type: pcharge
+  proton_charge: 0.1
+  time_s: 0
+  number_of_obs: 1
+  motor_number: 1
+  sample_name: 
+  user_conditions: 
+  scan_description: 
+  user_con: 
+edge_type: vcls
+ea2s_paras:
+  hough_paras:
+    line_length: 10
+    line_gap: 3
+vcls_paras:
+  geometry_type: parallel
+  r_1: 0.01
+  r_2: 0.5
+  fast: true
+  num_candidate_views: 360
+SIM: false
+run_number_expected: 
+starting_run_number: 
+number_of_runs_reduced_and_moved: 6
+list_of_runs_reduced: []
+number_of_tiff_for_each_run: 
+debugging_mcp_folder: 
+debugging_output_folder_on_hype: 
+mcp_folder: ''
+autoreduce_mcp_folder: 
+marimo:
+  pre_processing_table:
+    raw: []
+    corrected: []
+    final: []
+number_of_projections_at_each_angle: 1
+list_of_obs_expected:
+list_of_0_and_180_expected:

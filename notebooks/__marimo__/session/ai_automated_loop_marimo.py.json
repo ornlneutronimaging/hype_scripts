@@ -1,7 +1,7 @@
 {
   "version": "1",
   "metadata": {
-    "marimo_version": "0.23.5",
+    "marimo_version": "0.23.6",
     "script_metadata_hash": null
   },
   "cells": [
@@ -20,52 +20,84 @@
     },
     {
       "id": "MJUe",
-      "code_hash": "b57665662965256361a49e631cc23f2e",
+      "code_hash": "9c80bb017752196afde6a57007ad1a12",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar'\n  in \"/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml\", line 107, column 3",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"></span>"
+          }
         }
       ],
-      "console": [
-        {
-          "type": "stream",
-          "name": "stderr",
-          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_494090/__marimo__cell_MJUe_.py&quot;</span>, line <span class=\"m\">41</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"n\">_cfg_eic</span> <span class=\"o\">=</span> <span class=\"n\">_yaml</span><span class=\"o\">.</span><span class=\"n\">safe_load</span><span class=\"p\">(</span><span class=\"n\">_f</span><span class=\"p\">)</span> <span class=\"ow\">or</span> <span class=\"p\">{}</span>\n<span class=\"w\">               </span><span class=\"pm\">~~~~~~~~~~~~~~~^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">125</span>, in <span class=\"n\">safe_load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">load</span><span class=\"p\">(</span><span class=\"n\">stream</span><span class=\"p\">,</span> <span class=\"n\">SafeLoader</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">81</span>, in <span class=\"n\">load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">loader</span><span class=\"o\">.</span><span class=\"n\">get_single_data</span><span class=\"p\">()</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">51</span>, in <span class=\"n\">get_single_data</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_document</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">)</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">60</span>, in <span class=\"n\">construct_document</span>\n<span class=\"w\">    </span><span class=\"k\">for</span> <span class=\"n\">dummy</span> <span class=\"ow\">in</span> <span class=\"n\">generator</span><span class=\"p\">:</span>\n<span class=\"w\">                 </span><span class=\"pm\">^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">408</span>, in <span class=\"n\">construct_yaml_seq</span>\n<span class=\"w\">    </span><span class=\"n\">data</span><span class=\"o\">.</span><span class=\"n\">extend</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_sequence</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">))</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">129</span>, in <span class=\"n\">construct_sequence</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"p\">[</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_object</span><span class=\"p\">(</span><span class=\"n\">child</span><span class=\"p\">,</span> <span class=\"n\">deep</span><span class=\"o\">=</span><span class=\"n\">deep</span><span class=\"p\">)</span>\n<span class=\"w\">            </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">100</span>, in <span class=\"n\">construct_object</span>\n<span class=\"w\">    </span><span class=\"n\">data</span> <span class=\"o\">=</span> <span class=\"n\">constructor</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"p\">,</span> <span class=\"n\">node</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">427</span>, in <span class=\"n\">construct_undefined</span>\n<span class=\"w\">    </span><span class=\"k\">raise</span> <span class=\"n\">ConstructorError</span><span class=\"p\">(</span><span class=\"kc\">None</span><span class=\"p\">,</span> <span class=\"kc\">None</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"s2\">&quot;could not determine a constructor for the tag </span><span class=\"si\">%r</span><span class=\"s2\">&quot;</span> <span class=\"o\">%</span> <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">tag</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">start_mark</span><span class=\"p\">)</span>\n<span class=\"gr\">yaml.constructor.ConstructorError</span>: <span class=\"n\">could not determine a constructor for the tag &#39;tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar&#39;</span>\n<span class=\"x\">  in &quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml&quot;, line 107, column 3</span>\n</pre></div>\n</span>",
-          "mimetype": "application/vnd.marimo+traceback"
-        }
-      ]
+      "console": []
     },
     {
       "id": "vblA",
-      "code_hash": "9a9d60882ef23e48807768ce23863e9c",
+      "code_hash": "3a209b4b5b03f9c6ac45b161fcd4ab21",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "bkHC",
-      "code_hash": "95e449432772d62799c48c0aa4b1a2dd",
+      "code_hash": "b5f92b3d1cdac0e27a8b5526b379811c",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "lEQa",
+      "code_hash": "b57665662965256361a49e631cc23f2e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='border:1px solid #334155;border-radius:8px;padding:12px;background:linear-gradient(180deg, #111827 0%, #0b1220 100%);color:#e5e7eb;box-shadow:0 10px 24px rgba(0, 0, 0, 0.35)'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='display: flex;flex: 1;flex-direction: row;justify-content: space-between;align-items: center;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><div style='border-left: 4px solid #7c3aed; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #7c3aed;'>\ud83d\udd10 Admin</span></div></span><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-end;align-items: center;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='lEQa-7' random-id='cf18e628-26fb-d451-4fac-8d48b62b10cc'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;\ud83d\udc41\ufe0f Preview Cronjob&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-tooltip='&quot;Show last 20 lines of cron_jobs.txt&quot;' data-full-width='false'></marimo-button></marimo-ui-element><marimo-ui-element object-id='lEQa-8' random-id='ed443c58-68d2-7dc6-9f14-070cf4683236'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;\ud83d\udc41\ufe0f Preview Config&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-tooltip='&quot;Show config.yaml&quot;' data-full-width='false'></marimo-button></marimo-ui-element><marimo-ui-element object-id='lEQa-9' random-id='9933e4a5-2f8c-8f47-ea8f-e2f7ca2fc885'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;\ud83d\uddd1\ufe0f Clear log&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-tooltip='&quot;Clear the pre-processing log file&quot;' data-full-width='false'></marimo-button></marimo-ui-element></div></div><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: flex-end;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='lEQa-0' random-id='c8b8d510-1341-331e-b5c2-750437a2120f'><marimo-text data-initial-value='&quot;&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Admin password&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element><marimo-ui-element object-id='lEQa-1' random-id='e1b21784-a970-6e3d-849d-0a419240d834'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Unlock admin&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element></div><div style='pointer-events:none;opacity:0.45'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: center;flex-wrap: nowrap;gap: 1rem'><marimo-ui-element object-id='lEQa-2' random-id='3288fd28-6742-0608-1132-fbcdb0086edd'><marimo-checkbox data-initial-value='false' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Run pre-processing cronjob&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element><marimo-ui-element object-id='lEQa-3' random-id='659a2748-5608-6f0b-55dc-3ee93954e2ec'><marimo-checkbox data-initial-value='false' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Run full loop cronjob&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element></div></div></div><div style='pointer-events:none;opacity:0.45'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='lEQa-4' random-id='f5895f9d-256c-ca7b-e673-29e193b34dc4'><marimo-dropdown data-initial-value='[&quot;config&quot;]' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;config file&lt;/span&gt;&lt;/span&gt;&quot;' data-options='[&quot;config&quot;,&quot;config_debug_jean&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false'></marimo-dropdown></marimo-ui-element></div></div><div style='pointer-events:none;opacity:0.45'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.25rem'><marimo-ui-element object-id='lEQa-5' random-id='7dc25e67-9744-4a2c-a49e-0d79f0903360'><marimo-text data-initial-value='&quot;gAAAAABp3W00OndJ2i7Wua4cdgJGGpm41k6D99obv69QJYhETgN7HtqQnUJm03asmZ9nICHTEo-F5Df--uar-hggNzW2AhuljVuGmFwj1BxU2l6te7MY6FQt7ku1mTDvXM-joyi7Z9RoxVAx8Twz2OPoIKDrXIrvqM2vC6uhfKwyliKENpvjPKEcfzvBkYYjLf2KRtesFnG6r04ruLX-18ivEcAWHlMAb-wihWngJr1G3Ebq-g5TMgXE9C6NRpYhbxLPaABacamwAuE97hmhDxtF5YA7VIxKI1AXit1ZAqlcCwpgrykXJdGRsgbsXSKBQyfdVl9oyb_B9KYeTaVQly47pb3en9ZVgda9yoSXxfDyMyqe1ohqV1gNAjUYw1CKg_X7E-oMdLKV1hU_sdkzqbj-qDcvuAQiRTFsKE_8nAqunz5bVv3V8LnvEASZEOe5L4mSVDxyVc7AEWWWiz66twqEtEQv_L8FGqFVIAMRkGReJvDeqriMZWR1QXgntNZOu27v-TjJhAghaHGR0FJ8ivE18prOnzEDQZzOJ7phF399B-bY90T9SwlGikQSA807vY0lnFhJdCbAJX5BpkEXIJELo38enTps71xiv7iciEvkQA7i1qpklnf4glHET5ZISE1cGJxe3A89QDcaLeEpATZ07DYcPMSicWo-ZOJhTMmchcO39vtRmJe0QT3UnLKchMeMuy3x6QVlBhkhgf8Syh-hWA5wNgjYSj0vFpYGyC74443ygM0MUIJLPMxdOhzDZEEI3Y-ewnZI728UKwMyaFtCXPNLWo293A==&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;EIC token&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='true' data-disabled='true' data-debounce='true'></marimo-text></marimo-ui-element><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-end;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='lEQa-6' random-id='bcbe804e-c6aa-9b43-6131-1de5f16b686e'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;\ud83d\udcbe Save EIC token&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-full-width='false'></marimo-button></marimo-ui-element></div></div></div></div></div></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "9a9d60882ef23e48807768ce23863e9c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "95e449432772d62799c48c0aa4b1a2dd",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
       "code_hash": "66bce156969a62e8e67ec2341bc4fed8",
       "outputs": [
         {
@@ -78,54 +110,8 @@
       "console": []
     },
     {
-      "id": "PKri",
-      "code_hash": "b9f60d917fcdfcba65f0798a7ff12fbd",
-      "outputs": [
-        {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar'\n  in \"/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml\", line 107, column 3",
-          "traceback": null
-        }
-      ],
-      "console": [
-        {
-          "type": "stream",
-          "name": "stderr",
-          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_494090/__marimo__cell_PKri_.py&quot;</span>, line <span class=\"m\">8</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"n\">_cfg_data</span> <span class=\"o\">=</span> <span class=\"n\">_yaml</span><span class=\"o\">.</span><span class=\"n\">safe_load</span><span class=\"p\">(</span><span class=\"n\">_f</span><span class=\"p\">)</span> <span class=\"ow\">or</span> <span class=\"p\">{}</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">125</span>, in <span class=\"n\">safe_load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">load</span><span class=\"p\">(</span><span class=\"n\">stream</span><span class=\"p\">,</span> <span class=\"n\">SafeLoader</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">81</span>, in <span class=\"n\">load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">loader</span><span class=\"o\">.</span><span class=\"n\">get_single_data</span><span class=\"p\">()</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">51</span>, in <span class=\"n\">get_single_data</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_document</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">)</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">60</span>, in <span class=\"n\">construct_document</span>\n<span class=\"w\">    </span><span class=\"k\">for</span> <span class=\"n\">dummy</span> <span class=\"ow\">in</span> <span class=\"n\">generator</span><span class=\"p\">:</span>\n<span class=\"w\">                 </span><span class=\"pm\">^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">408</span>, in <span class=\"n\">construct_yaml_seq</span>\n<span class=\"w\">    </span><span class=\"n\">data</span><span class=\"o\">.</span><span class=\"n\">extend</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_sequence</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">))</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">129</span>, in <span class=\"n\">construct_sequence</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"p\">[</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_object</span><span class=\"p\">(</span><span class=\"n\">child</span><span class=\"p\">,</span> <span class=\"n\">deep</span><span class=\"o\">=</span><span class=\"n\">deep</span><span class=\"p\">)</span>\n<span class=\"w\">            </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">100</span>, in <span class=\"n\">construct_object</span>\n<span class=\"w\">    </span><span class=\"n\">data</span> <span class=\"o\">=</span> <span class=\"n\">constructor</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"p\">,</span> <span class=\"n\">node</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">427</span>, in <span class=\"n\">construct_undefined</span>\n<span class=\"w\">    </span><span class=\"k\">raise</span> <span class=\"n\">ConstructorError</span><span class=\"p\">(</span><span class=\"kc\">None</span><span class=\"p\">,</span> <span class=\"kc\">None</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"s2\">&quot;could not determine a constructor for the tag </span><span class=\"si\">%r</span><span class=\"s2\">&quot;</span> <span class=\"o\">%</span> <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">tag</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">start_mark</span><span class=\"p\">)</span>\n<span class=\"gr\">yaml.constructor.ConstructorError</span>: <span class=\"n\">could not determine a constructor for the tag &#39;tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar&#39;</span>\n<span class=\"x\">  in &quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml&quot;, line 107, column 3</span>\n</pre></div>\n</span>",
-          "mimetype": "application/vnd.marimo+traceback"
-        }
-      ]
-    },
-    {
-      "id": "Xref",
-      "code_hash": "0bcd635bf4112d37ea664ff81f61f6f7",
-      "outputs": [
-        {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
-        }
-      ],
-      "console": []
-    },
-    {
-      "id": "SFPL",
-      "code_hash": "66b9fd1d3a41dc8786ea871f23dc0c5a",
-      "outputs": [
-        {
-          "type": "data",
-          "data": {
-            "text/plain": ""
-          }
-        }
-      ],
-      "console": []
-    },
-    {
       "id": "BYtC",
-      "code_hash": "ec4a53cfaf820f752e116411cca643ac",
+      "code_hash": "b9f60d917fcdfcba65f0798a7ff12fbd",
       "outputs": [
         {
           "type": "data",
@@ -138,20 +124,20 @@
     },
     {
       "id": "RGSE",
-      "code_hash": "3e877eb163c19549be5fadede1152a8c",
+      "code_hash": "0bcd635bf4112d37ea664ff81f61f6f7",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "Kclp",
-      "code_hash": "806819cfa85f7da60a454ae8b5c1e67b",
+      "code_hash": "66b9fd1d3a41dc8786ea871f23dc0c5a",
       "outputs": [
         {
           "type": "data",
@@ -164,7 +150,7 @@
     },
     {
       "id": "emfo",
-      "code_hash": "f4e05159c66b528ff3e9d0a5bb7a8aa1",
+      "code_hash": "ec4a53cfaf820f752e116411cca643ac",
       "outputs": [
         {
           "type": "data",
@@ -177,7 +163,7 @@
     },
     {
       "id": "Hstk",
-      "code_hash": "b3361d3d51987cd359b270092816a49c",
+      "code_hash": "3e877eb163c19549be5fadede1152a8c",
       "outputs": [
         {
           "type": "data",
@@ -190,12 +176,12 @@
     },
     {
       "id": "nWHF",
-      "code_hash": "048d52a2cd2f7010e8d63de36d05aa5d",
+      "code_hash": "806819cfa85f7da60a454ae8b5c1e67b",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<div style='border:1px solid #334155;border-radius:8px;padding:12px;background:linear-gradient(180deg, #111827 0%, #0b1220 100%);color:#e5e7eb;box-shadow:0 10px 24px rgba(0, 0, 0, 0.35)'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>\ud83d\udccb  Starting checklist</span> <span style='font-size: 0.85rem; font-weight: 400; color: #888; text-transform: none;'></span></div></span><marimo-ui-element object-id='nWHF-0' random-id='cceeede7-0936-2c30-a13b-4a0dcf160458'><marimo-checkbox data-initial-value='true' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;The instrument has been configure for HyperCT mode (in the DAS console)&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element><marimo-ui-element object-id='nWHF-1' random-id='06b68c8c-5cbe-f90a-a317-1b33612c6333'><marimo-checkbox data-initial-value='true' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Remote key has been configured by the imaging team (added to config file)&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element><marimo-ui-element object-id='nWHF-2' random-id='c5fafbd6-a53c-0dc5-facc-d2ec2fec46bf'><marimo-checkbox data-initial-value='true' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;pre-processing cronjob running cronjob&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='true'></marimo-checkbox></marimo-ui-element></div></div>"
+            "text/plain": ""
           }
         }
       ],
@@ -203,7 +189,7 @@
     },
     {
       "id": "iLit",
-      "code_hash": "e4c83bece210ca98e8784ac32f9b5686",
+      "code_hash": "f4e05159c66b528ff3e9d0a5bb7a8aa1",
       "outputs": [
         {
           "type": "data",
@@ -216,59 +202,7 @@
     },
     {
       "id": "ZHCJ",
-      "code_hash": "2e13afc3ac31088f2c600220bc20f67c",
-      "outputs": [
-        {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
-        }
-      ],
-      "console": []
-    },
-    {
-      "id": "ROlb",
-      "code_hash": "082eab2b9f697b22cce80ea13a7d3904",
-      "outputs": [
-        {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
-        }
-      ],
-      "console": []
-    },
-    {
-      "id": "qnkX",
-      "code_hash": "d92f19a9fcf17251496c4cb12eb4c6d4",
-      "outputs": [
-        {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
-        }
-      ],
-      "console": []
-    },
-    {
-      "id": "TqIu",
-      "code_hash": "c9bc61a5053087173f723530f6a5815b",
-      "outputs": [
-        {
-          "type": "data",
-          "data": {
-            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><div style='border-left: 4px solid #888; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #555;'>\ud83d\udd12 Debug mode access</span></div></span><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: flex-end;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='TqIu-0' random-id='525c7dff-3cc1-95ab-f28e-c2deaf373307'><marimo-text data-initial-value='&quot;&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Debug mode password&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element><marimo-ui-element object-id='TqIu-1' random-id='fb555996-a29a-94c6-0fcc-232c64feed86'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Unlock debug mode&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element></div></div>"
-          }
-        }
-      ],
-      "console": []
-    },
-    {
-      "id": "Vxnm",
-      "code_hash": "d1444b8d1d06c436632e4d1e2fe2443c",
+      "code_hash": "b3361d3d51987cd359b270092816a49c",
       "outputs": [
         {
           "type": "data",
@@ -280,8 +214,60 @@
       "console": []
     },
     {
+      "id": "ROlb",
+      "code_hash": "048d52a2cd2f7010e8d63de36d05aa5d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='border:1px solid #334155;border-radius:8px;padding:12px;background:linear-gradient(180deg, #111827 0%, #0b1220 100%);color:#e5e7eb;box-shadow:0 10px 24px rgba(0, 0, 0, 0.35)'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>\ud83d\udccb  Starting checklist</span> <span style='font-size: 0.85rem; font-weight: 400; color: #888; text-transform: none;'></span></div></span><marimo-ui-element object-id='ROlb-0' random-id='e45cd90a-5447-07b1-5ca8-4731ac3bc40f'><marimo-checkbox data-initial-value='true' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;The instrument has been configure for HyperCT mode (in the DAS console)&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element><marimo-ui-element object-id='ROlb-1' random-id='5376eb1f-0b1c-4259-e937-ff0ba5cc400f'><marimo-checkbox data-initial-value='true' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Remote key has been configured by the imaging team (added to config file)&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element><marimo-ui-element object-id='ROlb-2' random-id='e41e0a1c-20f8-6c5d-e370-9e89c6238c3e'><marimo-checkbox data-initial-value='false' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;pre-processing cronjob running cronjob&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='true'></marimo-checkbox></marimo-ui-element></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "e4c83bece210ca98e8784ac32f9b5686",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "7e13f14e85cf96a4f991a08182d4c43c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><div style='border-left: 4px solid #2980b9; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #2980b9;'>\u2699\ufe0f Runtime parameters</span> <span style='font-size: 0.85rem; font-weight: 400; color: #888; text-transform: none;'>(fields marked with <span style='color: red;'>\u2731</span> are mandatory)</span></div></span><marimo-ui-element object-id='TqIu-1' random-id='1b0bcdbe-12d0-5d24-0a00-8a4e885f1659'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;New experiment&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-tooltip='&quot;Reset form fields for a new experiment&quot;' data-full-width='false'></marimo-button></marimo-ui-element><span class=\"markdown prose dark:prose-invert contents\"><hr style='border: none; border-top: 1px solid #334155; margin: 4px 0;'></span><div style='pointer-events:none;opacity:0.45'><div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='TqIu-0' random-id='8c7018ee-b0d3-ca41-83b7-6d022bbfea74'><marimo-checkbox data-initial-value='false' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;live (hyperct code will be executed)&lt;/span&gt;&lt;/span&gt;&quot;' data-disabled='false'></marimo-checkbox></marimo-ui-element></div></div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: flex-end;flex-wrap: nowrap;gap: 0.25rem'><marimo-ui-element object-id='TqIu-2' random-id='32b79433-d3c0-16d8-f40d-efb1092c92ad'><marimo-text data-initial-value='&quot;36914&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;IPTS-&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><span style='color: red; font-size: 1.25rem;'>*</span></span></span></div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: flex-end;flex-wrap: nowrap;gap: 0.25rem'><marimo-ui-element object-id='TqIu-3' random-id='6e65b3c0-2eb1-e7fb-82e2-7e68c597ed25'><marimo-text data-initial-value='&quot;&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;sample name (10 chars max)&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><span style='color: red; font-size: 1.25rem;'>*</span></span></span></div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: flex-end;flex-wrap: nowrap;gap: 0.25rem'><marimo-ui-element object-id='TqIu-4' random-id='79c2e0fe-9201-a708-4104-7c2edc8d8f2a'><marimo-text data-initial-value='&quot;&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;sample conditions (10 chars max)&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><span style='color: red; font-size: 1.25rem;'>*</span></span></span></div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='flex: 5'><marimo-ui-element object-id='TqIu-5' random-id='71155b04-5ebb-cfb2-6637-df3643cd087e'><marimo-number data-initial-value='1' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;motor&lt;/span&gt;&lt;/span&gt;&quot;' data-start='1' data-stop='6' data-step='1' data-debounce='false' data-full-width='false' data-disabled='false'></marimo-number></marimo-ui-element></div></div><div style='width:100%'><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: flex-end;flex-wrap: nowrap;gap: 0.5rem'><div style='flex: 1fr'><div style='width:700px;min-width:700px'><marimo-ui-element object-id='TqIu-6' random-id='4f7af20b-2d20-bed2-b363-8664df8321c2'><marimo-text data-initial-value='&quot;&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;description of experiment&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='true' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element></div></div><div style='flex: auto'><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><span style='color: #888; font-size: 0.85rem; font-style: italic;'>Optional</span></span></span></div></div></div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='flex: 10'><marimo-ui-element object-id='TqIu-7' random-id='931e6ed1-fced-4bdf-61ff-336cc8ad98a4'><marimo-number data-initial-value='3' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;nbr of open beams&lt;/span&gt;&lt;/span&gt;&quot;' data-start='1' data-step='1' data-debounce='false' data-full-width='false' data-disabled='false'></marimo-number></marimo-ui-element></div></div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='flex: 10'><marimo-ui-element object-id='TqIu-8' random-id='60cb131d-e5ab-d744-df21-bfc6cbe671d5'><marimo-number data-initial-value='1' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;number of projections at each angle&lt;/span&gt;&lt;/span&gt;&quot;' data-start='1' data-stop='10' data-step='1' data-debounce='false' data-full-width='false' data-disabled='true'></marimo-number></marimo-ui-element></div></div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div style='flex: 10'><marimo-ui-element object-id='TqIu-9' random-id='2afeeada-8d84-e9bc-f35e-a730e5a82cd4'><marimo-number data-initial-value='0.1' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;proton charge (C)&lt;/span&gt;&lt;/span&gt;&quot;' data-start='0.0' data-step='0.01' data-debounce='false' data-full-width='false' data-disabled='false'></marimo-number></marimo-ui-element></div></div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: flex-end;flex-wrap: nowrap;gap: 0.5rem'><div style='width:700px;min-width:700px'><marimo-ui-element object-id='TqIu-10' random-id='bfac3e77-9e78-dd68-5885-00ae9950b887'><marimo-text data-initial-value='&quot;&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;list of initial angles (e.g., 0.0, 90.0, 180.0)&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='true' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element></div><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><span style='color: #888; font-size: 0.85rem; font-style: italic;'>Optional</span></span></span></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "082eab2b9f697b22cce80ea13a7d3904",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='Vxnm-0' random-id='f01e7a0b-ab50-1684-28d1-bdb2c4b74982'><marimo-dropdown data-initial-value='[&quot;20260324_Blue_HDPE_near_alignment_smallrot1_16:39:57.csv&quot;]' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Sample alignment file &lt;span style=&#x27;color: red;&#x27;&gt;\u2731&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&quot;' data-options='[&quot;20260324_Blue_HDPE_near_alignment_smallrot1_16:39:57.csv&quot;,&quot;20260324_G347A_near_alignment_smallrot1_16:26:26.csv&quot;,&quot;20260324_HDPE_mys_near_alignment_smallrot1_16:38:57.csv&quot;,&quot;20260324_HOPG_20x_near_alignment_smallrot1_16:18:06.csv&quot;,&quot;20260324_IG110_near_alignment_smallrot1_16:24:47.csv&quot;,&quot;20260324_MC_HDPE_near_alignment_smallrot1_16:33:59.csv&quot;,&quot;20260324_MC_LDPE_near_alignment_smallrot1_16:31:48.csv&quot;,&quot;20260324_NBG18_near_alignment_smallrot1_16:28:02.csv&quot;,&quot;20260324_Orange_near_alignment_smallrot1_16:36:51.csv&quot;,&quot;20260324_RPI_HDPE_near_alignment_smallrot1_16:42:03.csv&quot;,&quot;20260324_Red_HDPE_near_alignment_smallrot1_16:40:41.csv&quot;,&quot;20260324_TAP_HDPE_near_alignment_smallrot1_16:43:13.csv&quot;,&quot;20260325_HDPEpow_near_alignment_smallrot1_17:51:08.csv&quot;,&quot;20260326_NBG18cm5_far_alignment_smallrot1_09:46:52.csv&quot;,&quot;20260326_OB3rdCORR_far_alignment_smallrot1_09:39:43.csv&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='true'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='Vxnm-1' random-id='b01bf795-60a3-bf50-0fae-5e9cda2591d8'><marimo-dropdown data-initial-value='[]' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Open beam alignment file &lt;span style=&#x27;color: red;&#x27;&gt;\u2731&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&quot;' data-options='[&quot;20260324_Blue_HDPE_near_alignment_smallrot1_16:39:57.csv&quot;,&quot;20260324_G347A_near_alignment_smallrot1_16:26:26.csv&quot;,&quot;20260324_HDPE_mys_near_alignment_smallrot1_16:38:57.csv&quot;,&quot;20260324_HOPG_20x_near_alignment_smallrot1_16:18:06.csv&quot;,&quot;20260324_IG110_near_alignment_smallrot1_16:24:47.csv&quot;,&quot;20260324_MC_HDPE_near_alignment_smallrot1_16:33:59.csv&quot;,&quot;20260324_MC_LDPE_near_alignment_smallrot1_16:31:48.csv&quot;,&quot;20260324_NBG18_near_alignment_smallrot1_16:28:02.csv&quot;,&quot;20260324_Orange_near_alignment_smallrot1_16:36:51.csv&quot;,&quot;20260324_RPI_HDPE_near_alignment_smallrot1_16:42:03.csv&quot;,&quot;20260324_Red_HDPE_near_alignment_smallrot1_16:40:41.csv&quot;,&quot;20260324_TAP_HDPE_near_alignment_smallrot1_16:43:13.csv&quot;,&quot;20260325_HDPEpow_near_alignment_smallrot1_17:51:08.csv&quot;,&quot;20260326_NBG18cm5_far_alignment_smallrot1_09:46:52.csv&quot;,&quot;20260326_OB3rdCORR_far_alignment_smallrot1_09:39:43.csv&quot;]' data-allow-select-none='true' data-searchable='false' data-full-width='true'></marimo-dropdown></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
       "id": "DnEU",
-      "code_hash": "8d754498d96568a31164c4d43dd1d9f5",
+      "code_hash": "d92f19a9fcf17251496c4cb12eb4c6d4",
       "outputs": [
         {
           "type": "data",
@@ -294,6 +280,45 @@
     },
     {
       "id": "ulZA",
+      "code_hash": "c9bc61a5053087173f723530f6a5815b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><div style='border-left: 4px solid #888; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #555;'>\ud83d\udd12 Debug mode access</span></div></span><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: flex-end;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='ulZA-0' random-id='c0717c95-ae1f-434d-1998-ee6667d98748'><marimo-text data-initial-value='&quot;&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Debug mode password&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element><marimo-ui-element object-id='ulZA-1' random-id='ffcff6b5-7ae4-35bd-8439-cae896a2664a'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Lock debug mode&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ecfG",
+      "code_hash": "d1444b8d1d06c436632e4d1e2fe2443c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Pvdt",
+      "code_hash": "8d754498d96568a31164c4d43dd1d9f5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZBYS",
       "code_hash": "e0495495003ccf0b689a68b45f8d6477",
       "outputs": [
         {
@@ -306,61 +331,8 @@
       "console": []
     },
     {
-      "id": "ecfG",
-      "code_hash": "2a8e6e1f05904fa03ec90ae69fb0ccc8",
-      "outputs": [
-        {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar'\n  in \"/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml\", line 107, column 3",
-          "traceback": null
-        }
-      ],
-      "console": [
-        {
-          "type": "stream",
-          "name": "stderr",
-          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_494090/__marimo__cell_ecfG_.py&quot;</span>, line <span class=\"m\">7</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"n\">_init_cfg</span> <span class=\"o\">=</span> <span class=\"n\">_yaml</span><span class=\"o\">.</span><span class=\"n\">safe_load</span><span class=\"p\">(</span><span class=\"n\">_f</span><span class=\"p\">)</span> <span class=\"ow\">or</span> <span class=\"p\">{}</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">125</span>, in <span class=\"n\">safe_load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">load</span><span class=\"p\">(</span><span class=\"n\">stream</span><span class=\"p\">,</span> <span class=\"n\">SafeLoader</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">81</span>, in <span class=\"n\">load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">loader</span><span class=\"o\">.</span><span class=\"n\">get_single_data</span><span class=\"p\">()</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">51</span>, in <span class=\"n\">get_single_data</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_document</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">)</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">60</span>, in <span class=\"n\">construct_document</span>\n<span class=\"w\">    </span><span class=\"k\">for</span> <span class=\"n\">dummy</span> <span class=\"ow\">in</span> <span class=\"n\">generator</span><span class=\"p\">:</span>\n<span class=\"w\">                 </span><span class=\"pm\">^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">408</span>, in <span class=\"n\">construct_yaml_seq</span>\n<span class=\"w\">    </span><span class=\"n\">data</span><span class=\"o\">.</span><span class=\"n\">extend</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_sequence</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">))</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">129</span>, in <span class=\"n\">construct_sequence</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"p\">[</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_object</span><span class=\"p\">(</span><span class=\"n\">child</span><span class=\"p\">,</span> <span class=\"n\">deep</span><span class=\"o\">=</span><span class=\"n\">deep</span><span class=\"p\">)</span>\n<span class=\"w\">            </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">100</span>, in <span class=\"n\">construct_object</span>\n<span class=\"w\">    </span><span class=\"n\">data</span> <span class=\"o\">=</span> <span class=\"n\">constructor</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"p\">,</span> <span class=\"n\">node</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">427</span>, in <span class=\"n\">construct_undefined</span>\n<span class=\"w\">    </span><span class=\"k\">raise</span> <span class=\"n\">ConstructorError</span><span class=\"p\">(</span><span class=\"kc\">None</span><span class=\"p\">,</span> <span class=\"kc\">None</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"s2\">&quot;could not determine a constructor for the tag </span><span class=\"si\">%r</span><span class=\"s2\">&quot;</span> <span class=\"o\">%</span> <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">tag</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">start_mark</span><span class=\"p\">)</span>\n<span class=\"gr\">yaml.constructor.ConstructorError</span>: <span class=\"n\">could not determine a constructor for the tag &#39;tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar&#39;</span>\n<span class=\"x\">  in &quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml&quot;, line 107, column 3</span>\n</pre></div>\n</span>",
-          "mimetype": "application/vnd.marimo+traceback"
-        }
-      ]
-    },
-    {
-      "id": "Pvdt",
-      "code_hash": "bddfa69c18c5c29ea3843e98bce37e90",
-      "outputs": [
-        {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar'\n  in \"/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml\", line 107, column 3",
-          "traceback": null
-        }
-      ],
-      "console": [
-        {
-          "type": "stream",
-          "name": "stderr",
-          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_494090/__marimo__cell_Pvdt_.py&quot;</span>, line <span class=\"m\">7</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"n\">_init_cfg</span> <span class=\"o\">=</span> <span class=\"n\">_yaml</span><span class=\"o\">.</span><span class=\"n\">safe_load</span><span class=\"p\">(</span><span class=\"n\">_f</span><span class=\"p\">)</span> <span class=\"ow\">or</span> <span class=\"p\">{}</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">125</span>, in <span class=\"n\">safe_load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">load</span><span class=\"p\">(</span><span class=\"n\">stream</span><span class=\"p\">,</span> <span class=\"n\">SafeLoader</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">81</span>, in <span class=\"n\">load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">loader</span><span class=\"o\">.</span><span class=\"n\">get_single_data</span><span class=\"p\">()</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">51</span>, in <span class=\"n\">get_single_data</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_document</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">)</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">60</span>, in <span class=\"n\">construct_document</span>\n<span class=\"w\">    </span><span class=\"k\">for</span> <span class=\"n\">dummy</span> <span class=\"ow\">in</span> <span class=\"n\">generator</span><span class=\"p\">:</span>\n<span class=\"w\">                 </span><span class=\"pm\">^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">408</span>, in <span class=\"n\">construct_yaml_seq</span>\n<span class=\"w\">    </span><span class=\"n\">data</span><span class=\"o\">.</span><span class=\"n\">extend</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_sequence</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">))</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">129</span>, in <span class=\"n\">construct_sequence</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"p\">[</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_object</span><span class=\"p\">(</span><span class=\"n\">child</span><span class=\"p\">,</span> <span class=\"n\">deep</span><span class=\"o\">=</span><span class=\"n\">deep</span><span class=\"p\">)</span>\n<span class=\"w\">            </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">100</span>, in <span class=\"n\">construct_object</span>\n<span class=\"w\">    </span><span class=\"n\">data</span> <span class=\"o\">=</span> <span class=\"n\">constructor</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"p\">,</span> <span class=\"n\">node</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">427</span>, in <span class=\"n\">construct_undefined</span>\n<span class=\"w\">    </span><span class=\"k\">raise</span> <span class=\"n\">ConstructorError</span><span class=\"p\">(</span><span class=\"kc\">None</span><span class=\"p\">,</span> <span class=\"kc\">None</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"s2\">&quot;could not determine a constructor for the tag </span><span class=\"si\">%r</span><span class=\"s2\">&quot;</span> <span class=\"o\">%</span> <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">tag</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">start_mark</span><span class=\"p\">)</span>\n<span class=\"gr\">yaml.constructor.ConstructorError</span>: <span class=\"n\">could not determine a constructor for the tag &#39;tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar&#39;</span>\n<span class=\"x\">  in &quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml&quot;, line 107, column 3</span>\n</pre></div>\n</span>",
-          "mimetype": "application/vnd.marimo+traceback"
-        }
-      ]
-    },
-    {
-      "id": "ZBYS",
-      "code_hash": "2e65d3d7c838bc87c1c7ad998752ed08",
-      "outputs": [
-        {
-          "type": "data",
-          "data": {
-            "text/plain": ""
-          }
-        }
-      ],
-      "console": []
-    },
-    {
       "id": "aLJB",
-      "code_hash": "21311cd562c373225ba6d0c361398e4e",
+      "code_hash": "2a8e6e1f05904fa03ec90ae69fb0ccc8",
       "outputs": [
         {
           "type": "data",
@@ -373,7 +345,7 @@
     },
     {
       "id": "nHfw",
-      "code_hash": "1eb6b653e821e5563fa77430eadfb8b9",
+      "code_hash": "bddfa69c18c5c29ea3843e98bce37e90",
       "outputs": [
         {
           "type": "data",
@@ -386,7 +358,7 @@
     },
     {
       "id": "xXTn",
-      "code_hash": "a9e6f24f00655546962c2e95a88e9fd1",
+      "code_hash": "2e65d3d7c838bc87c1c7ad998752ed08",
       "outputs": [
         {
           "type": "data",
@@ -399,7 +371,7 @@
     },
     {
       "id": "AjVT",
-      "code_hash": "bf11e01289689bd79ce2ba8884f30680",
+      "code_hash": "21311cd562c373225ba6d0c361398e4e",
       "outputs": [
         {
           "type": "data",
@@ -412,7 +384,7 @@
     },
     {
       "id": "pHFh",
-      "code_hash": "b185346395780db3e729995a612db0be",
+      "code_hash": "1eb6b653e821e5563fa77430eadfb8b9",
       "outputs": [
         {
           "type": "data",
@@ -425,7 +397,7 @@
     },
     {
       "id": "NCOB",
-      "code_hash": "7d3aa9a8ebab19155e9850a690a0df51",
+      "code_hash": "a9e6f24f00655546962c2e95a88e9fd1",
       "outputs": [
         {
           "type": "data",
@@ -438,20 +410,20 @@
     },
     {
       "id": "aqbW",
-      "code_hash": "3cc3d313464f7a102f0c39783398c119",
+      "code_hash": "bf11e01289689bd79ce2ba8884f30680",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "TRpd",
-      "code_hash": "741ede02cfd611c7c5e4b83b0ddff924",
+      "code_hash": "b185346395780db3e729995a612db0be",
       "outputs": [
         {
           "type": "data",
@@ -464,27 +436,20 @@
     },
     {
       "id": "TXez",
-      "code_hash": "20f87e21bd3133b002c19543b17683f4",
+      "code_hash": "7d3aa9a8ebab19155e9850a690a0df51",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar'\n  in \"/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml\", line 107, column 3",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
-      "console": [
-        {
-          "type": "stream",
-          "name": "stderr",
-          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_494090/__marimo__cell_TXez_.py&quot;</span>, line <span class=\"m\">8</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"n\">_cfg_data</span> <span class=\"o\">=</span> <span class=\"n\">_yaml</span><span class=\"o\">.</span><span class=\"n\">safe_load</span><span class=\"p\">(</span><span class=\"n\">_f</span><span class=\"p\">)</span> <span class=\"ow\">or</span> <span class=\"p\">{}</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">125</span>, in <span class=\"n\">safe_load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">load</span><span class=\"p\">(</span><span class=\"n\">stream</span><span class=\"p\">,</span> <span class=\"n\">SafeLoader</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">81</span>, in <span class=\"n\">load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">loader</span><span class=\"o\">.</span><span class=\"n\">get_single_data</span><span class=\"p\">()</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">51</span>, in <span class=\"n\">get_single_data</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_document</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">)</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">60</span>, in <span class=\"n\">construct_document</span>\n<span class=\"w\">    </span><span class=\"k\">for</span> <span class=\"n\">dummy</span> <span class=\"ow\">in</span> <span class=\"n\">generator</span><span class=\"p\">:</span>\n<span class=\"w\">                 </span><span class=\"pm\">^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">408</span>, in <span class=\"n\">construct_yaml_seq</span>\n<span class=\"w\">    </span><span class=\"n\">data</span><span class=\"o\">.</span><span class=\"n\">extend</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_sequence</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">))</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">129</span>, in <span class=\"n\">construct_sequence</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"p\">[</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_object</span><span class=\"p\">(</span><span class=\"n\">child</span><span class=\"p\">,</span> <span class=\"n\">deep</span><span class=\"o\">=</span><span class=\"n\">deep</span><span class=\"p\">)</span>\n<span class=\"w\">            </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">100</span>, in <span class=\"n\">construct_object</span>\n<span class=\"w\">    </span><span class=\"n\">data</span> <span class=\"o\">=</span> <span class=\"n\">constructor</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"p\">,</span> <span class=\"n\">node</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">427</span>, in <span class=\"n\">construct_undefined</span>\n<span class=\"w\">    </span><span class=\"k\">raise</span> <span class=\"n\">ConstructorError</span><span class=\"p\">(</span><span class=\"kc\">None</span><span class=\"p\">,</span> <span class=\"kc\">None</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"s2\">&quot;could not determine a constructor for the tag </span><span class=\"si\">%r</span><span class=\"s2\">&quot;</span> <span class=\"o\">%</span> <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">tag</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">start_mark</span><span class=\"p\">)</span>\n<span class=\"gr\">yaml.constructor.ConstructorError</span>: <span class=\"n\">could not determine a constructor for the tag &#39;tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar&#39;</span>\n<span class=\"x\">  in &quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml&quot;, line 107, column 3</span>\n</pre></div>\n</span>",
-          "mimetype": "application/vnd.marimo+traceback"
-        }
-      ]
+      "console": []
     },
     {
       "id": "dNNg",
-      "code_hash": "bff773c337702c3233deef7d88df1b1f",
+      "code_hash": "d1afcb550290e338ed81aa690af5675e",
       "outputs": [
         {
           "type": "data",
@@ -497,105 +462,98 @@
     },
     {
       "id": "yCnT",
-      "code_hash": "6eb3facc2d79b1752d5b6784344d378d",
+      "code_hash": "3cc3d313464f7a102f0c39783398c119",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar'\n  in \"/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml\", line 107, column 3",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
-      "console": [
-        {
-          "type": "stream",
-          "name": "stderr",
-          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_494090/__marimo__cell_yCnT_.py&quot;</span>, line <span class=\"m\">7</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"n\">_cfg_data</span> <span class=\"o\">=</span> <span class=\"n\">_yaml</span><span class=\"o\">.</span><span class=\"n\">safe_load</span><span class=\"p\">(</span><span class=\"n\">_f</span><span class=\"p\">)</span> <span class=\"ow\">or</span> <span class=\"p\">{}</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">125</span>, in <span class=\"n\">safe_load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">load</span><span class=\"p\">(</span><span class=\"n\">stream</span><span class=\"p\">,</span> <span class=\"n\">SafeLoader</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/__init__.py&quot;</span>, line <span class=\"m\">81</span>, in <span class=\"n\">load</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"n\">loader</span><span class=\"o\">.</span><span class=\"n\">get_single_data</span><span class=\"p\">()</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">51</span>, in <span class=\"n\">get_single_data</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_document</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">)</span>\n<span class=\"w\">           </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">60</span>, in <span class=\"n\">construct_document</span>\n<span class=\"w\">    </span><span class=\"k\">for</span> <span class=\"n\">dummy</span> <span class=\"ow\">in</span> <span class=\"n\">generator</span><span class=\"p\">:</span>\n<span class=\"w\">                 </span><span class=\"pm\">^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">408</span>, in <span class=\"n\">construct_yaml_seq</span>\n<span class=\"w\">    </span><span class=\"n\">data</span><span class=\"o\">.</span><span class=\"n\">extend</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_sequence</span><span class=\"p\">(</span><span class=\"n\">node</span><span class=\"p\">))</span>\n<span class=\"w\">                </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~~~^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">129</span>, in <span class=\"n\">construct_sequence</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"p\">[</span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">construct_object</span><span class=\"p\">(</span><span class=\"n\">child</span><span class=\"p\">,</span> <span class=\"n\">deep</span><span class=\"o\">=</span><span class=\"n\">deep</span><span class=\"p\">)</span>\n<span class=\"w\">            </span><span class=\"pm\">~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">100</span>, in <span class=\"n\">construct_object</span>\n<span class=\"w\">    </span><span class=\"n\">data</span> <span class=\"o\">=</span> <span class=\"n\">constructor</span><span class=\"p\">(</span><span class=\"bp\">self</span><span class=\"p\">,</span> <span class=\"n\">node</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/.pixi/envs/default/lib/python3.14/site-packages/yaml/constructor.py&quot;</span>, line <span class=\"m\">427</span>, in <span class=\"n\">construct_undefined</span>\n<span class=\"w\">    </span><span class=\"k\">raise</span> <span class=\"n\">ConstructorError</span><span class=\"p\">(</span><span class=\"kc\">None</span><span class=\"p\">,</span> <span class=\"kc\">None</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"s2\">&quot;could not determine a constructor for the tag </span><span class=\"si\">%r</span><span class=\"s2\">&quot;</span> <span class=\"o\">%</span> <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">tag</span><span class=\"p\">,</span>\n<span class=\"w\">    </span>        <span class=\"n\">node</span><span class=\"o\">.</span><span class=\"n\">start_mark</span><span class=\"p\">)</span>\n<span class=\"gr\">yaml.constructor.ConstructorError</span>: <span class=\"n\">could not determine a constructor for the tag &#39;tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar&#39;</span>\n<span class=\"x\">  in &quot;/gpfs/neutronsfs/instruments/VENUS/shared/software/git/hype_scripts/configs/config.yaml&quot;, line 107, column 3</span>\n</pre></div>\n</span>",
-          "mimetype": "application/vnd.marimo+traceback"
-        }
-      ]
+      "console": []
     },
     {
       "id": "wlCL",
-      "code_hash": "f3fb931e7c31373f1831f4c032de571e",
+      "code_hash": "741ede02cfd611c7c5e4b83b0ddff924",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "kqZH",
-      "code_hash": "4e12ffade34a2622d09f1c8dd0eae4ba",
+      "code_hash": "20f87e21bd3133b002c19543b17683f4",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "wAgl",
-      "code_hash": "4f9a94bcbd79275a086a6c0647467ba3",
+      "code_hash": "bff773c337702c3233deef7d88df1b1f",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "rEll",
-      "code_hash": "3b50b3b9a9101702fbfe58744979a46f",
+      "code_hash": "6eb3facc2d79b1752d5b6784344d378d",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "dGlV",
-      "code_hash": "19f2eaab08966a527fce6f6c8337d2d1",
+      "code_hash": "f3fb931e7c31373f1831f4c032de571e",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><div style='border-left: 4px solid #e67e22; padding: 4px 12px; margin-bottom: 4px;'><span style='font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #e67e22;'>\ud83d\udee0 Imaging team controls</span></div></span><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='dGlV-0' random-id='60284c2a-bdb4-c6d6-ba9f-2de688492156'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Create 0degree projection&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element><marimo-ui-element object-id='dGlV-1' random-id='80952de8-c9c7-059d-f627-6a4cd6ba8a21'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Create 180\u00b0 projection&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element></div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='dGlV-2' random-id='a8a50465-c439-14b1-275c-c22dd57cc088'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Create OB #1&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element><marimo-ui-element object-id='dGlV-3' random-id='6085cee2-6c11-328b-82b1-8bd65c2449c7'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Create OB #2&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element><marimo-ui-element object-id='dGlV-4' random-id='ae77d220-b31f-412f-56d9-840e5fec38f4'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Create OB #3&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element></div></div>"
+          }
         }
       ],
       "console": []
     },
     {
       "id": "SdmI",
-      "code_hash": "4ccadef9ffce580dcbf18bda2047c89d",
+      "code_hash": "4e12ffade34a2622d09f1c8dd0eae4ba",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-callout-output data-html='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;&lt;strong&gt;Missing parameters:&lt;/strong&gt;&lt;/span&gt;&#92;n&lt;ul&gt;&#92;n&lt;li&gt;sample name&lt;/li&gt;&#92;n&lt;li&gt;sample conditions&lt;/li&gt;&#92;n&lt;li&gt;open beam alignment file&lt;/li&gt;&#92;n&lt;/ul&gt;&lt;/span&gt;&quot;' data-kind='&quot;warn&quot;'></marimo-callout-output><marimo-ui-element object-id='SdmI-0' random-id='e225cbb2-2216-512c-8527-06ccac327adb'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Start open beams, 0\u00b0 and 180\u00b0 projections&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-full-width='true'></marimo-button></marimo-ui-element></div>"
+          }
         }
       ],
       "console": []
     },
     {
       "id": "lgWD",
-      "code_hash": "aa351c94e995f48f47e55a0abd16e828",
+      "code_hash": "4f9a94bcbd79275a086a6c0647467ba3",
       "outputs": [
         {
           "type": "data",
@@ -608,104 +566,156 @@
     },
     {
       "id": "yOPj",
-      "code_hash": "5170b7a384344de36048180bf8df216a",
+      "code_hash": "3b50b3b9a9101702fbfe58744979a46f",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "fwwy",
-      "code_hash": "7866ad643dd66f9a399fb7ee2b921f1a",
+      "code_hash": "19f2eaab08966a527fce6f6c8337d2d1",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "LJZf",
-      "code_hash": "7048a1aff75a2e0a5d67f38088485011",
+      "code_hash": "4ccadef9ffce580dcbf18bda2047c89d",
       "outputs": [
         {
           "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
         }
       ],
       "console": []
     },
     {
       "id": "urSm",
-      "code_hash": "cc1beb60f52623147c8e980201555228",
+      "code_hash": "aa351c94e995f48f47e55a0abd16e828",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "jxvo",
-      "code_hash": "1354c614faaebbad10c81cefa0ecddea",
+      "code_hash": "5170b7a384344de36048180bf8df216a",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "mWxS",
-      "code_hash": "4e27824e02b93eebf178916169dc142f",
+      "code_hash": "7866ad643dd66f9a399fb7ee2b921f1a",
       "outputs": [
         {
           "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
         }
       ],
       "console": []
     },
     {
       "id": "CcZR",
-      "code_hash": "ad9585fa215471833b7805c27e6df415",
+      "code_hash": "7048a1aff75a2e0a5d67f38088485011",
       "outputs": [
         {
-          "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
         }
       ],
       "console": []
     },
     {
       "id": "YWSi",
+      "code_hash": "cc1beb60f52623147c8e980201555228",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "zlud",
+      "code_hash": "1354c614faaebbad10c81cefa0ecddea",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "tZnO",
+      "code_hash": "4e27824e02b93eebf178916169dc142f",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "xvXZ",
+      "code_hash": "ad9585fa215471833b7805c27e6df415",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "CLip",
       "code_hash": "dc771dd933693276d0426d1e715ecd34",
       "outputs": [
         {
           "type": "error",
-          "ename": "exception",
-          "evalue": "An ancestor raised an exception (ConstructorError): ",
-          "traceback": null
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
         }
       ],
       "console": []
